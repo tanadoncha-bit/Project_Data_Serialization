@@ -5,8 +5,6 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-require('dotenv').config();
-
 const connectDB = require('./config/db');
 
 var indexRouter = require('./routes/index');
@@ -14,13 +12,9 @@ var usersRouter = require('./routes/users');
 var chefRouter = require('./routes/chef');
 
 var app = express();
-require('mongoose').connect(process.env.MONGODB_URI)
-  .then(m => console.log('MongoDB connected:', m.connection.name))
-  .catch(err => { console.error('MongoDB connection failed:', err.message); process.exit(1); });
-
-
 
 connectDB();
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -54,4 +48,3 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
-
