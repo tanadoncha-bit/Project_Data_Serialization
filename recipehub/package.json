@@ -2,7 +2,7 @@
   "name": "recipehub",
   "version": "0.0.0",
   "private": true,
-    "scripts": {
+  "scripts": {
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www"
   },
