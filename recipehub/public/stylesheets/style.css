@@ -1,6 +1,9 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+/* ระยะขอบของเนื้อหาแต่ละหน้า (ไม่รวม navbar/footer) */
+main {
+  width: 100%;
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: 40px 32px;
 }
 
 a {

@@ -1,0 +1,55 @@
+<%# Footer: ใช้ร่วมกันทุกหน้า และสั่งวาดไอคอน Lucide ทั้งหน้า %>
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="nav-brand">
+        <span class="logo-box"><i data-lucide="chef-hat"></i></span>
+        <span>RecipeHub</span>
+      </a>
+      <p>เพราะการทำอาหารคือความสุข<br>เริ่มต้นได้ที่นี่</p>
+      <div class="footer-social">
+        <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+        <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+        <a href="#" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+        <a href="#" aria-label="TikTok"><i class="bi bi-tiktok"></i></a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>คอร์สเรียน</h4>
+      <a href="#">อาหารไทย</a>
+      <a href="#">อาหารนานาชาติ</a>
+      <a href="#">เบเกอรี่ &amp; ขนมหวาน</a>
+      <a href="#">อาหารเพื่อสุขภาพ</a>
+      <a href="#">เทคนิคการทำอาหาร</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>เกี่ยวกับเรา</h4>
+      <a href="#">ทีมงาน</a>
+      <a href="#">ร่วมงานกับเรา</a>
+      <a href="#">ข่าวสาร</a>
+      <a href="#">ติดต่อเรา</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>ช่วยเหลือ</h4>
+      <a href="#">คำถามที่พบบ่อย</a>
+      <a href="#">วิธีการใช้งาน</a>
+      <a href="#">นโยบายความเป็นส่วนตัว</a>
+      <a href="#">ข้อกำหนดการใช้งาน</a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© <%= new Date().getFullYear() %> RecipeHub. All rights reserved.</span>
+    <span>Good Food &nbsp; Better You <i data-lucide="sprout" class="sprout"></i></span>
+  </div>
+</footer>
+
+<script>
+  // แปลงทุก <i data-lucide="..."> ในหน้าให้เป็นไอคอน SVG
+  lucide.createIcons();
+</script>
+
+<script src="/javascripts/navbar.js"></script>

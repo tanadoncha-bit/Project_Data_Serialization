@@ -1,0 +1,373 @@
+/* =========================================================
+   layout.css — สไตล์ส่วนที่ใช้ร่วมกันทุกหน้า (navbar + footer)
+   ========================================================= */
+
+/* ---------- ตัวแปรสี/ขนาด ใช้ทั้งไฟล์ ---------- */
+:root {
+  --orange: #F26B2A;
+  --orange-soft: #FFF4EC;
+  --red-dot: #D7263D;
+  --text: #1A1A1A;
+  --text-muted: #6B6B6B;
+  --footer-bg: #121212;
+  --footer-text: #B5B5B5;
+  --footer-line: #2A2A2A;
+  --green: #7BC043;
+  --nav-height: 80px;
+  --page-width: 1520px;
+}
+
+/* ---------- พื้นฐานของทุกหน้า ---------- */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Prompt', sans-serif;
+  color: var(--text);
+  background: #fff;
+  /* ให้ footer อยู่ล่างสุดเสมอ แม้เนื้อหาจะสั้น */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main { flex: 1; }
+
+a { color: inherit; text-decoration: none; }
+
+/* ไอคอน Lucide ทุกตัว: ขนาดเริ่มต้น + สีตามข้อความ */
+[data-lucide], .lucide {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2;
+}
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+.navbar {
+  position: sticky;           /* ติดอยู่ด้านบนตอนเลื่อนหน้า */
+  top: 0;
+  z-index: 100;
+  height: var(--nav-height);
+  padding: 0 32px;
+  background: #fff;
+  border-bottom: 1px solid #EEE;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;   /* ซ้าย | กลาง | ขวา */
+  align-items: center;
+}
+
+/* ---------- โลโก้ + ชื่อเว็บ ---------- */
+.nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 30px;
+  font-weight: 600;
+  justify-self: start;
+}
+
+.logo-box {
+  width: 48px;
+  height: 48px;
+  background: var(--orange);
+  color: #fff;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-box svg { width: 28px; height: 28px; }
+
+/* ---------- เมนูกลาง ---------- */
+.nav-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 48px;
+  height: 100%;
+}
+
+.nav-menu li { height: 100%; }
+
+.nav-menu a {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  color: var(--text);
+  transition: color 0.2s;
+}
+
+.nav-menu a:hover { color: var(--orange); }
+
+/* เมนูที่เลือกอยู่: ตัวส้ม + เส้นส้มด้านล่าง */
+.nav-menu a.active {
+  color: var(--orange);
+  font-weight: 500;
+}
+
+.nav-menu a.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--orange);
+}
+
+/* ---------- ด้านขวา: กระดิ่ง + โปรไฟล์ ---------- */
+.nav-actions {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.nav-bell {
+  position: relative;
+  padding: 4px;
+  background: none;
+  border: 0;
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+}
+
+.nav-bell svg { width: 28px; height: 28px; }
+
+/* จุดแดงแจ้งเตือน */
+.badge-dot {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  width: 9px;
+  height: 9px;
+  background: var(--red-dot);
+  border: 2px solid #fff;
+  border-radius: 50%;
+}
+
+.nav-avatar {
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--orange);
+  border-radius: 50%;
+  background: var(--orange-soft);
+  color: var(--orange);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.nav-avatar:hover { background: #FFE6D6; }
+.nav-avatar svg { width: 32px; height: 32px; }
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+.footer {
+  background: var(--footer-bg);
+  color: var(--footer-text);
+  padding: 64px 32px 48px;
+}
+
+.footer-top,
+.footer-bottom {
+  max-width: var(--page-width);
+  margin: 0 auto;
+}
+
+/* 4 คอลัมน์: แบรนด์กว้างกว่า 3 คอลัมน์ลิงก์ */
+.footer-top {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 40px;
+  padding-bottom: 56px;
+  border-bottom: 1px solid var(--footer-line);
+}
+
+/* ---------- คอลัมน์แบรนด์ ---------- */
+.footer-brand .nav-brand {
+  color: #fff;
+  font-size: 32px;
+}
+
+.footer-brand .logo-box {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+}
+
+.footer-brand .logo-box svg { width: 34px; height: 34px; }
+
+.footer-brand p {
+  margin: 28px 0;
+  font-size: 17px;
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+.footer-social {
+  display: flex;
+  gap: 32px;
+  font-size: 26px;
+}
+
+.footer-social a { transition: color 0.2s; }
+.footer-social a:hover { color: #fff; }
+
+/* ---------- คอลัมน์ลิงก์ ---------- */
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer-col h4 {
+  margin: 0 0 12px;
+  color: #fff;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.footer-col a {
+  font-size: 16px;
+  font-weight: 300;
+  transition: color 0.2s;
+}
+
+.footer-col a:hover { color: var(--orange); }
+
+/* ---------- แถบล่างสุด ---------- */
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 36px;
+  font-size: 15px;
+}
+
+.footer-bottom span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer-bottom .sprout,
+.footer-bottom svg {
+  width: 20px;
+  height: 20px;
+  color: var(--green);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+/* แท็บเล็ต: footer เหลือ 2 คอลัมน์ */
+@media (max-width: 1024px) {
+  .nav-menu { gap: 28px; }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+}
+
+/* มือถือ: เมนูลงไปแถวล่าง, footer เหลือคอลัมน์เดียว */
+@media (max-width: 720px) {
+  .navbar {
+    height: auto;
+    padding: 12px 16px 0;
+    grid-template-columns: 1fr auto;
+    row-gap: 8px;
+  }
+
+  .nav-brand { font-size: 22px; }
+  .logo-box { width: 40px; height: 40px; }
+
+  .nav-menu {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    gap: 20px;
+    height: 48px;
+    overflow-x: auto;
+  }
+
+  .nav-menu a { font-size: 15px; white-space: nowrap; }
+  .nav-menu a.active::after { bottom: 0; }
+
+  .nav-actions { gap: 16px; }
+  .nav-avatar { width: 44px; height: 44px; }
+
+  .footer { padding: 48px 16px 32px; }
+  .footer-top { grid-template-columns: 1fr; }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+}
+
+/* =========================================================
+   PROFILE DROPDOWN
+   ========================================================= */
+.nav-profile { position: relative; }
+
+/* ปุ่มโปรไฟล์เป็น button แล้ว ต้องล้างสไตล์ปุ่มของเบราว์เซอร์ */
+button.nav-avatar { cursor: pointer; padding: 0; font: inherit; }
+
+.profile-menu {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  width: 220px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #EEE;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  z-index: 200;
+
+  /* ซ่อนไว้ก่อน */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+}
+
+/* ตอนเปิด (JS เติมคลาส .open) */
+.profile-menu.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.profile-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 16px;
+  color: var(--text);
+  transition: background 0.15s;
+}
+
+.profile-item:hover { background: #F6F6F6; }
+.profile-item svg { width: 22px; height: 22px; }
+
+.profile-divider {
+  margin: 8px 0;
+  border: 0;
+  border-top: 1px solid #EEE;
+}
+
+.profile-item.logout { color: #E5484D; }
+.profile-item.logout:hover { background: #FDECEC; }
