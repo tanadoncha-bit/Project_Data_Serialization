@@ -2,23 +2,84 @@
 <html lang="th">
 <head>
   <%- include('../partials/head', { title }) %>
+  <link rel="stylesheet" href="/stylesheets/profile.css">
 </head>
 <body>
   <%- include('../partials/navbar', { active }) %>
 
-  <main>
-    <h1>โปรไฟล์ของฉัน</h1>
+  <main class="profile-page">
 
-    <section class="profile-card">
-      <div class="profile-avatar"><i data-lucide="user"></i></div>
-      <div>
-        <h2><%= user.name %></h2>
-        <p><%= user.email %></p>
-        <p><%= user.bio %></p>
+    <% if (saved) { %>
+      <div class="alert-success">
+        <i data-lucide="circle-check"></i> บันทึกการแก้ไขเรียบร้อยแล้ว
       </div>
+    <% } %>
+
+    <!-- ===== การ์ดหัวโปรไฟล์ ===== -->
+    <section class="card profile-header">
+      <div class="avatar-wrap">
+        <div class="avatar-circle">
+          <img id="avatarPreview" src="<%= user.avatar %>" alt="รูปโปรไฟล์"
+               <%= user.avatar ? '' : 'hidden' %>>
+          <i data-lucide="user" id="avatarPlaceholder" class="avatar-placeholder"
+             <%= user.avatar ? 'hidden' : '' %>></i>
+        </div>
+        <label for="avatarInput" class="avatar-camera" aria-label="เปลี่ยนรูปโปรไฟล์">
+          <i data-lucide="camera"></i>
+        </label>
+        <input type="file" id="avatarInput" name="avatar" accept="image/*" hidden>
+      </div>
+
+      <div class="profile-info">
+        <h1>เชฟ<%= user.firstName %> <%= user.lastName %></h1>
+        <a href="mailto:<%= user.email %>" class="profile-email"><%= user.email %></a>
+        <p class="profile-sub"><%= user.institution || 'ยังไม่ได้ระบุสถาบัน' %></p>
+      </div>
+    </section>
+
+    <!-- ===== ฟอร์มข้อมูลส่วนตัว ===== -->
+    <section class="card">
+      <h2 class="card-title">ข้อมูลส่วนตัว</h2>
+
+      <form action="/chef/profile" method="POST" class="profile-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="firstName">ชื่อ</label>
+            <input type="text" id="firstName" name="firstName"
+                   value="<%= user.firstName %>" required>
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">นามสกุล</label>
+            <input type="text" id="lastName" name="lastName"
+                   value="<%= user.lastName %>" required>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email"
+                   value="<%= user.email %>" required>
+          </div>
+
+          <div class="form-group">
+            <label for="institution">สถาบันการศึกษา / สถาบันทำอาหารที่จบมา</label>
+            <input type="text" id="institution" name="institution"
+                   value="<%= user.institution %>">
+          </div>
+
+          <div class="form-group full">
+            <label for="bio">แนะนำตัว</label>
+            <textarea id="bio" name="bio" rows="4" maxlength="300"><%= user.bio %></textarea>
+            <span class="char-count"><span id="bioCount">0</span>/300</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary">บันทึกการแก้ไข</button>
+      </form>
     </section>
   </main>
 
   <%- include('../partials/footer') %>
+  <script src="/javascripts/profile.js"></script>
 </body>
 </html>
