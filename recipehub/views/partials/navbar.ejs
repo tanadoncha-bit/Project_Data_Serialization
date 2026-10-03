@@ -1,0 +1,38 @@
+<%# Navbar: ใช้ร่วมกันทุกหน้า | active = ชื่อเมนูที่ต้องการไฮไลต์ %>
+<% const current = typeof active !== 'undefined' ? active : ''; %>
+<nav class="navbar">
+  <a href="#" class="nav-brand">
+    <span class="logo-box"><i data-lucide="chef-hat"></i></span>
+    <span>RecipeHub</span>
+  </a>
+
+  <ul class="nav-menu">
+    <li><a href="/chef/dashboard" class="<%= current === 'dashboard' ? 'active' : '' %>">Dashboard</a></li>
+    <li><a href="/chef/courses"   class="<%= current === 'courses'   ? 'active' : '' %>">จัดการคอร์ส</a></li>
+    <li><a href="/chef/recipes"   class="<%= current === 'recipes'   ? 'active' : '' %>">จัดการสูตรอาหาร</a></li>
+  </ul>
+
+  <div class="nav-actions">
+    <button class="nav-bell" aria-label="การแจ้งเตือน">
+      <i data-lucide="bell"></i>
+      <span class="badge-dot"></span>
+    </button>
+    <!-- โปรไฟล์ + เมนูป๊อปอัพ -->
+    <div class="nav-profile">
+      <button class="nav-avatar" id="profileToggle"
+              aria-label="เมนูโปรไฟล์" aria-haspopup="true" aria-expanded="false">
+        <i data-lucide="user"></i>
+      </button>
+
+      <div class="profile-menu" id="profileMenu" role="menu">
+        <a href="/chef/profile" class="profile-item" role="menuitem">
+          <i data-lucide="user"></i> My Profile
+        </a>
+        <hr class="profile-divider">
+        <a href="/logout" class="profile-item logout" role="menuitem">
+          <i data-lucide="log-out"></i> Log Out
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
