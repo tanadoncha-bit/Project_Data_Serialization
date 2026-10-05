@@ -1,15 +1,24 @@
+require('dotenv').config();
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+const connectDB = require('./config/db');
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var chefRouter = require('./routes/chef');
 var homepageRouter = require('./routes/homepage');
+var chefRecipesRouter = require('./routes/chefRecipes');
+var recipesRouter = require('./routes/recipes');
+var mealsRouter = require('./routes/meals');
+
 
 var app = express();
+
+connectDB();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -25,6 +34,9 @@ app.use('/bootstrap', express.static(
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/chef/recipes', chefRecipesRouter);
+app.use('/recipes', recipesRouter);
+app.use('/api/meals', mealsRouter);
 app.use('/chef', chefRouter);
 app.use('/home', homepageRouter);
 

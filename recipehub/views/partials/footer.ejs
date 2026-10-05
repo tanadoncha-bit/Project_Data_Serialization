@@ -4,7 +4,7 @@
     <div class="footer-brand">
       <a href="#" class="nav-brand">
         <span class="logo-box"><i data-lucide="chef-hat"></i></span>
-        <span>RecipeHub</span>
+        <span><%= typeof brandName !== 'undefined' ? brandName : 'RecipeHub' %></span>
       </a>
       <p>เพราะการทำอาหารคือความสุข<br>เริ่มต้นได้ที่นี่</p>
       <div class="footer-social">
@@ -42,7 +42,7 @@
   </div>
 
   <div class="footer-bottom">
-    <span>© <%= new Date().getFullYear() %> RecipeHub. All rights reserved.</span>
+    <span>© <%= new Date().getFullYear() %> <%= typeof brandName !== 'undefined' ? brandName : 'RecipeHub' %>. All rights reserved.</span>
     <span>Good Food &nbsp; Better You <i data-lucide="sprout" class="sprout"></i></span>
   </div>
 </footer>

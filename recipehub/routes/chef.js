@@ -17,11 +17,6 @@ router.get('/courses', (req, res) => {
   res.render('chef/courses', { title: 'จัดการคอร์ส', active: 'courses' });
 });
 
-/** GET /chef/recipes → หน้าจัดการสูตรอาหารของเชฟ */
-router.get('/recipes', (req, res) => {
-  res.render('chef/recipes', { title: 'จัดการสูตรอาหาร', active: 'recipes' });
-});
-
 // ข้อมูลเชฟตัวอย่าง ใช้แทนฐานข้อมูลไปก่อน
 // TODO: เปลี่ยนเป็นข้อมูลจาก MongoDB ของผู้ใช้ที่ login (req.user) เมื่อระบบ Auth เสร็จ
 let mockChef = {

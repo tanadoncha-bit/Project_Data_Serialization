@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head><%- include('../partials/head', { title }) %>
+        <link rel="stylesheet" href="/stylesheets/recipes.css">
+</head>
+
+<body class="recipe-site public-recipe-site"><%- include('../partials/navbar', { active, recipePublicNav: true }) %>
+        <main class="recipe-page recipe-single-page"><a class="recipe-back" href="/recipes">← สูตรอาหารทั้งหมด</a><%-
+                include('_detail', { recipe, canAccess, videoEmbed }) %></main>
+        <%- include('../partials/footer') %>
+            <script src="/javascripts/recipeModals.js" defer></script>
+</body>
+
+</html>

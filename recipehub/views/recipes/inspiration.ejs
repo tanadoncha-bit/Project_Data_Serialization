@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head><%- include('../partials/head', { title }) %>
+        <link rel="stylesheet" href="/stylesheets/recipes.css">
+</head>
+
+<body>
+    <%- include('../partials/navbar', { active }) %>
+        <main class="recipe-page"><a class="recipe-back" href="/recipes">← สูตรอาหารของ RecipeHub</a>
+            <h1>ไอเดียจาก TheMealDB</h1>
+            <p class="recipe-muted">เมนูอ้างอิงจาก TheMealDB สำหรับหาแรงบันดาลใจในการทำอาหาร</p>
+            <form id="meal-search" class="recipe-filters recipe-panel"><label class="recipe-search">ค้นหาเมนู
+                    (ภาษาอังกฤษ)<input name="q" placeholder="เช่น chicken" maxlength="100" required></label><button
+                    class="recipe-btn recipe-primary">ค้นหาเมนู</button></form>
+            <p id="meal-status" role="status" aria-live="polite"></p>
+            <div id="meal-results" class="recipe-grid"></div>
+            <section id="meal-detail" class="recipe-panel" hidden></section>
+            <p class="recipe-muted">แหล่งข้อมูล: <a href="https://www.themealdb.com" target="_blank"
+                    rel="noopener noreferrer">TheMealDB</a></p>
+        </main><%- include('../partials/footer') %>
+            <script src="/javascripts/mealInspiration.js" defer></script>
+</body>
+
+</html>

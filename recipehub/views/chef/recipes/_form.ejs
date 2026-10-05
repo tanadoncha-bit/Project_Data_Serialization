@@ -1,0 +1,22 @@
+<% const editing = !!recipe._id; const ingredients = recipe.ingredients && recipe.ingredients.length ? recipe.ingredients : [{ name: '', amount: '' }]; const steps = recipe.steps && recipe.steps.length ? recipe.steps : [{ description: '' }]; const categoryOptions = Array.from(new Set(recipeCategories.concat(recipe.category ? [recipe.category] : []))); %>
+<div class="recipe-modal-heading"><div><h2><i data-lucide="<%= editing ? 'pencil-line' : 'chef-hat' %>"></i> <%= editing ? 'แก้ไขสูตรอาหาร' : 'สร้างสูตรอาหารของคุณ' %></h2><p>กรอกรายละเอียดสูตรอาหารเพื่อแบ่งปันความอร่อย</p></div><a href="/chef/recipes" class="recipe-modal-close" data-close-recipe aria-label="ปิดฟอร์ม">×</a></div>
+<% if (errors.length) { %><div class="recipe-alert recipe-error" role="alert"><ul><% errors.forEach(error => { %><li><%= error %></li><% }); %></ul></div><% } %>
+<form method="post" action="/chef/recipes<%= editing ? '/' + recipe._id : '' %>" class="recipe-form">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="recipe-form-grid">
+    <label>ชื่ออาหาร / เมนู <span class="recipe-required">*</span><input name="title" value="<%= recipe.title || '' %>" maxlength="200" placeholder="เช่น ต้มยำกุ้งน้ำข้นสูตรโบราณ" required></label>
+    <label>หมวดหมู่<select name="category" required><% categoryOptions.forEach(category => { %><option value="<%= category %>" <%= recipe.category === category ? 'selected' : '' %>><%= categoryLabels[category] || category %></option><% }); %></select></label>
+    <label>ระดับความยาก<select name="difficulty" required><% difficulties.forEach(difficulty => { %><option value="<%= difficulty %>" <%= recipe.difficulty === difficulty ? 'selected' : '' %>><%= difficultyLabels[difficulty] %></option><% }); %></select></label>
+    <label>ราคา (บาท)<input type="number" name="price" value="<%= Number.isFinite(recipe.price) ? recipe.price : '' %>" min="0" step="0.01" required></label>
+    <label class="recipe-wide">URL รูปภาพเมนู <span class="recipe-required">*</span><input type="url" name="image" value="<%= recipe.image || '' %>" maxlength="2000" placeholder="https://images..." required></label>
+  </div>
+  <fieldset><div class="recipe-fieldset-heading"><legend>วัตถุดิบที่ใช้</legend><button type="button" class="recipe-add-row" data-add="ingredient">+ เพิ่มวัตถุดิบ</button></div>
+    <div data-rows="ingredient"><% ingredients.forEach(item => { %><div class="recipe-row"><input name="ingredientName" value="<%= item.name %>" maxlength="200" placeholder="ชื่อวัตถุดิบ เช่น กุ้งสด" aria-label="ชื่อวัตถุดิบ" required><input name="ingredientAmount" value="<%= item.amount %>" maxlength="100" placeholder="ปริมาณ เช่น 500 กรัม" aria-label="ปริมาณวัตถุดิบ" required><button type="button" class="recipe-remove" data-remove-row aria-label="ลบวัตถุดิบ">×</button></div><% }); %></div>
+  </fieldset>
+  <fieldset><div class="recipe-fieldset-heading"><legend>ขั้นตอนการทำ</legend><button type="button" class="recipe-add-row" data-add="step">+ เพิ่มขั้นตอน</button></div>
+    <div data-rows="step"><% steps.forEach((step, i) => { %><div class="recipe-row recipe-step-row"><span data-step-label class="recipe-step-number"><%= i + 1 %></span><textarea name="stepDescription" rows="1" maxlength="4000" placeholder="อธิบายขั้นตอนการทำ" aria-label="ขั้นตอนการทำ" required><%= step.description %></textarea><button type="button" class="recipe-remove" data-remove-row aria-label="ลบขั้นตอน">×</button></div><% }); %></div>
+  </fieldset>
+  <div class="recipe-modal-footer"><a class="recipe-btn" href="/chef/recipes" data-close-recipe>ยกเลิก</a><button class="recipe-btn recipe-primary" type="submit"><%= editing ? 'บันทึกการแก้ไข' : 'สร้างสูตรอาหาร' %></button></div>
+</form>
+<template data-template="ingredient"><div class="recipe-row"><input name="ingredientName" maxlength="200" placeholder="ชื่อวัตถุดิบ เช่น กุ้งสด" aria-label="ชื่อวัตถุดิบ" required><input name="ingredientAmount" maxlength="100" placeholder="ปริมาณ เช่น 500 กรัม" aria-label="ปริมาณวัตถุดิบ" required><button type="button" class="recipe-remove" data-remove-row aria-label="ลบวัตถุดิบ">×</button></div></template>
+<template data-template="step"><div class="recipe-row recipe-step-row"><span data-step-label class="recipe-step-number"></span><textarea name="stepDescription" rows="1" maxlength="4000" placeholder="อธิบายขั้นตอนการทำ" aria-label="ขั้นตอนการทำ" required></textarea><button type="button" class="recipe-remove" data-remove-row aria-label="ลบขั้นตอน">×</button></div></template>

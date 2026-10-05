@@ -3,24 +3,29 @@
 <nav class="navbar">
   <a href="#" class="nav-brand">
     <span class="logo-box"><i data-lucide="chef-hat"></i></span>
-    <span>RecipeHub</span>
+    <span><%= typeof brandName !== 'undefined' ? brandName : 'RecipeHub' %></span>
   </a>
 
   <ul class="nav-menu">
+    <% if (typeof recipePublicNav !== 'undefined' && recipePublicNav) { %>
+    <li><a href="/">หน้าแรก</a></li>
+    <li><a href="/chef/courses">คอร์ส</a></li>
+    <li><a href="/recipes" class="active">สูตรอาหาร</a></li>
+    <% } else { %>
     <li><a href="/chef/dashboard" class="<%= current === 'dashboard' ? 'active' : '' %>">Dashboard</a></li>
-    <li><a href="/chef/courses"   class="<%= current === 'courses'   ? 'active' : '' %>">จัดการคอร์ส</a></li>
-    <li><a href="/chef/recipes"   class="<%= current === 'recipes'   ? 'active' : '' %>">จัดการสูตรอาหาร</a></li>
+    <li><a href="/chef/courses" class="<%= current === 'courses'   ? 'active' : '' %>">จัดการคอร์ส</a></li>
+    <li><a href="/chef/recipes" class="<%= current === 'recipes'   ? 'active' : '' %>">จัดการสูตรอาหาร</a></li>
+    <% } %>
   </ul>
 
   <div class="nav-actions">
-    <button class="nav-bell" aria-label="การแจ้งเตือน">
+    <% if (typeof recipePublicNav === 'undefined' || !recipePublicNav) { %><button class="nav-bell" aria-label="การแจ้งเตือน">
       <i data-lucide="bell"></i>
       <span class="badge-dot"></span>
-    </button>
+    </button><% } %>
     <!-- โปรไฟล์ + เมนูป๊อปอัพ -->
     <div class="nav-profile">
-      <button class="nav-avatar" id="profileToggle"
-              aria-label="เมนูโปรไฟล์" aria-haspopup="true" aria-expanded="false">
+      <button class="nav-avatar" id="profileToggle" aria-label="เมนูโปรไฟล์" aria-haspopup="true" aria-expanded="false">
         <i data-lucide="user"></i>
       </button>
 

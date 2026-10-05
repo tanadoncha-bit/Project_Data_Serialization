@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <%- include('../../partials/head', { title }) %>
+  <link rel="stylesheet" href="/stylesheets/recipes.css">
+</head>
+
+<body class="recipe-site chef-recipe-site">
+  <%- include('../../partials/navbar', { active }) %>
+  <section class="recipe-banner chef-recipe-banner" aria-labelledby="recipe-hero-title">
+    <div class="recipe-banner-inner">
+      <h1 id="recipe-hero-title">สร้างสรรค์สูตรในแบบของคุณ</h1>
+      <p>แบ่งปันรสชาติ เทคนิค และเคล็ดลับของคุณ<br>ให้ทุกเมนูตามมาได้อย่างมากฝีมือ</p>
+      <a href="/chef/recipes/create" data-recipe-modal="form" class="recipe-btn recipe-hero-button">+
+        สร้างสูตรอาหาร</a>
+    </div>
+  </section>
+  <main class="recipe-page chef-recipe-page">
+    <div class="recipe-heading">
+      <div class="recipe-section-title">
+        <h1>จัดการสูตรอาหารของฉัน <small>(<%= recipes.length %> สูตร)</small></h1>
+        <p class="recipe-muted">สร้าง ปรับปรุงเนื้อหา และจัดการสูตรเพื่อเผยแพร่สูตรของคุณ</p>
+      </div>
+      <a href="/chef/recipes/create" data-recipe-modal="form" class="recipe-btn recipe-primary">+ สร้างสูตรอาหาร</a>
+    </div>
+    <% if (saved || deleted) { %>
+    <p class="recipe-alert" role="status">
+      <%= deleted ? 'ลบสูตรอาหารเรียบร้อยแล้ว' : 'บันทึกสูตรอาหารเรียบร้อยแล้ว' %>
+    </p>
+    <% } %>
+    <% if (!recipes.length) { %>
+    <section class="recipe-empty"><i data-lucide="utensils"></i>
+      <h2>ยังไม่มีสูตรอาหาร</h2>
+      <p>เริ่มต้นสร้างสูตรแรกของคุณ</p><a href="/chef/recipes/create" data-recipe-modal="form" class="recipe-btn recipe-primary">สร้างสูตรอาหาร</a>
+    </section>
+    <% } %>
+    <div class="recipe-grid">
+      <% recipes.forEach(recipe=> { %>
+      <article class="recipe-card chef-recipe-card">
+        <div class="recipe-card-photo"><a href="/chef/recipes/<%= recipe._id %>" data-recipe-modal="preview"><%- include('../../recipes/_image', { recipe }) %></a><span class="recipe-tag">
+            <%= categoryLabels[recipe.category] || recipe.category || 'ไม่ระบุหมวดหมู่' %>
+          </span></div>
+        <div class="recipe-card-body">
+          <div class="recipe-card-title">
+            <h2><a href="/chef/recipes/<%= recipe._id %>" data-recipe-modal="preview">
+                <%= recipe.title %>
+              </a></h2><span class="recipe-rating">
+              <%= recipe.rating==null ? 'ยังไม่มีรีวิว' : '★ ' + recipe.rating.toFixed(1) %>
+            </span>
+          </div>
+          <p class="recipe-muted recipe-card-counts">วัตถุดิบ <%= recipe.ingredientCount %> อย่าง · วิธีทำ
+            <%= recipe.stepCount %> ขั้นตอน</p>
+          <div class="recipe-card-bottom">
+            <a href="/chef/recipes/<%= recipe._id %>" data-recipe-modal="preview" class="recipe-preview-link"><i data-lucide="eye"></i> ดูตัวอย่าง</a>
+            <div class="recipe-card-icons"><a href="/chef/recipes/<%= recipe._id %>/edit" data-recipe-modal="form" class="recipe-icon-button" aria-label="แก้ไข <%= recipe.title %>"><i data-lucide="pencil-line"></i></a>
+              <form method="post" action="/chef/recipes/<%= recipe._id %>/delete" data-delete-recipe data-title="<%= recipe.title %>" data-image="<%= recipe.image %>" data-summary="วัตถุดิบ <%= recipe.ingredientCount %> อย่าง · วิธีทำ <%= recipe.stepCount %> ขั้นตอน">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="recipe-icon-button" aria-label="ลบ <%= recipe.title %>"><i data-lucide="trash-2"></i></button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </article>
+      <% }); %>
+    </div>
+    <div class="recipe-secondary-links"><a href="/recipes">ดูสูตรอาหารทั้งหมด →</a><a href="/recipes/inspiration">ไอเดียจาก TheMealDB →</a></div>
+    <% if (demoMode) { %>
+    <p class="recipe-demo-note">โหมดทดลอง · สูตรเป็นของเชฟประจำ session นี้</p>
+    <% } %>
+  </main>
+  <dialog id="recipe-content-dialog" class="recipe-dialog recipe-content-dialog <%= initialModal && initialModal.kind === 'preview' ? 'recipe-preview-dialog' : '' %>" aria-label="รายละเอียดสูตรอาหาร" data-initial-modal="<%= initialModal ? 'true' : 'false' %>">
+    <div id="recipe-modal-content">
+      <% if (initialModal) { %><%- include('_modalContent', { modal: initialModal }) %>
+      <% } %>
+    </div>
+  </dialog>
+  <%- include('_deleteDialog') %>
+  <%- include('../../partials/footer') %>
+  <script src="/javascripts/recipeForm.js" defer></script>
+  <script src="/javascripts/recipeModals.js" defer></script>
+</body>
+
+</html>

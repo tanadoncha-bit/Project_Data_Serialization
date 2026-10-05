@@ -1,0 +1,8 @@
+<dialog id="recipe-delete-dialog" class="recipe-dialog recipe-delete-dialog" aria-labelledby="recipe-delete-title">
+  <button type="button" class="recipe-modal-close" id="recipe-delete-close" aria-label="ปิดหน้าต่างลบ">×</button>
+  <div class="recipe-delete-illustration"><i data-lucide="trash-2"></i><span>!</span></div>
+  <h2 id="recipe-delete-title">ลบสูตรอาหารนี้?</h2><p class="recipe-muted">เมื่อลบแล้ว ข้อมูลทั้งหมดของสูตรอาหารนี้<br>จะหายไป และไม่สามารถกู้คืนได้</p>
+  <div class="recipe-delete-summary"><img id="recipe-delete-image" alt="" hidden><div><strong id="recipe-delete-name"></strong><p id="recipe-delete-summary"></p></div></div>
+  <div class="recipe-delete-actions"><button type="button" class="recipe-btn" id="recipe-delete-cancel">ยกเลิก</button><button type="button" class="recipe-btn recipe-primary" id="recipe-delete-confirm">ลบสูตรอาหาร</button></div>
+</dialog>
+<script src="/javascripts/recipeDelete.js" defer></script>
