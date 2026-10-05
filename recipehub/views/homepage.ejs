@@ -1,27 +1,17 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CookHub - Learn to Cook</title>
-    <!-- สมมติว่าใช้ Font Awesome สำหรับไอคอน Social Media -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/stylesheets/homepage.css">
-</head>
-<body>
-    <!-- Navbar -->
-    <header class="navbar">
-        <div class="logo">
-            <!-- ใส่ SVG ไอคอนหมวกเชฟสีส้มที่นี่ -->
-            <span class="logo-icon">🧑‍🍳</span> CookHub
-        </div>
-        <div class="auth-buttons">
-            <a href="/login" class="btn-outline">เข้าสู่ระบบ</a>
-            <a href="/register" class="btn-solid">สมัครสมาชิก</a>
-        </div>
-    </header>
+    <!-- 1. ดึง head ส่วนกลาง (มี Meta, Fonts, style.css, layout.css ของเพื่อน) -->
+    <%- include('partials/head') %>
 
-    <!-- Hero Section -->
+    <!-- 2. ดึง CSS เฉพาะหน้า Homepage -->
+    <link rel="stylesheet" href="/stylesheets/homepage.css">
+    <link rel="stylesheet" href="/stylesheets/recipes.css">
+</head>
+<body class="recipe-site public-recipe-site">
+    <!-- 3. ดึง Navbar ส่วนกลาง -->
+    <%- include('partials/navbar') %>
+
     <section class="hero">
         <div class="hero-text">
             <h1><span class="text-orange">Learn to Cook</span><br>Easy, Fun, Delicious</h1>
@@ -73,7 +63,7 @@
                 <div class="course-card">
                     <div class="course-image">
                         <span class="badge"><%= course.category %></span>
-                        <img src="<%= course.cover_image_url %>" alt="<%= course.title %>">
+                        
                     </div>
                     <div class="course-content">
                         <div class="course-title-row">
@@ -153,54 +143,16 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-brand">
-                <div class="footer-logo">
-                    <span class="logo-icon">🧑‍🍳</span> CookHub
-                </div>
-                <p class="brand-desc">เพราะการทำอาหารคือความสุข<br>เริ่มต้นได้ที่นี่</p>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
-                    <a href="#"><i class="fab fa-tiktok"></i></a>
-                </div>
-            </div>
-            <div class="footer-links">
-                <h4>คอร์สเรียน</h4>
-                <ul>
-                    <li><a href="#">อาหารไทย</a></li>
-                    <li><a href="#">อาหารนานาชาติ</a></li>
-                    <li><a href="#">เบเกอรี่ & ขนมหวาน</a></li>
-                    <li><a href="#">อาหารเพื่อสุขภาพ</a></li>
-                    <li><a href="#">เทคนิคการทำอาหาร</a></li>
-                </ul>
-            </div>
-            <div class="footer-links">
-                <h4>เกี่ยวกับเรา</h4>
-                <ul>
-                    <li><a href="#">ทีมงาน</a></li>
-                    <li><a href="#">ร่วมงานกับเรา</a></li>
-                    <li><a href="#">ข่าวสาร</a></li>
-                    <li><a href="#">ติดต่อเรา</a></li>
-                </ul>
-            </div>
-            <div class="footer-links">
-                <h4>ช่วยเหลือ</h4>
-                <ul>
-                    <li><a href="#">คำถามที่พบบ่อย</a></li>
-                    <li><a href="#">วิธีการใช้งาน</a></li>
-                    <li><a href="#">นโยบายความเป็นส่วนตัว</a></li>
-                    <li><a href="#">ข้อกำหนดการใช้งาน</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <div class="copyright">© 2026 CookHub. All rights reserved.</div>
-            <div class="slogan">Good Food Better You <i class="fas fa-seedling"></i></div>
-        </div>
-    </footer>
+    
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="homepage-main">
+
+
+
+    </main>
+    <!-- ====================================================== -->
+
+    <!-- 4. ดึง Footer ส่วนกลาง -->
+    <%- include('partials/footer') %>
 </body>
 </html>

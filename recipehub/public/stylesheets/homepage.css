@@ -32,16 +32,8 @@ a {
 }
 
 /* =========================================
-   2. Navbar & Buttons
+   2. Buttons & Elements
    ========================================= */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 5%;
-    border-bottom: 1px solid var(--border-color);
-}
-
 .logo {
     font-size: 24px;
     font-weight: 700;
@@ -52,11 +44,6 @@ a {
 
 .logo-icon {
     color: var(--primary-color);
-}
-
-.auth-buttons {
-    display: flex;
-    gap: 15px;
 }
 
 .btn-outline {
