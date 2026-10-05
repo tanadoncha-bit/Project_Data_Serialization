@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CookHub - Learn to Cook</title>
+    <!-- สมมติว่าใช้ Font Awesome สำหรับไอคอน Social Media -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/stylesheets/homepage.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="logo">
+            <!-- ใส่ SVG ไอคอนหมวกเชฟสีส้มที่นี่ -->
+            <span class="logo-icon">🧑‍🍳</span> CookHub
+        </div>
+        <div class="auth-buttons">
+            <a href="/login" class="btn-outline">เข้าสู่ระบบ</a>
+            <a href="/register" class="btn-solid">สมัครสมาชิก</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-text">
+            <h1><span class="text-orange">Learn to Cook</span><br>Easy, Fun, Delicious</h1>
+            <p>เรียนทำอาหารออนไลน์กับเชฟมืออาชีพ ครบทุกเมนู ทุกระดับ<br>เริ่มต้นได้จากที่บ้าน พร้อมสูตรอาหารและเทคนิคที่ทำตามได้จริง</p>
+        </div>
+        <div class="hero-image">
+            <img src="/images/hero-pasta.jpg" alt="Delicious Pasta with Tomatoes">
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <img src="/icons/hat.svg" alt="Chef Hat Icon">
+            </div>
+            <h3>เรียนกับเชฟมืออาชีพ</h3>
+            <p>คอร์สเรียนคุณภาพจากเชฟที่มีประสบการณ์จริง สอนอย่างละเอียด เข้าใจง่าย</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <img src="/icons/book.svg" alt="Book Icon">
+            </div>
+            <h3>คลังสูตรอาหาร</h3>
+            <p>ค้นพบสูตรอาหารหลากหลาย ทั้งอาหารไทย อาหารนานาชาติ และเบเกอรี่</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <img src="/icons/heart.svg" alt="Heart Icon">
+            </div>
+            <h3>สร้างรายได้จากสูตรลับ</h3>
+            <p>เปิดโอกาสให้คุณแชร์สูตรอาหารและสร้างรายได้จากสิ่งที่คุณรัก</p>
+        </div>
+    </section>
+
+    <!-- Popular Courses Section -->
+    <section class="popular-courses">
+        <div class="section-header">
+            <div>
+                <h2>คอร์สเรียนยอดนิยม</h2>
+                <p class="subtitle">ตัวอย่างคอร์สคุณภาพที่เปิดสอนอยู่บน CookHub</p>
+            </div>
+            <a href="/courses" class="see-all">ดูทั้งหมด &rarr;</a>
+        </div>
+        
+        <div class="course-grid">
+            <!-- ดึงข้อมูลคอร์สจาก Controller -->
+            <% courses.forEach(course => { %>
+                <div class="course-card">
+                    <div class="course-image">
+                        <span class="badge"><%= course.category %></span>
+                        <img src="<%= course.cover_image_url %>" alt="<%= course.title %>">
+                    </div>
+                    <div class="course-content">
+                        <div class="course-title-row">
+                            <h3><%= course.title %></h3>
+                            <div class="rating"><span class="star">★</span> <%= course.rating %></div>
+                        </div>
+                        <p class="course-desc"><%= course.description %></p>
+                        <div class="course-meta">
+                            <span><i class="far fa-play-circle"></i> <%= course.lesson_count %> บทเรียน</span>
+                            <span><i class="far fa-clock"></i> <%= course.duration_text %></span>
+                            <span><i class="far fa-user"></i> <%= course.student_count %> คนเรียน</span>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories-section">
+        <div class="section-header-left">
+            <h2>เลือกเรียนตามหมวดหมู่</h2>
+            <p class="subtitle">ค้นหาคอร์สที่ใช่สำหรับคุณ</p>
+        </div>
+        <div class="category-grid">
+            <% categories.forEach(cat => { %>
+                <div class="category-card">
+                    <div class="cat-icon">
+                        <img src="<%= cat.icon_url %>" alt="<%= cat.name %>">
+                    </div>
+                    <h4><%= cat.name %></h4>
+                    <span class="cat-count">(<%= cat.count %> คอร์ส)</span>
+                </div>
+            <% }) %>
+        </div>
+    </section>
+
+    <!-- 3 Steps Section -->
+    <section class="steps-section">
+        <h2>เริ่มต้นเรียนกับ CookHub ง่ายๆ ใน 3 ขั้นตอน</h2>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-num">1</div>
+                <div class="step-text">
+                    <h4>สมัครสมาชิก</h4>
+                    <p>สร้างบัญชีฟรี ใช้เวลาแค่ไม่กี่นาที</p>
+                </div>
+            </div>
+            <div class="step-card">
+                <div class="step-num">2</div>
+                <div class="step-text">
+                    <h4>เลือกคอร์สที่สนใจ</h4>
+                    <p>เลือกเรียนได้จากหลายหมวดหมู่</p>
+                </div>
+            </div>
+            <div class="step-card">
+                <div class="step-num">3</div>
+                <div class="step-text">
+                    <h4>เริ่มเรียนได้ทันที</h4>
+                    <p>เรียนได้ทุกที่ ทุกเวลา บนทุกอุปกรณ์</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Banner Section -->
+    <section class="cta-section">
+        <div class="cta-banner">
+            <div class="cta-content">
+                <h2>พร้อมเริ่มต้นเส้นทางการทำอาหารของคุณแล้วหรือยัง?</h2>
+                <p>สมัครสมาชิกวันนี้ และเข้าถึงคอร์สเรียนมากมายจากเชฟมืออาชีพ</p>
+                <a href="/register" class="btn-cta"><i class="fas fa-plus"></i> สมัครสมาชิกเลย</a>
+            </div>
+            <div class="cta-image">
+                <img src="/images/cta-tomatoes.png" alt="Fresh Ingredients">
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <span class="logo-icon">🧑‍🍳</span> CookHub
+                </div>
+                <p class="brand-desc">เพราะการทำอาหารคือความสุข<br>เริ่มต้นได้ที่นี่</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>คอร์สเรียน</h4>
+                <ul>
+                    <li><a href="#">อาหารไทย</a></li>
+                    <li><a href="#">อาหารนานาชาติ</a></li>
+                    <li><a href="#">เบเกอรี่ & ขนมหวาน</a></li>
+                    <li><a href="#">อาหารเพื่อสุขภาพ</a></li>
+                    <li><a href="#">เทคนิคการทำอาหาร</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>เกี่ยวกับเรา</h4>
+                <ul>
+                    <li><a href="#">ทีมงาน</a></li>
+                    <li><a href="#">ร่วมงานกับเรา</a></li>
+                    <li><a href="#">ข่าวสาร</a></li>
+                    <li><a href="#">ติดต่อเรา</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>ช่วยเหลือ</h4>
+                <ul>
+                    <li><a href="#">คำถามที่พบบ่อย</a></li>
+                    <li><a href="#">วิธีการใช้งาน</a></li>
+                    <li><a href="#">นโยบายความเป็นส่วนตัว</a></li>
+                    <li><a href="#">ข้อกำหนดการใช้งาน</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="copyright">© 2026 CookHub. All rights reserved.</div>
+            <div class="slogan">Good Food Better You <i class="fas fa-seedling"></i></div>
+        </div>
+    </footer>
+</body>
+</html>
