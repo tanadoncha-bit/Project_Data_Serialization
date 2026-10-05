@@ -10,6 +10,9 @@ const connectDB = require('./config/db');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var chefRouter = require('./routes/chef');
+var chefRecipesRouter = require('./routes/chefRecipes');
+var recipesRouter = require('./routes/recipes');
+var mealsRouter = require('./routes/meals');
 
 var app = express();
 
@@ -29,6 +32,9 @@ app.use('/bootstrap', express.static(
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/chef/recipes', chefRecipesRouter);
+app.use('/recipes', recipesRouter);
+app.use('/api/meals', mealsRouter);
 app.use('/chef', chefRouter);
 
 // catch 404 and forward to error handler

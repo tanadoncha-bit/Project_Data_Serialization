@@ -1,0 +1,6 @@
+<% if (modal.kind === 'form') { %>
+  <%- include('_form', { recipe: modal.recipe, errors: modal.errors }) %>
+<% } else { %>
+  <button type="button" class="recipe-modal-close recipe-preview-close" data-close-recipe aria-label="ปิดตัวอย่าง">×</button>
+  <%- include('../../recipes/_detail', { recipe: modal.recipe, canAccess: true, videoEmbed: modal.videoEmbed, chefName: recipeChefName }) %>
+<% } %>
