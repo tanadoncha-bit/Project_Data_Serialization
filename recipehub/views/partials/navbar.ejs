@@ -1,16 +1,16 @@
 <%# Navbar: ใช้ร่วมกันทุกหน้า | active = ชื่อเมนูที่ต้องการไฮไลต์ %>
 <% const current = typeof active !== 'undefined' ? active : ''; %>
 <nav class="navbar">
-  <a href="#" class="nav-brand">
+  <a href="/" class="nav-brand">
     <span class="logo-box"><i data-lucide="chef-hat"></i></span>
     <span><%= typeof brandName !== 'undefined' ? brandName : 'CookHub' %></span>
   </a>
 
   <ul class="nav-menu">
     <% if (typeof recipePublicNav !== 'undefined' && recipePublicNav) { %>
-    <li><a href="/">หน้าแรก</a></li>
-    <li><a href="/chef/courses">คอร์ส</a></li>
-    <li><a href="/recipes" class="active">สูตรอาหาร</a></li>
+    <li><a href="/" class="<%= current === 'home' ? 'active' : '' %>">หน้าแรก</a></li>
+    <li><a href="/chef/courses" class="<%= current === 'courses' ? 'active' : '' %>">คอร์ส</a></li>
+    <li><a href="/recipes" class="<%= current === 'recipes' ? 'active' : '' %>">สูตรอาหาร</a></li>
     <% } else { %>
     <li><a href="/chef/dashboard" class="<%= current === 'dashboard' ? 'active' : '' %>">Dashboard</a></li>
     <li><a href="/chef/courses" class="<%= current === 'courses'   ? 'active' : '' %>">จัดการคอร์ส</a></li>

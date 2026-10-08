@@ -15,14 +15,19 @@
     </section>
     <main class="recipe-page public-recipe-page">
       <form method="get" action="/recipes" id="recipe-browse-form">
+        <div class="recipe-browse-controls">
         <div class="recipe-browse-toolbar">
-          <label class="recipe-difficulty-select">ระดับ: <select name="difficulty" data-submit-change>
-              <option value="">ทั้งหมด</option>
-              <% difficulties.forEach(difficulty=> { %><option value="<%= difficulty %>"
-                  <%=filters.difficulty===difficulty ? 'selected' : '' %>><%= difficultyLabels[difficulty] %>
-                </option>
+          <div class="recipe-difficulty-select">
+            <span id="recipe-level-label">ระดับ:</span>
+            <details class="recipe-difficulty-control">
+              <summary aria-labelledby="recipe-level-label recipe-level-value"><span id="recipe-level-value"><%= difficultyLabels[filters.difficulty] || 'ทั้งหมด' %></span><i data-lucide="chevron-down" aria-hidden="true"></i></summary>
+              <div class="recipe-difficulty-menu" role="group" aria-labelledby="recipe-level-label">
+                <% [['', 'ทั้งหมด'], ...difficulties.map(value => [value, difficultyLabels[value]])].forEach(([value, label]) => { %>
+                  <label class="recipe-difficulty-option"><input type="radio" name="difficulty" value="<%= value %>" data-submit-change <%= filters.difficulty === value ? 'checked' : '' %>><span><%= label %></span></label>
                 <% }); %>
-            </select></label>
+              </div>
+            </details>
+          </div>
           <div class="recipe-sort-options"><span>เรียงตาม:</span>
             <% [['popular', 'ยอดนิยม' ], ['rating', 'คะแนนสูงสุด' ], ['newest', 'ใหม่ล่าสุด' ]].forEach(([value,
               label])=> { %><button type="button" data-sort="<%= value %>"
@@ -31,13 +36,10 @@
               </button>
               <% }); %><input type="hidden" name="sort" value="<%= filters.sort %>">
           </div>
+        </div>
           <button type="button" class="recipe-btn recipe-filter-button" data-open-filter><i
               data-lucide="sliders-horizontal"></i> ตัวกรอง</button>
         </div>
-        <div class="recipe-search-line"><label><i data-lucide="search"></i><input name="search"
-              value="<%= filters.search %>" maxlength="200" placeholder="ค้นหาชื่อสูตรหรือหมวดหมู่"
-              aria-label="ค้นหาสูตรอาหาร"></label><button class="recipe-btn">ค้นหา</button><a
-            href="/recipes/inspiration">ไอเดียจาก TheMealDB →</a></div>
       </form>
       <p class="recipe-results-count">ผลลัพธ์ <strong>
           <%= total %>

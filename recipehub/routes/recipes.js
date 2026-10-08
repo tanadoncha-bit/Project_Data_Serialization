@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.use(support.sessionContext, support.viewContext);
 router.use((req, res, next) => {
-  res.locals.active = '';
+  res.locals.active = 'recipes';
   res.locals.levels = support.levels;
   res.locals.levelLabels = support.levelLabels;
   next();

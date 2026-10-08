@@ -63,10 +63,6 @@
       </article>
       <% }); %>
     </div>
-    <div class="recipe-secondary-links"><a href="/recipes">ดูสูตรอาหารทั้งหมด →</a><a href="/recipes/inspiration">ไอเดียจาก TheMealDB →</a></div>
-    <% if (demoMode) { %>
-    <p class="recipe-demo-note">โหมดทดลอง · สูตรเป็นของเชฟประจำ session นี้</p>
-    <% } %>
   </main>
   <dialog id="recipe-content-dialog" class="recipe-dialog recipe-content-dialog <%= initialModal && initialModal.kind === 'preview' ? 'recipe-preview-dialog' : '' %>" aria-label="รายละเอียดสูตรอาหาร" data-initial-modal="<%= initialModal ? 'true' : 'false' %>">
     <div id="recipe-modal-content">

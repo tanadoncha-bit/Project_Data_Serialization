@@ -2,6 +2,19 @@
   const dialog = document.getElementById('recipe-content-dialog');
   const content = document.getElementById('recipe-modal-content');
   const filter = document.getElementById('recipe-filter-dialog');
+  // Close the difficulty picker when clicking elsewhere or pressing Escape.
+  const difficultyPicker = document.querySelector('.recipe-difficulty-control');
+  if (difficultyPicker) {
+    document.addEventListener('click', event => {
+      if (!difficultyPicker.contains(event.target)) difficultyPicker.open = false;
+    });
+    difficultyPicker.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        difficultyPicker.open = false;
+        difficultyPicker.querySelector('summary').focus();
+      }
+    });
+  }
   let request;
   let opener;
   function icons() { if (window.lucide) window.lucide.createIcons(); }
@@ -21,7 +34,35 @@
     });
     if (dialog.dataset.initialModal === 'true') { dialog.showModal(); opened(); }
   }
-  if (filter) filter.addEventListener('close', closed);
+  // Keep slider feedback synchronized with its range and numeric fields.
+  function updateRange(slider) {
+    const low = slider.querySelector('[data-range-min]');
+    const high = slider.querySelector('[data-range-max]');
+    const span = Number(low.max) - Number(low.min);
+    slider.classList.toggle('is-filtered', low.value !== low.min || high.value !== high.max);
+    slider.style.setProperty('--range-low', ((Number(low.value) - Number(low.min)) / span * 100) + '%');
+    slider.style.setProperty('--range-high', ((Number(high.value) - Number(low.min)) / span * 100) + '%');
+  }
+  if (filter) filter.querySelectorAll('.recipe-range-slider').forEach(updateRange);
+  let filterOpener;
+  function closeFilter() {
+    if (!filter || !filter.open || filter.classList.contains('recipe-filter-closing')) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { filter.close(); return; }
+    filter.classList.add('recipe-filter-closing');
+    filter.addEventListener('animationend', () => filter.close(), { once: true });
+  }
+  if (filter) {
+    filter.addEventListener('close', () => {
+      filter.classList.remove('recipe-filter-closing');
+      closed();
+      if (filterOpener) filterOpener.focus();
+    });
+    filter.addEventListener('cancel', event => { event.preventDefault(); closeFilter(); });
+    filter.addEventListener('click', event => {
+      const bounds = filter.getBoundingClientRect();
+      if (event.target === filter && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) closeFilter();
+    });
+  }
   document.addEventListener('click', async event => {
     const link = event.target.closest('[data-recipe-modal]');
     if (link && dialog && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
@@ -53,14 +94,15 @@
       return;
     }
     if (event.target.closest('[data-close-recipe]') && dialog) { event.preventDefault(); dialog.close(); }
-    if (event.target.closest('[data-open-filter]') && filter) { filter.showModal(); opened(); }
-    if (event.target.closest('[data-close-filter]') && filter) filter.close();
+    if (event.target.closest('[data-open-filter]') && filter) { filterOpener = event.target.closest('[data-open-filter]'); filter.showModal(); opened(); }
+    if (event.target.closest('[data-close-filter]') && filter) closeFilter();
     if (event.target.closest('[data-clear-filters]') && filter) {
       filter.querySelectorAll('input').forEach(input => {
         if (input.type === 'checkbox' || input.type === 'radio') input.checked = input.value === '';
         else if (input.type === 'range') input.value = input.hasAttribute('data-range-min') ? input.min : input.max;
         else input.value = '';
       });
+      filter.querySelectorAll('.recipe-range-slider').forEach(updateRange);
     }
     const sort = event.target.closest('[data-sort]');
     if (sort) {
@@ -93,6 +135,7 @@
       const side = event.target === low ? 'min' : 'max';
       const input = slider.parentElement.querySelector('[name="' + side + slider.dataset.range + '"]');
       input.value = side === 'max' && event.target.value === event.target.max ? '' : event.target.value;
+      updateRange(slider);
     }
     if (filter && filter.contains(event.target) && event.target.type === 'number') {
       const group = event.target.closest('fieldset').querySelector('.recipe-range-slider');
@@ -100,6 +143,7 @@
         const side = event.target.name.startsWith('min') ? 'min' : 'max';
         const range = group.querySelector('[data-range-' + side + ']');
         range.value = event.target.value || (side === 'min' ? range.min : range.max);
+        updateRange(group);
       }
     }
   });
