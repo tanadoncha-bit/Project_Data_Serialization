@@ -192,8 +192,7 @@
   .form-group label { font-size: 18px; }
   .btn-primary { width: 100%; margin-left: 0; }
 }
-/* =========================================================
-   ส่วนที่เพิ่มสำหรับหน้า /profile (ผู้เรียน + เชฟ)
+/* ==================================================   ส่วนที่เพิ่มสำหรับหน้า /profile (ผู้เรียน + เชฟ)
    ========================================================= */
 
 /* ข้อความ error ตอนบันทึกไม่ผ่าน */
@@ -258,3 +257,31 @@
 .paid-ok { display: inline-flex; align-items: center; gap: 4px; color: #2F7A1F; }
 .paid-ok svg { width: 16px; height: 16px; }
 .btn-sm { padding: 8px 20px; font-size: 15px; }
+
+/* Favorites use equal-height cards and open recipe previews in place. */
+.profile-page .fav-grid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px;align-items:stretch}
+.profile-page .fav-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:box-shadow .18s,border-color .18s,transform .18s}
+.profile-page .fav-card:hover{border-color:#ffc9af;box-shadow:0 8px 24px rgba(49,30,18,.08);transform:translateY(-2px)}
+.profile-page .fav-card img,.profile-page .fav-card .fav-noimg{display:block;height:175px;flex-shrink:0}
+.profile-page .fav-body{display:flex;flex-direction:column;flex:1;gap:8px;padding:18px}
+.profile-page .fav-body .item-badge{align-self:flex-start}
+.profile-page .fav-body h3{font-size:16px;line-height:1.55;font-weight:600;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:50px}
+.profile-page .fav-body .item-price{margin-top:auto;padding-top:12px;border-top:1px solid #eee;font-size:15px;font-weight:500}
+.profile-page .fav-body .fav-price-free{color:#16a579}
+@media(max-width:600px){.profile-page .fav-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}}
+@media(prefers-reduced-motion:reduce){.profile-page .fav-card{transition:none}.profile-page .fav-card:hover{transform:none}}
+/* ===== ปรับขนาดให้ใกล้ Figma ===== */
+.profile-page { max-width: 1000px; gap: 24px; }
+.card { padding: 24px 32px; }
+.card-title { font-size: 24px; }
+.profile-header { padding: 32px; gap: 32px; }
+.avatar-circle { width: 120px; height: 120px; }
+.avatar-camera { width: 32px; height: 32px; }
+.avatar-camera svg { width: 16px; height: 16px; }
+.profile-info h1 { font-size: 26px; margin: 0 0 4px; }
+.form-group label { font-size: 15px; }
+.profile-tab { font-size: 16px; padding: 10px; }
+.section-title { font-size: 22px; }
+
+/* ===== svg ไม่รองรับ attribute hidden ต้องซ่อนด้วย CSS ===== */
+.avatar-circle [hidden] { display: none !important; }

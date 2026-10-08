@@ -3,6 +3,7 @@
 
 <head>
   <%- include('partials/head', { title }) %>
+  <link rel="stylesheet" href="/stylesheets/recipes.css">
   <link rel="stylesheet" href="/stylesheets/profile.css">
 </head>
 
@@ -12,18 +13,18 @@
   <main class="profile-page">
 
     <% if (saved) { %>
-      <div class="alert-success"><i data-lucide="circle-check"></i> บันทึกการแก้ไขเรียบร้อยแล้ว</div>
+      <div class="alert-success"><i data-lucide="circle-check"></i> <%= saved %></div>
     <% } %>
     <% if (error) { %>
       <div class="alert-error" role="alert"><i data-lucide="circle-alert"></i> <%= error %></div>
     <% } %>
 
-    <!-- ===== หัวโปรไฟล์: รูป + ชื่อ + อีเมล + bio (ผู้เรียน) / สถาบัน (เชฟ) ===== -->
+    <!-- ===== หัวโปรไฟล์ ===== -->
     <section class="card profile-header">
       <div class="avatar-wrap">
         <div class="avatar-circle">
           <img id="avatarPreview" src="<%= user.avatar %>" alt="รูปโปรไฟล์" <%= user.avatar ? '' : 'hidden' %>>
-          <i data-lucide="user" class="avatar-placeholder" <%= user.avatar ? 'hidden' : '' %>></i>
+          <% if (!user.avatar) { %><i data-lucide="user" class="avatar-placeholder"></i><% } %>
         </div>
         <label for="avatarInput" class="avatar-camera" aria-label="เปลี่ยนรูปโปรไฟล์">
           <i data-lucide="camera"></i>
@@ -36,15 +37,14 @@
         <a href="mailto:<%= user.email %>" class="profile-email"><%= user.email %></a>
         <% if (isChef) { %>
           <p class="profile-sub"><%= user.institution || 'ยังไม่ได้ระบุสถาบัน' %></p>
-        <% } else { %>
-          <p class="profile-sub"><%= user.bio || 'ยังไม่ได้เขียนแนะนำตัว' %></p>
         <% } %>
+        <p class="profile-sub"><%= user.bio || 'ยังไม่ได้เขียนแนะนำตัว' %></p>
         <p class="avatar-status" id="avatarStatus" role="status"></p>
       </div>
     </section>
 
     <% if (!isChef) { %>
-    <!-- ===== แท็บ เฉพาะผู้เรียร ===== -->
+    <!-- ===== แท็บ (เฉพาะผู้เรียน) ===== -->
     <nav class="profile-tabs" role="tablist">
       <button type="button" class="profile-tab active" data-tab="info"><i data-lucide="user"></i> ข้อมูลส่วนตัว</button>
       <button type="button" class="profile-tab" data-tab="favorites"><i data-lucide="heart"></i> รายการโปรด</button>
@@ -65,7 +65,7 @@
           <div class="form-group">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" value="<%= form.username || '' %>"
-                   pattern="[a-z0-9_]{3,20}" title="a-z, 0-9 หรือ _ ยาว 3–20 ตัว" required>
+                   pattern="[A-Za-z0-9_]{3,20}" title="A-Z, a-z, 0-9 หรือ _ ยาว 3–20 ตัว" required>
           </div>
           <div class="form-group">
             <label for="email">Email</label>
@@ -88,6 +88,30 @@
       </form>
     </section>
 
+    <!-- ===== เปลี่ยนรหัสผ่าน ===== -->
+    <section class="card tab-panel" data-panel="info">
+      <h2 class="card-title">เปลี่ยนรหัสผ่าน</h2>
+
+      <form action="/profile/password" method="POST" class="profile-form">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label for="currentPassword">รหัสผ่านเดิม</label>
+            <input type="password" id="currentPassword" name="currentPassword" autocomplete="current-password" required>
+          </div>
+          <div class="form-group">
+            <label for="newPassword">รหัสผ่านใหม่</label>
+            <input type="password" id="newPassword" name="newPassword" autocomplete="new-password" minlength="6" required>
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">ยืนยันรหัสผ่านใหม่</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" minlength="6" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary">เปลี่ยนรหัสผ่าน</button>
+      </form>
+    </section>
+
     <% if (!isChef) { %>
     <!-- ===== รายการโปรด ===== -->
     <section class="tab-panel" data-panel="favorites" hidden>
@@ -98,12 +122,12 @@
       <% } else { %>
         <div class="fav-grid">
           <% favorites.forEach(item => { %>
-          <a href="<%= item.url %>" class="fav-card">
+          <a href="<%= item.url %>" class="fav-card" <%= ['Recipe','ExternalRecipe'].includes(item.type) ? 'data-recipe-modal=preview' : '' %>>
             <% if (item.image) { %><img src="<%= item.image %>" alt=""><% } else { %><div class="fav-noimg"></div><% } %>
             <div class="fav-body">
               <span class="item-badge"><%= item.label %></span>
               <h3><%= item.title %></h3>
-              <span class="item-price">฿<%= Number(item.price).toLocaleString() %></span>
+              <span class="item-price <%= Number(item.price) === 0 ? 'fav-price-free' : '' %>"><%= Number(item.price) === 0 ? 'ฟรี' : '฿' + Number(item.price).toLocaleString('th-TH') %></span>
             </div>
           </a>
           <% }) %>
@@ -140,8 +164,10 @@
     <% } %>
   </main>
 
+  <dialog id="recipe-content-dialog" class="recipe-dialog recipe-content-dialog recipe-preview-dialog" aria-label="รายละเอียดสูตรอาหาร"><button class="recipe-modal-close recipe-preview-close" type="button" data-close-recipe aria-label="ปิดสูตรอาหาร">×</button><div id="recipe-modal-content"></div></dialog>
   <%- include('partials/footer') %>
   <script src="/javascripts/profile.js"></script>
+  <script src="/javascripts/recipeModals.js" defer></script>
 </body>
 
 </html>

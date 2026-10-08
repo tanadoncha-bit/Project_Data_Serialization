@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
+const bcrypt = require('bcryptjs');
 const Client = require('../models/Client');
 const Favorite = require('../models/Favorite');
 const Transaction = require('../models/Transaction');
@@ -10,6 +11,7 @@ const Recipe = require('../models/Recipe');
 const SingleCourse = require('../models/SingleCourse');
 const MultiCourse = require('../models/MultiCourse');
 const { requireLogin } = require('../middleware/requireRole');
+const { usernameQuery } = require('./auth');
 
 const router = express.Router();
 router.use(requireLogin);
@@ -33,6 +35,7 @@ const itemLabels = { Recipe: 'สูตรอาหาร', SingleCourse: 'ค�
 /** แปลงรายการ { itemType, itemId } เป็นข้อมูลที่ใช้แสดง (ชื่อ ราคา รูป ลิงก์) ตัดรายการที่ถูกลบไปแล้วทิ้ง */
 async function loadItems(rows) {
   const items = await Promise.all(rows.map(async (row) => {
+    if (row.itemType === 'ExternalRecipe') return { type: row.itemType, label: 'สูตรทั่วไป', title: row.title || 'สูตรจาก TheMealDB', image: row.image || '', price: 0, date: row.createdAt, url: '/recipes/external/' + row.itemId };
     const doc = await itemModels[row.itemType].findById(row.itemId).lean();
     if (!doc) return null;
     return {
@@ -72,7 +75,8 @@ async function renderProfile(req, res, { form, error, saved, status = 200 } = {}
 
 router.get('/', async (req, res, next) => {
   try {
-    await renderProfile(req, res, { saved: req.query.saved === '1' });
+    const messages = { 1: 'บันทึกการแก้ไขเรียบร้อยแล้ว', password: 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว' };
+    await renderProfile(req, res, { saved: messages[req.query.saved] });
   } catch (err) {
     next(err);
   }
@@ -83,7 +87,7 @@ router.post('/', async (req, res, next) => {
   try {
     const form = {
       name: String(req.body.name || '').trim(),
-      username: String(req.body.username || '').trim().toLowerCase(),
+      username: String(req.body.username || '').trim(),
       email: String(req.body.email || '').trim().toLowerCase(),
       bio: String(req.body.bio || '').trim(),
       institution: String(req.body.institution || '').trim(),
@@ -93,17 +97,24 @@ router.post('/', async (req, res, next) => {
 
     let error = null;
     if (!form.name || !form.username || !form.email) error = 'กรุณากรอกชื่อ, username และอีเมล';
-    else if (!/^[a-z0-9_]{3,20}$/.test(form.username)) error = 'username ต้องเป็น a-z, 0-9 หรือ _ ยาว 3–20 ตัว';
+    else if (!/^[A-Za-z0-9_]{3,20}$/.test(form.username)) error = 'username ต้องเป็น A-Z, a-z, 0-9 หรือ _ ยาว 3–20 ตัว';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) error = 'รูปแบบอีเมลไม่ถูกต้อง';
     else if (form.bio.length > 300) error = 'แนะนำตัวได้ไม่เกิน 300 ตัวอักษร';
     else if (isChef && !form.institution) error = 'กรุณาระบุสถาบันการทำอาหาร';
-    else if (await Client.exists({ ...others, username: form.username })) error = 'username นี้ถูกใช้แล้ว';
+    else if (await Client.exists({ ...others, ...usernameQuery(form.username) })) error = 'username นี้ถูกใช้แล้ว';
     else if (await Client.exists({ ...others, email: form.email })) error = 'อีเมลนี้ถูกใช้แล้ว';
     if (error) return renderProfile(req, res, { form, error, status: 400 });
 
     const update = { name: form.name, username: form.username, email: form.email, bio: form.bio };
     if (isChef) update.institution = form.institution;
-    await Client.updateOne({ _id: req.user._id }, update);
+    try {
+      await Client.updateOne({ _id: req.user._id }, update);
+    } catch (err) {
+      // มีคนบันทึก username/อีเมลเดียวกันพร้อมกันพอดี unique index ของ DB จะโยน 11000
+      if (err.code !== 11000) throw err;
+      const field = err.keyPattern && err.keyPattern.username ? 'username' : 'อีเมล';
+      return renderProfile(req, res, { form, error: `${field}นี้ถูกใช้แล้ว`, status: 409 });
+    }
 
 
     res.redirect('/profile?saved=1');
@@ -116,7 +127,6 @@ router.post('/', async (req, res, next) => {
 router.post('/avatar', (req, res, next) => {
   upload.single('avatar')(req, res, async (err) => {
     try {
-      if (err && err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ error: 'รูปต้องไม่เกิน 2MB' });
       if (err) return next(err);
       if (!req.file) return res.status(400).json({ error: 'รองรับเฉพาะไฟล์รูป jpg, png, gif, webp' });
 
@@ -132,6 +142,26 @@ router.post('/avatar', (req, res, next) => {
       next(e);
     }
   });
+});
+
+/** POST /profile/password → เช็ครหัสเดิม แล้วเปลี่ยนเป็นรหัสใหม่ */
+router.post('/password', async (req, res, next) => {
+  try {
+    const { currentPassword = '', newPassword = '', confirmPassword = '' } = req.body;
+    const user = await Client.findById(req.user._id).select('passwordHash');
+
+    let error = null;
+    if (!currentPassword || !newPassword || !confirmPassword) error = 'กรุณากรอกรหัสผ่านให้ครบทุกช่อง';
+    else if (!(await bcrypt.compare(currentPassword, user.passwordHash))) error = 'รหัสผ่านเดิมไม่ถูกต้อง';
+    else if (newPassword.length < 6) error = 'รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร';
+    else if (newPassword !== confirmPassword) error = 'รหัสผ่านใหม่ทั้งสองช่องไม่ตรงกัน';
+    if (error) return renderProfile(req, res, { error, status: 400 });
+
+    await Client.updateOne({ _id: req.user._id }, { passwordHash: await bcrypt.hash(newPassword, 10) });
+    res.redirect('/profile?saved=password');
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;

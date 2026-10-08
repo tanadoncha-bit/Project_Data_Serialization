@@ -1,101 +1,98 @@
 <div class="recipe-detail">
   <%- include('_image', { recipe }) %>
-    <div class="recipe-detail-info">
-      <div>
-        <span class="recipe-tag">
-          <%= categoryLabels[recipe.category] || recipe.category || 'ไม่ระบุหมวดหมู่' %>
-        </span>
-        <h1>
-          <%= recipe.title %>
-        </h1>
-        <% if (recipe.description) { %>
-          <p class="recipe-description recipe-muted">
-            <%= recipe.description %>
-          </p>
-          <% } %>
-            <div class="recipe-metadata"><span><i data-lucide="clock-3"></i>
-                <%= recipe.duration==null ? 'ไม่ระบุเวลา' : recipe.duration + ' นาที' %>
-              </span><span><i data-lucide="star"></i>
-                <%= recipe.rating==null ? 'ยังไม่มีรีวิว' : recipe.rating.toFixed(1) + ' (' + (recipe.reviewCount || 0)
+  <div class="recipe-detail-info">
+    <div>
+      <span class="recipe-tag <%= (recipe.publisher && recipe.publisher.role === 'chef') || typeof chefName !== 'undefined' ? 'recipe-tag-chef' : '' %>">
+        <%= categoryLabels[recipe.category] || recipe.category || 'ไม่ระบุหมวดหมู่' %>
+      </span>
+      <h1>
+        <%= recipe.title %>
+      </h1>
+      <% if (recipe.description) { %>
+      <p class="recipe-description recipe-muted">
+        <%= recipe.description %>
+      </p>
+      <% } %>
+      <div class="recipe-metadata"><span><i data-lucide="clock-3"></i>
+          <%= recipe.duration==null ? 'ไม่ระบุเวลา' : recipe.duration + ' นาที' %>
+        </span><span><i data-lucide="star"></i>
+          <%= recipe.rating==null ? 'ยังไม่มีรีวิว' : recipe.rating.toFixed(1) + ' (' + (recipe.reviewCount || 0)
                   + ' รีวิว)' %>
-              </span><span><i data-lucide="chart-no-axes-column-increasing"></i>
-                <%= difficultyLabels[recipe.difficulty] %>
-              </span></div>
-      </div>
-      <aside class="recipe-chef-card"><span class="recipe-chef-avatar"><i data-lucide="user-round"></i></span>
-        <div><span class="recipe-chef-label">ผู้สอน</span><strong>
-            <%= recipe.publisher && recipe.publisher.name ? recipe.publisher.name : typeof chefName !=='undefined' ?
-              chefName : 'เจ้าของสูตร' %>
-          </strong><small>ผู้สร้างสูตรอาหาร</small></div>
-      </aside>
+        </span><span><i data-lucide="chart-no-axes-column-increasing"></i>
+          <%= difficultyLabels[recipe.difficulty] %>
+        </span></div>
     </div>
-    <% if (canAccess) { %>
-      <div class="recipe-detail-grid">
-        <section class="recipe-detail-panel">
-          <h2><i data-lucide="shopping-cart"></i> วัตถุดิบ</h2>
-          <ul class="recipe-ingredients">
-            <% (recipe.ingredients || []).forEach(item=> { %><li><span>
-                  <%= item.name %>
-                </span><span>
-                  <%= item.amount %>
-                </span></li>
-              <% }); %>
-          </ul>
-          <% if (!recipe.ingredients || !recipe.ingredients.length) { %>
-            <p class="recipe-muted">ยังไม่มีข้อมูลวัตถุดิบ</p>
-            <% } %>
-        </section>
-        <section class="recipe-detail-panel">
-          <h2><i data-lucide="chef-hat"></i> ขั้นตอนการทำ</h2>
-          <ol class="recipe-steps">
-            <% (recipe.steps || []).forEach((step, i)=> { %><li><span class="recipe-detail-step-number">
-                  <%= i + 1 %>
-                </span>
-                <div>
-                  <p>
-                    <%= step.description %>
-                  </p>
-                </div>
-              </li>
-              <% }); %>
-          </ol>
-          <% if (!recipe.steps || !recipe.steps.length) { %>
-            <p class="recipe-muted">ยังไม่มีข้อมูลขั้นตอน</p>
-            <% } %>
-        </section>
-      </div>
-      <% if (recipe.videoUrl && /^https?:\/\//i.test(recipe.videoUrl)) { %>
-        <section class="recipe-detail-panel">
-          <h2>วิดีโอสอนทำอาหาร</h2>
-          <% if (videoEmbed) { %><iframe class="recipe-video" src="<%= videoEmbed %>" title="วิดีโอสอนทำอาหาร"
-              loading="lazy" allowfullscreen></iframe>
-            <% } %>
-              <p><a class="recipe-btn" href="<%= recipe.videoUrl %>" target="_blank"
-                  rel="noopener noreferrer">เปิดวิดีโอ</a></p>
-        </section>
+    <aside class="recipe-chef-card"><span class="recipe-chef-avatar"><i data-lucide="user-round"></i></span>
+      <div><span class="recipe-chef-label">ผู้สอน</span><strong>
+          <%= recipe.publisher && recipe.publisher.name ? recipe.publisher.name : typeof chefName !=='undefined' ?
+              chefName : 'เจ้าของสูตร' %>
+        </strong><small>ผู้สร้างสูตรอาหาร</small></div>
+    </aside>
+  </div>
+  <% if (canAccess) { %>
+  <div class="recipe-detail-grid">
+    <section class="recipe-detail-panel">
+      <h2><i data-lucide="shopping-cart"></i> วัตถุดิบ</h2>
+      <ul class="recipe-ingredients">
+        <% (recipe.ingredients || []).forEach(item=> { %><li><span>
+            <%= item.name %>
+          </span><span>
+            <%= item.amount %>
+          </span></li>
+        <% }); %>
+      </ul>
+      <% if (!recipe.ingredients || !recipe.ingredients.length) { %>
+      <p class="recipe-muted">ยังไม่มีข้อมูลวัตถุดิบ</p>
+      <% } %>
+    </section>
+    <section class="recipe-detail-panel">
+      <h2><i data-lucide="chef-hat"></i> ขั้นตอนการทำ</h2>
+      <ol class="recipe-steps">
+        <% (recipe.steps || []).forEach((step, i)=> { %><li><span class="recipe-detail-step-number">
+            <%= i + 1 %>
+          </span>
+          <div>
+            <p>
+              <%= step.description %>
+            </p>
+          </div>
+        </li>
+        <% }); %>
+      </ol>
+      <% if (!recipe.steps || !recipe.steps.length) { %>
+      <p class="recipe-muted">ยังไม่มีข้อมูลขั้นตอน</p>
+      <% } %>
+    </section>
+  </div>
+  <% if (recipe.videoUrl && /^https?:\/\//i.test(recipe.videoUrl)) { %>
+  <section class="recipe-detail-panel">
+    <h2>วิดีโอสอนทำอาหาร</h2>
+    <% if (videoEmbed) { %><iframe class="recipe-video" src="<%= videoEmbed %>" title="วิดีโอสอนทำอาหาร" loading="lazy" allowfullscreen></iframe>
+    <% } %>
+    <p><a class="recipe-btn" href="<%= recipe.videoUrl %>" target="_blank" rel="noopener noreferrer">เปิดวิดีโอ</a></p>
+  </section>
+  <% } %>
+  <% } else { %>
+  <section class="recipe-locked">
+    <div class="recipe-locked-placeholder" aria-hidden="true">
+      <div>
+        <h2>วัตถุดิบ</h2>
+        <% for (let i=0; i < 5; i++) { %>
+        <div class="recipe-skeleton-line"></div>
         <% } %>
-          <% } else { %>
-            <section class="recipe-locked">
-              <div class="recipe-locked-placeholder" aria-hidden="true">
-                <div>
-                  <h2>วัตถุดิบ</h2>
-                  <% for (let i=0; i < 5; i++) { %>
-                    <div class="recipe-skeleton-line"></div>
-                    <% } %>
-                </div>
-                <div>
-                  <h2>ขั้นตอนการทำ</h2>
-                  <% for (let i=0; i < 3; i++) { %>
-                    <div class="recipe-skeleton-step"></div>
-                    <% } %>
-                </div>
-              </div>
-              <div class="recipe-lock-overlay"><i data-lucide="lock-keyhole"></i>
-                <h2>ปลดล็อกเนื้อหาสูตรเพื่อดูทั้งหมด</h2><button class="recipe-btn recipe-primary" type="button"
-                  data-purchase-recipe="<%= recipe._id %>"><i data-lucide="shopping-cart"></i> ซื้อสูตร ฿<%=
+      </div>
+      <div>
+        <h2>ขั้นตอนการทำ</h2>
+        <% for (let i=0; i < 3; i++) { %>
+        <div class="recipe-skeleton-step"></div>
+        <% } %>
+      </div>
+    </div>
+    <div class="recipe-lock-overlay"><i data-lucide="lock-keyhole"></i>
+      <h2>ปลดล็อกเนื้อหาสูตรเพื่อดูทั้งหมด</h2><button class="recipe-btn recipe-primary" type="button" data-purchase-recipe="<%= recipe._id %>"><i data-lucide="shopping-cart"></i> ซื้อสูตร ฿<%=
                     recipe.price.toLocaleString('th-TH') %></button>
-                <p data-purchase-status role="status" aria-live="polite"></p>
-              </div>
-            </section>
-            <% } %>
+      <p data-purchase-status role="status" aria-live="polite"></p>
+    </div>
+  </section>
+  <% } %>
 </div>

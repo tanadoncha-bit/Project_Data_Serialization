@@ -1,7 +1,19 @@
-<h1>
-  <%= message %>
-</h1>
-<h2>
-  <%= error.status %>
-</h2>
-<pre><%= error.stack %></pre>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <%- include('partials/head', { title }) %>
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <!-- ===== หน้า error ===== -->
+  <main class="error-page">
+    <p class="error-code"><%= status %></p>
+    <h1><%= message %></h1>
+    <a href="/home" class="error-home">กลับหน้าแรก</a>
+    <% if (stack) { %><pre class="error-stack"><%= stack %></pre><% } %>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

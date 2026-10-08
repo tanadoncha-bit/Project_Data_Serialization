@@ -13,9 +13,23 @@
 
     <label for="loginPassword">Password</label>
     <input type="password" id="loginPassword" name="password" placeholder="enter your password" autocomplete="current-password" required>
+    <a href="#" class="auth-forgot" data-open-forgot>ลืมรหัสผ่าน?</a>
 
     <button type="submit" class="auth-submit">Continue</button>
   </form>
 
   <p class="auth-switch">ยังไม่มีบัญชี CookHub? <a href="/register" data-open-register>สมัครสมาชิก</a></p>
+</dialog>
+
+<!-- ===== ลืมรหัสผ่าน ===== -->
+<dialog class="auth-modal" id="forgotModal" aria-labelledby="forgotTitle">
+  <button type="button" class="auth-close" data-close-auth aria-label="ปิด"><i data-lucide="x"></i></button>
+
+  <div class="auth-logo"><i data-lucide="key-round"></i></div>
+  <h2 id="forgotTitle">ลืมรหัสผ่าน?</h2>
+  <p class="auth-sub">ระบบยังไม่รองรับการรีเซ็ตรหัสผ่านด้วยตัวเอง</p>
+
+  <p class="auth-success">กรุณาติดต่อผู้ดูแลระบบเพื่อรีเซ็ตรหัสผ่านของคุณ</p>
+
+  <p class="auth-switch">นึกออกแล้ว? <a href="#" data-open-login>กลับไปเข้าสู่ระบบ</a></p>
 </dialog>

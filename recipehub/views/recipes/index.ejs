@@ -2,113 +2,106 @@
 <html lang="th">
 
 <head><%- include('../partials/head', { title }) %>
-    <link rel="stylesheet" href="/stylesheets/recipes.css">
+  <link rel="stylesheet" href="/stylesheets/recipes.css">
 </head>
 
 <body class="recipe-site public-recipe-site">
   <%- include('../partials/navbar', { active, recipePublicNav: true }) %>
-    <section class="recipe-banner public-recipe-banner">
-      <div class="recipe-banner-inner">
-        <h1><span>Find Your</span><br>Perfect Recipe</h1>
-        <p>ค้นพบสูตรอาหารที่ทำตามได้ง่าย<br>พร้อมขั้นตอนและวัตถุดิบที่ครบถ้วน<br>ไม่ว่าจะคาว หวาน หรือเมนูโปรดของคุณ</p>
-      </div>
-    </section>
-    <main class="recipe-page public-recipe-page">
-      <form method="get" action="/recipes" id="recipe-browse-form">
-        <div class="recipe-browse-controls">
+  <section class="recipe-banner public-recipe-banner">
+    <div class="recipe-banner-inner">
+      <h1><span>Find Your</span><br>Perfect Recipe</h1>
+      <p>ค้นพบสูตรอาหารที่ทำตามได้ง่าย<br>พร้อมขั้นตอนและวัตถุดิบที่ครบถ้วน<br>ไม่ว่าจะคาว หวาน หรือเมนูโปรดของคุณ</p>
+    </div>
+  </section>
+  <main class="recipe-page public-recipe-page">
+    <form method="get" action="/recipes" id="recipe-browse-form">
+      <div class="recipe-browse-controls">
         <div class="recipe-browse-toolbar">
           <div class="recipe-difficulty-select">
-            <span id="recipe-level-label">ระดับ:</span>
+            <span id="recipe-level-label">ประเภทสูตร:</span>
             <details class="recipe-difficulty-control">
-              <summary aria-labelledby="recipe-level-label recipe-level-value"><span id="recipe-level-value"><%= difficultyLabels[filters.difficulty] || 'ทั้งหมด' %></span><i data-lucide="chevron-down" aria-hidden="true"></i></summary>
+              <summary aria-labelledby="recipe-level-label recipe-level-value"><span id="recipe-level-value"><%= {all:'ทั้งหมด',chef:'สูตรจากเชฟ',general:'สูตรทั่วไป'}[filters.source] %></span><i data-lucide="chevron-down" aria-hidden="true"></i></summary>
               <div class="recipe-difficulty-menu" role="group" aria-labelledby="recipe-level-label">
-                <% [['', 'ทั้งหมด'], ...difficulties.map(value => [value, difficultyLabels[value]])].forEach(([value, label]) => { %>
-                  <label class="recipe-difficulty-option"><input type="radio" name="difficulty" value="<%= value %>" data-submit-change <%= filters.difficulty === value ? 'checked' : '' %>><span><%= label %></span></label>
+                <% [['all', 'ทั้งหมด'], ['chef', 'สูตรจากเชฟ'], ['general', 'สูตรทั่วไป']].forEach(([value, label]) => { %>
+                <label class="recipe-difficulty-option"><input type="radio" name="source" value="<%= value %>" data-submit-change <%= filters.source === value ? 'checked' : '' %>><span><%= label %></span></label>
                 <% }); %>
               </div>
             </details>
           </div>
           <div class="recipe-sort-options"><span>เรียงตาม:</span>
             <% [['popular', 'ยอดนิยม' ], ['rating', 'คะแนนสูงสุด' ], ['newest', 'ใหม่ล่าสุด' ]].forEach(([value,
-              label])=> { %><button type="button" data-sort="<%= value %>"
-                class="<%= filters.sort === value ? 'active' : '' %>">
-                <%= label %>
-              </button>
-              <% }); %><input type="hidden" name="sort" value="<%= filters.sort %>">
+              label])=> { %><button type="button" data-sort="<%= value %>" class="<%= filters.sort === value ? 'active' : '' %>">
+              <%= label %>
+            </button>
+            <% }); %><input type="hidden" name="sort" value="<%= filters.sort %>">
           </div>
         </div>
-          <button type="button" class="recipe-btn recipe-filter-button" data-open-filter><i
-              data-lucide="sliders-horizontal"></i> ตัวกรอง</button>
-        </div>
-      </form>
-      <p class="recipe-results-count">ผลลัพธ์ <strong>
-          <%= total %>
-        </strong> สูตร</p>
-      <% if (!recipes.length) { %>
-        <section class="recipe-empty">
-          <h2>ไม่พบสูตรอาหาร</h2>
-          <p>ลองเปลี่ยนคำค้นหาหรือตัวกรอง</p><a href="/recipes" class="recipe-btn">ล้างตัวกรอง</a>
-        </section>
-        <% } %>
-          <div class="recipe-grid">
-            <% recipes.forEach(recipe=> { %><article class="recipe-card public-recipe-card">
-                <div class="recipe-card-photo"><a href="/recipes/<%= recipe._id %>" data-recipe-modal="preview"><%-
-                      include('_image', { recipe }) %></a><span class="recipe-tag">
-                    <%= categoryLabels[recipe.category] || recipe.category || 'ไม่ระบุหมวดหมู่' %>
-                  </span><button type="button" class="recipe-favorite" data-favorite-recipe="<%= recipe._id %>"
-                    aria-label="เพิ่ม <%= recipe.title %> เป็นรายการโปรด"><i data-lucide="heart"></i></button></div>
-                <div class="recipe-card-body">
-                  <div class="recipe-card-meta"><span><i data-lucide="clock-3"></i>
-                      <%= recipe.duration==null ? 'ไม่ระบุเวลา' : recipe.duration + ' นาที' %>
-                    </span><span class="recipe-difficulty-badge <%= recipe.difficulty.toLowerCase() %>">
-                      <%= difficultyLabels[recipe.difficulty] %>
-                    </span></div>
-                  <div class="recipe-card-title">
-                    <h2><a href="/recipes/<%= recipe._id %>" data-recipe-modal="preview">
-                        <%= recipe.title %>
-                      </a></h2><span class="recipe-rating">
-                      <%= recipe.rating==null ? 'ยังไม่มีรีวิว' : '★ ' + recipe.rating.toFixed(1) %>
-                    </span>
-                  </div>
-                  <% if (recipe.description) { %>
-                    <p class="recipe-card-description recipe-muted">
-                      <%= recipe.description %>
-                    </p>
-                    <% } %>
-                      <p class="recipe-card-chef recipe-muted"><i data-lucide="circle-user-round"></i>
-                        <%= recipe.publisher ? recipe.publisher.name : 'เจ้าของสูตร' %>
-                      </p>
-                      <div class="recipe-card-bottom"><strong
-                          class="recipe-price <%= recipe.price === 0 ? 'recipe-free-price' : '' %>">
-                          <%= recipe.price===0 ? 'ฟรี' : '฿' + recipe.price.toLocaleString('th-TH') %>
-                        </strong><a href="/recipes/<%= recipe._id %>" data-recipe-modal="preview"
-                          class="recipe-preview-link">ดูสูตร →</a></div>
-                      <p class="recipe-card-status" data-favorite-status role="status" aria-live="polite"></p>
-                </div>
-              </article>
-              <% }); %>
+        <button type="button" class="recipe-btn recipe-filter-button" data-open-filter><i data-lucide="sliders-horizontal"></i> ตัวกรอง</button>
+      </div>
+    </form>
+    <p class="recipe-results-count">ผลลัพธ์ <strong>
+        <%= total %>
+      </strong> สูตร</p>
+    <% if (typeof cataloguePending !== 'undefined' && cataloguePending) { %><p class="recipe-alert" role="status">กำลังโหลดสูตรทั่วไปเพิ่มเติม จำนวนผลลัพธ์เป็นสูตรที่โหลดแล้วในขณะนี้ <a href="/recipes?<%= pageQuery %>">อัปเดตรายการ</a></p><% } %>
+    <% if (externalError) { %><p class="recipe-alert" role="status"><%= externalError %></p><% } %>
+    <% if (!recipes.length && !externalMeals.length) { %>
+    <section class="recipe-empty">
+      <h2>ไม่พบสูตรอาหาร</h2>
+      <p>ลองเปลี่ยนคำค้นหาหรือตัวกรอง</p><a href="/recipes" class="recipe-btn">ล้างตัวกรอง</a>
+    </section>
+    <% } %>
+    <div class="recipe-grid">
+      <% recipes.forEach(recipe=> { %><article class="recipe-card public-recipe-card">
+        <div class="recipe-card-photo"><a href="/recipes/<%= recipe._id %>" data-recipe-modal="preview"><%-
+                      include('_image', { recipe }) %></a><span class="recipe-tag <%= recipe.publisher && recipe.publisher.role === 'chef' ? 'recipe-tag-chef' : '' %>">
+            <%= countryLabel(localCountry(recipe.category)) %>
+          </span><button type="button" class="recipe-favorite" data-favorite-recipe="<%= recipe._id %>" data-favorite-type="local" aria-pressed="<%= favoriteKeys.has('Recipe:'+recipe._id) %>" aria-label="<%= favoriteKeys.has('Recipe:'+recipe._id) ? 'ยกเลิก' : 'เพิ่ม' %> <%= recipe.title %> เป็นรายการโปรด"><i data-lucide="heart"></i></button></div>
+        <div class="recipe-card-body">
+          <div class="recipe-card-meta"><span><i data-lucide="clock-3"></i>
+              <%= recipe.duration==null ? 'ไม่ระบุเวลา' : recipe.duration + ' นาที' %>
+            </span><span class="recipe-difficulty-badge <%= recipe.difficulty.toLowerCase() %>">
+              <%= difficultyLabels[recipe.difficulty] %>
+            </span></div>
+          <div class="recipe-card-title">
+            <h2><a href="/recipes/<%= recipe._id %>" data-recipe-modal="preview">
+                <%= recipe.title %>
+              </a></h2><span class="recipe-rating">
+              <%= recipe.rating==null ? 'ยังไม่มีรีวิว' : '★ ' + recipe.rating.toFixed(1) %>
+            </span>
           </div>
-          <nav class="recipe-pagination" aria-label="หน้ารายการสูตร">
-            <% if (page> 1) { %><a href="/recipes?<%= pageQuery %>&amp;page=<%= page - 1 %>"
-                aria-label="หน้าก่อนหน้า">‹</a>
-              <% } %>
-                <% if (pages) { %><span aria-current="page">
-                    <%= page %>
-                  </span><span class="recipe-pagination-total">/ <%= pages %></span>
-                  <% } %>
-                    <% if (page < pages) { %><a href="/recipes?<%= pageQuery %>&amp;page=<%= page + 1 %>"
-                        aria-label="หน้าถัดไป">›</a>
-                      <% } %>
-          </nav>
-    </main>
-    <%- include('_filterDialog') %>
-      <dialog id="recipe-content-dialog" class="recipe-dialog recipe-content-dialog recipe-preview-dialog"
-        aria-label="รายละเอียดสูตรอาหาร"><button class="recipe-modal-close recipe-preview-close" type="button"
-          data-close-recipe aria-label="ปิดสูตรอาหาร">×</button>
-        <div id="recipe-modal-content"></div>
-      </dialog>
-      <%- include('../partials/footer') %>
-        <script src="/javascripts/recipeModals.js" defer></script>
+          <% if (recipe.description) { %>
+          <p class="recipe-card-description recipe-muted">
+            <%= recipe.description %>
+          </p>
+          <% } %>
+          <p class="recipe-card-chef recipe-muted"><i data-lucide="circle-user-round"></i>
+            <%= recipe.publisher ? recipe.publisher.name : 'เจ้าของสูตร' %>
+          </p>
+          <div class="recipe-card-bottom"><strong class="recipe-price <%= recipe.price === 0 ? 'recipe-free-price' : '' %>">
+              <%= recipe.price===0 ? 'ฟรี' : '฿' + recipe.price.toLocaleString('th-TH') %>
+            </strong><a href="/recipes/<%= recipe._id %>" data-recipe-modal="preview" class="recipe-preview-link">ดูสูตร →</a></div>
+        </div>
+      </article>
+      <% }); %>
+      <% externalMeals.forEach(meal => { %><%- include('_externalCard', { meal }) %><% }); %>
+    </div>
+    <nav class="recipe-pagination" aria-label="หน้ารายการสูตร">
+      <% if (page> 1) { %><a href="/recipes?<%= pageQuery %>&amp;page=<%= page - 1 %>" aria-label="หน้าก่อนหน้า">‹</a>
+      <% } %>
+      <% if (pages) { %><span aria-current="page">
+        <%= page %>
+      </span><span class="recipe-pagination-total">/ <%= pages %></span>
+      <% } %>
+      <% if (page < pages) { %><a href="/recipes?<%= pageQuery %>&amp;page=<%= page + 1 %>" aria-label="หน้าถัดไป">›</a>
+      <% } %>
+    </nav>
+  </main>
+  <%- include('_filterDialog') %>
+  <dialog id="recipe-content-dialog" class="recipe-dialog recipe-content-dialog recipe-preview-dialog" aria-label="รายละเอียดสูตรอาหาร"><button class="recipe-modal-close recipe-preview-close" type="button" data-close-recipe aria-label="ปิดสูตรอาหาร">×</button>
+    <div id="recipe-modal-content"></div>
+  </dialog>
+  <%- include('../partials/footer') %>
+  <script src="/javascripts/recipeModals.js" defer></script>
 </body>
 
 </html>

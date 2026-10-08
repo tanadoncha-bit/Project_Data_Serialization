@@ -1,6 +1,4 @@
-<% if (recipe.image && /^https?:\/\//i.test(recipe.image)) { %><img class="recipe-image" src="<%= recipe.image %>"
-        alt="<%= recipe.title %>" loading="lazy" referrerpolicy="no-referrer">
-    <% } else { %>
-        <div class="recipe-image recipe-placeholder" role="img" aria-label="ยังไม่มีรูปอาหาร"><i
-                data-lucide="utensils"></i></div>
-        <% } %>
+<% if (recipe.image && (/^(https?:\/\/|\/uploads\/recipes\/)/i.test(recipe.image))) { %><img class="recipe-image" src="<%= recipe.image %>" alt="<%= recipe.title %>" loading="lazy" referrerpolicy="no-referrer">
+<% } else { %>
+<div class="recipe-image recipe-placeholder" role="img" aria-label="ยังไม่มีรูปอาหาร"><i data-lucide="utensils"></i></div>
+<% } %>

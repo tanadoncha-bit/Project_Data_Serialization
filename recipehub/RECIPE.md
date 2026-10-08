@@ -53,3 +53,12 @@ node tests/recipes.integration.js
 ```
 
 MongoDB Memory Server downloads and starts a temporary real MongoDB process. Optional browser tests use installed Microsoft Edge, check dynamic forms and live TheMealDB search/detail, and save screenshots in ignored `node_modules/.cache/recipe-ui`. These optional packages do not change the project's declared dependencies.
+
+
+## Main-page API recipes
+
+`/recipes` combines persisted CookHub recipes with TheMealDB discovery cards in the same grid (12 per page). Discovery queries the documented first-letter endpoint for A?Z with four concurrent workers, deduplicates meal IDs, and caches the resulting catalogue for 30 minutes. The available results still depend on the API key and upstream dataset. Local recipes appear first with their configured sort; external recipes keep API order. The source is labelled, and API meals do not invent price, rating, difficulty or cooking time. The drawer uses six English country groups: Thai, British, Chinese, Japanese, Korean, and International. API area aliases are normalized (including North/South Korean); every other or unknown area goes to International. Explicit matching local categories use the five named groups; other local categories use International. Original category query URLs remain supported for compatibility. Filters requiring unavailable metadata exclude external meals. Search URLs continue to work through the existing backend despite the removed search bar.
+
+`/recipes/external/:id` renders external ingredients and instructions in CookHub's detail layout; `?fragment=1` opens the same content in the preview modal. External IDs never use local paid-recipe access routes. API failure shows an inline message while local recipes continue to render. External detail remains independent of MongoDB, although the combined list requires the database connection.
+
+Run `node tests/externalRecipes.integration.js` with the optional `mongodb-memory-server` package for isolated tests. Set `RECIPE_TEST_BROWSER=true` to check the modal and mobile layout using the optional Playwright package and installed Edge. Tests use a temporary local database and injected API fixtures, never production data.

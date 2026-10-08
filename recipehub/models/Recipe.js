@@ -16,7 +16,7 @@ const recipeSchema = new Schema({
   rating:      { type: Number, default: null, min: 0, max: 5 },
   reviewCount: { type: Number, default: 0, min: 0 },
   favoriteCount: { type: Number, default: 0, min: 0 },
-  image:       { type: String, default: '', maxlength: 2000, validate: httpUrl, alias: 'imageUrl' },
+  image:       { type: String, default: '', maxlength: 2000, validate: value => httpUrl(value) || /^\/uploads\/recipes\/[a-f0-9]{32}\.(jpg|png|webp)$/.test(value), alias: 'imageUrl' },
   videoUrl:    { type: String, default: '', maxlength: 2000, validate: httpUrl },
   ingredients: [{ _id: false, name: { type: String, required: true, trim: true, maxlength: 200 }, amount: { type: String, required: true, trim: true, maxlength: 100 } }],
   steps:       [{ _id: false, stepNumber: { type: Number, required: true, min: 1 }, description: { type: String, required: true, trim: true, maxlength: 4000 } }],

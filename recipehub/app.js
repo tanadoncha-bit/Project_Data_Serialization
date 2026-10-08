@@ -10,6 +10,7 @@ const { MongoStore } = require('connect-mongo');
 const connectDB = require('./config/db');
 
 const currentUser = require('./middleware/currentUser');
+const { notFound, errorHandler } = require('./middleware/errorHandler');
 const { requireChef } = require('./middleware/requireRole');
 var authRouter = require('./routes/auth');
 var profileRouter = require('./routes/profile');
@@ -38,13 +39,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/bootstrap', express.static(
   path.join(__dirname, 'node_modules/bootstrap/dist')));
 
+// session store ล่มต้องไม่ทำให้ทั้งเซิร์ฟเวอร์ crash
+const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGODB_URI });
+sessionStore.on('error', (err) => console.error('[session] store error:', err.message));
+
 // session เก็บใน MongoDB (collection sessions) รีสตาร์ทเซิร์ฟเวอร์แล้วไม่หลุด login
 app.use(session({
   name: 'cookhub.sid',
   secret: process.env.SESSION_SECRET || process.env.JWT_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
+  store: sessionStore,
   cookie: { httpOnly: true, sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 },
 }));
 app.use(currentUser);
@@ -61,20 +66,11 @@ app.use('/api/meals', mealsRouter);
 app.use('/chef', chefRouter);
 app.use('/home', homepageRouter);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
+// ===== จัดการ error =====
+app.use(notFound);
+app.use(errorHandler);
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+// promise ที่ลืม catch จะถูก log ไว้แทนการเงียบหาย
+process.on('unhandledRejection', (err) => console.error('[unhandledRejection]', err));
 
 module.exports = app;

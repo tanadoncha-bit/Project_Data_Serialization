@@ -1,0 +1,144 @@
+// Verify external recipes against isolated MongoDB and deterministic API fixtures.
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const express = require('express');
+const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const mealApi = require('../services/mealApiService');
+const Recipe = require('../models/Recipe');
+const countries = require('../services/recipeCountries');
+require('../models/Client');
+let db, server;
+const original = { browse: mealApi.browse, lookup: mealApi.lookup, search: mealApi.search };
+const meals = Array.from({ length: 15 }, (_, i) => ({
+  id: String(90000 + i), title: `API meal ${i}`, category: i ? 'Seafood' : 'Dessert',
+  area: i === 1 ? 'Italian' : i === 2 ? 'Unknown' : 'Thai', image: 'https://www.themealdb.com/images/media/meals/fixture.jpg',
+  ingredients: [{ name: 'API ingredient', amount: '1 cup' }],
+  instructions: 'API instructions <script>unsafe</script>', videoUrl: i === 1 ? 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' : 'javascript:alert(1)'
+}));
+async function main() {
+  assert.equal(countries.countryLabel('Argentina'), 'International');
+  assert.equal(countries.mealCountry({area:'South Korean'}), 'Korean');
+  assert.equal(countries.mealCountry({area:'England'}), 'British');
+  assert.equal(countries.mealCountry({area:'Unknown'}), 'International');
+  assert.equal(countries.localCountry('อาหารเกาหลี'), 'Korean');
+  assert.equal(countries.localCountry('Dessert'), 'International');
+  db = await MongoMemoryServer.create();
+  await mongoose.connect(db.getUri(), { dbName: 'external_recipe_test' });
+  await mongoose.connection.collection('clients').insertMany([{_id:1,name:'Chef fixture',role:'chef',email:'chef@example.invalid'},{_id:2,name:'User fixture',role:'user',email:'user@example.invalid'}]);
+  await Recipe.collection.insertOne({ _id: 90000, publisher: 1, title: 'Local recipe', category: 'Thai', price: 0, difficulty: 'EASY' });
+  mealApi.browse = async () => meals;
+  mealApi.search = async () => [];
+  mealApi.lookup = async id => meals.find(meal => meal.id === id) || null;
+  const app = express();
+  app.set('views', path.resolve('views'));
+  app.set('view engine', 'ejs');
+  app.use(express.static(path.resolve('public')));
+  app.use('/recipes', require('../routes/recipes'));
+  app.use((err, req, res, next) => res.status(err.status || 500).send(err.message));
+  server = await new Promise(resolve => { const s = app.listen(0, '127.0.0.1', () => resolve(s)); });
+  const base = `http://127.0.0.1:${server.address().port}`;
+  async function get(url) { const res = await fetch(base + url); return { status: res.status, html: await res.text() }; }
+  let page = await get('/recipes');
+  assert.equal(page.status, 200);
+  assert(page.html.includes('Local recipe') && page.html.includes('API meal 0'));
+  const initialCards = page.html.split('<article ');
+  assert(initialCards.find(card=>card.includes('Local recipe')).includes('recipe-tag-chef'));
+  assert(!initialCards.find(card=>card.includes('API meal 0')).includes('recipe-tag-chef'));
+  assert.equal((page.html.match(/<article /g) || []).length, 12);
+  assert(!page.html.includes('ไม่พบสูตรอาหาร'));
+  page = await get('/recipes?page=2');
+  assert.equal((page.html.match(/<article /g) || []).length, 4);
+  assert(page.html.includes('API meal 11') && !page.html.includes('API meal 10'));
+  page = await get('/recipes?category=Dessert');
+  assert(page.html.includes('API meal 0') && !page.html.includes('API meal 1'));
+  page = await get('/recipes?country=Italian');
+  assert(page.html.includes('API meal 1') && !page.html.includes('API meal 0') && !page.html.includes('Local recipe'));
+  assert(page.html.includes('International'));
+  assert.equal((page.html.match(/type="checkbox"/g) || []).length, 6);
+  page = await get('/recipes?country=Thai');
+  assert(page.html.includes('Local recipe') && page.html.includes('API meal 0') && !page.html.includes('API meal 1<'));
+  assert(page.html.includes('name="country" value="Thai" aria-label="Thai" form="recipe-browse-form" checked'));
+  page = await get('/recipes?country=__unspecified__');
+  assert(page.html.includes('API meal 2') && !page.html.includes('Local recipe'));
+  page = await get('/recipes?country=International');
+  assert(page.html.includes('API meal 1') && page.html.includes('API meal 2') && !page.html.includes('API meal 0'));
+  assert.equal((await get('/recipes?country[x]=Thai')).status, 400);
+  page = await get('/recipes?minPrice=0&minDuration=0');
+  assert(page.html.includes('API meal 0'));
+  page = await get('/recipes?difficulty=EASY');
+  assert(page.html.includes('Local recipe') && !page.html.includes('API meal 0'));
+  page = await get('/recipes/external/90000?fragment=1');
+  assert.equal(page.status, 200);
+  assert(page.html.includes('API ingredient') && page.html.includes('&lt;script&gt;'));
+  assert(!page.html.includes('javascript:') && !page.html.includes('<script>unsafe'));
+  assert(page.html.includes('<img') && !page.html.includes('<iframe'));
+  const videoPage = await get('/recipes/external/90001?fragment=1');
+  assert.equal(videoPage.status, 200);
+  assert(videoPage.html.includes('<iframe') && !videoPage.html.includes('<img'));
+  assert.equal((videoPage.html.match(/<iframe/g) || []).length, 1);
+  assert(videoPage.html.indexOf('<iframe') < videoPage.html.indexOf('<h1>'));
+  assert.equal((await get('/recipes/external/90000')).status, 200);
+  assert.equal((await get('/recipes/external/invalid')).status, 400);
+  assert.equal((await get('/recipes/external/99999')).status, 404);
+  await Recipe.collection.insertOne({_id:90001,publisher:2,title:'Ordinary user recipe',category:'Thai',price:0});
+  const userPage = await get('/recipes');
+  assert(!userPage.html.split('<article ').find(card=>card.includes('Ordinary user recipe')).includes('recipe-tag-chef'));
+  mealApi.browse = async () => { throw new Error('offline'); };
+  page = await get('/recipes');
+  assert.equal(page.status, 200);
+  assert(page.html.includes('Local recipe') && page.html.includes('โหลดเมนูจาก TheMealDB ไม่สำเร็จ'));
+  mealApi.lookup = async () => { throw new Error('offline'); };
+  assert.equal((await get('/recipes/external/90000?fragment=1')).status, 502);
+  mealApi.browse = async () => meals;
+  mealApi.lookup = original.lookup;
+  console.log('PASS: external cards, pagination, filters, escaping, ID isolation and API failures');
+  if (process.env.RECIPE_TEST_BROWSER === 'true') {
+    const { chromium } = require('playwright');
+    const browser = await chromium.launch({ channel: 'msedge', headless: true });
+    try {
+      const p = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+      // Stub CDN icon setup so this integration test has no external dependencies.
+      await p.route('https://unpkg.com/**', route => route.fulfill({ contentType: 'application/javascript', body: 'window.lucide={createIcons(){}};' }));
+      mealApi.lookup = async id => meals.find(meal => meal.id === id) || null;
+      await p.goto(base + '/recipes');
+      const cards = await p.locator('.public-recipe-card').evaluateAll(es => es.map(e => ({ height: e.getBoundingClientRect().height, footer: e.querySelector('.recipe-card-bottom').getBoundingClientRect().top })));
+      assert(cards.every(card => Math.abs(card.height - cards[0].height) < 1));
+      assert(cards.slice(0,3).every(card => Math.abs(card.footer - cards[0].footer) < 1));
+      await p.screenshot({ path: 'node_modules/.cache/external-recipes-desktop.png', fullPage: true });
+      await p.route('**/recipes/external/*?fragment=1', async route => { await new Promise(resolve=>setTimeout(resolve,600)); await route.continue(); });
+      await p.locator('.recipe-external-card .recipe-preview-link').first().click();
+      await p.locator('.recipe-loading-state').waitFor();
+      assert.equal(await p.locator('#recipe-content-dialog [data-close-recipe]').count(), 1);
+      assert.equal(await p.locator('#recipe-modal-content').getAttribute('aria-busy'), 'true');
+      assert(await p.locator('#recipe-content-dialog').evaluate(e=>e.getBoundingClientRect().height>360));
+      await p.locator('#recipe-content-dialog[open] .recipe-ingredients').waitFor();
+      assert.equal(await p.locator('#recipe-modal-content').getAttribute('aria-busy'), 'false');
+      assert(await p.locator('#recipe-modal-content').textContent().then(text => text.includes('API ingredient')));
+      const imageSize = await p.locator('.recipe-external-media img').evaluate(e => ({ height: e.getBoundingClientRect().height, fit: getComputedStyle(e).objectFit }));
+      assert(imageSize.height <= 280);
+      assert.equal(imageSize.fit, 'cover');
+      assert.equal(await p.locator('#recipe-content-dialog').evaluate(e => getComputedStyle(e).scrollbarWidth), 'none');
+      await p.screenshot({ path: 'node_modules/.cache/external-recipe-preview.png' });
+      await p.keyboard.press('Escape');
+      await p.route('https://www.youtube-nocookie.com/**', route => route.fulfill({ contentType: 'text/html', body: '<body style="background:#222;color:white">Video fixture</body>' }));
+      await p.locator('.recipe-external-card .recipe-preview-link').nth(1).click();
+      await p.locator('#recipe-content-dialog[open] iframe').waitFor();
+      assert.equal(await p.locator('#recipe-modal-content img').count(), 0);
+      const widths = await p.locator('.recipe-external-media').evaluate(e => ({ media: e.getBoundingClientRect().width, parent: e.parentElement.getBoundingClientRect().width, video: e.querySelector('iframe').getBoundingClientRect().width }));
+      assert.equal(widths.media, widths.parent);
+      assert.equal(widths.video, widths.media);
+      await p.setViewportSize({ width: 390, height: 844 });
+      assert(await p.locator('.recipe-external-media').evaluate(e => e.getBoundingClientRect().width < innerWidth));
+      await p.keyboard.press('Escape');
+      assert(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      console.log('PASS: external modal preview and mobile width');
+    } finally { await browser.close(); }
+  }
+}
+main().catch(err => { console.error(err); process.exitCode = 1; }).finally(async () => {
+  Object.assign(mealApi, original);
+  if (server) await new Promise(resolve => server.close(resolve));
+  await mongoose.disconnect();
+  if (db) await db.stop();
+});
