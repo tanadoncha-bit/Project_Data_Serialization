@@ -3,7 +3,7 @@ const autoIncrement = require('./plugins/autoIncrement');
 
 const clientSchema = new Schema({
   _id:            Number,
-  username:       { type: String, unique: true, sparse: true, lowercase: true, trim: true },
+  username:       { type: String, unique: true, sparse: true, trim: true },
   email:          { type: String, required: true, unique: true, lowercase: true, trim: true },
   passwordHash:   { type: String, required: true },
   name:           { type: String, required: true, trim: true },
