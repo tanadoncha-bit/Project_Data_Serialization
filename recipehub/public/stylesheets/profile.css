@@ -258,3 +258,19 @@
 .paid-ok { display: inline-flex; align-items: center; gap: 4px; color: #2F7A1F; }
 .paid-ok svg { width: 16px; height: 16px; }
 .btn-sm { padding: 8px 20px; font-size: 15px; }
+
+/* ===== ปรับขนาดให้ใกล้ Figma ===== */
+.profile-page { max-width: 1000px; gap: 24px; }
+.card { padding: 24px 32px; }
+.card-title { font-size: 24px; }
+.profile-header { padding: 32px; gap: 32px; }
+.avatar-circle { width: 120px; height: 120px; }
+.avatar-camera { width: 32px; height: 32px; }
+.avatar-camera svg { width: 16px; height: 16px; }
+.profile-info h1 { font-size: 26px; margin: 0 0 4px; }
+.form-group label { font-size: 15px; }
+.profile-tab { font-size: 16px; padding: 10px; }
+.section-title { font-size: 22px; }
+
+/* ===== svg ไม่รองรับ attribute hidden ต้องซ่อนด้วย CSS ===== */
+.avatar-circle [hidden] { display: none !important; }

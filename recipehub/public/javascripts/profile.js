@@ -26,14 +26,14 @@ if (avatarInput) {
     const body = new FormData();
     body.append('avatar', file);
     try {
-      const res = await fetch('/profile/avatar', { method: 'POST', body });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const res = await fetch('/profile/avatar', { method: 'POST', body, headers: { Accept: 'application/json' } });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'อัปโหลดไม่สำเร็จ ลองใหม่อีกครั้ง');
 
       avatarPreview.src = data.avatar;
       avatarPreview.hidden = false;
     
-      document.querySelector('.avatar-placeholder')?.setAttribute('hidden', '');
+      document.querySelector('.avatar-placeholder')?.remove();
       avatarStatus.textContent = '';
     } catch (err) {
       avatarStatus.textContent = err.message || 'อัปโหลดไม่สำเร็จ ลองใหม่อีกครั้ง';
