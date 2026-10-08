@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <%- include('../partials/head', { title }) %>
   <link rel="stylesheet" href="/stylesheets/profile.css">
 </head>
+
 <body>
   <%- include('../partials/navbar', { active }) %>
 
   <main class="profile-page">
 
     <% if (saved) { %>
-      <div class="alert-success">
-        <i data-lucide="circle-check"></i> บันทึกการแก้ไขเรียบร้อยแล้ว
-      </div>
+    <div class="alert-success">
+      <i data-lucide="circle-check"></i> บันทึกการแก้ไขเรียบร้อยแล้ว
+    </div>
     <% } %>
 
     <!-- ===== การ์ดหัวโปรไฟล์ ===== -->
     <section class="card profile-header">
       <div class="avatar-wrap">
         <div class="avatar-circle">
-          <img id="avatarPreview" src="<%= user.avatar %>" alt="รูปโปรไฟล์"
-               <%= user.avatar ? '' : 'hidden' %>>
-          <i data-lucide="user" id="avatarPlaceholder" class="avatar-placeholder"
-             <%= user.avatar ? 'hidden' : '' %>></i>
+          <img id="avatarPreview" src="<%= user.avatar %>" alt="รูปโปรไฟล์" <%= user.avatar ? '' : 'hidden' %>>
+          <i data-lucide="user" id="avatarPlaceholder" class="avatar-placeholder" <%= user.avatar ? 'hidden' : '' %>></i>
         </div>
         <label for="avatarInput" class="avatar-camera" aria-label="เปลี่ยนรูปโปรไฟล์">
           <i data-lucide="camera"></i>
@@ -45,26 +45,22 @@
         <div class="form-grid">
           <div class="form-group">
             <label for="firstName">ชื่อ</label>
-            <input type="text" id="firstName" name="firstName"
-                   value="<%= user.firstName %>" required>
+            <input type="text" id="firstName" name="firstName" value="<%= user.firstName %>" required>
           </div>
 
           <div class="form-group">
             <label for="lastName">นามสกุล</label>
-            <input type="text" id="lastName" name="lastName"
-                   value="<%= user.lastName %>" required>
+            <input type="text" id="lastName" name="lastName" value="<%= user.lastName %>" required>
           </div>
 
           <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" id="email" name="email"
-                   value="<%= user.email %>" required>
+            <input type="email" id="email" name="email" value="<%= user.email %>" required>
           </div>
 
           <div class="form-group">
             <label for="institution">สถาบันการศึกษา / สถาบันทำอาหารที่จบมา</label>
-            <input type="text" id="institution" name="institution"
-                   value="<%= user.institution %>">
+            <input type="text" id="institution" name="institution" value="<%= user.institution %>">
           </div>
 
           <div class="form-group full">
@@ -82,4 +78,5 @@
   <%- include('../partials/footer') %>
   <script src="/javascripts/profile.js"></script>
 </body>
+
 </html>

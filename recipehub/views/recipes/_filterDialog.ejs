@@ -7,11 +7,11 @@
     </div>
     <fieldset>
       <legend>ประเภทอาหาร</legend>
-      <% options.forEach(category=> { %><label class="recipe-check"><input type="checkbox" name="category"
-            value="<%= category %>" form="recipe-browse-form" <%=selectedCategories.includes(category) ? 'checked' : ''
+      <% options.forEach(category=> { %><div class="recipe-check"><input type="checkbox" name="category"
+            value="<%= category %>" aria-label="<%= category %>" form="recipe-browse-form" <%=selectedCategories.includes(category) ? 'checked' : ''
             %>><span>
             <%= category %>
-          </span></label>
+          </span></div>
         <% }); %>
     </fieldset>
     <fieldset>
@@ -37,17 +37,17 @@
             form="recipe-browse-form" value="<%= filters.maxPrice %>" placeholder="5000+"></label></div>
     </fieldset>
     <fieldset>
-      <legend>คะแนนรีวิว</legend><label class="recipe-check"><input type="radio" name="minRating" value=""
-          form="recipe-browse-form" <%=!filters.minRating ? 'checked' : '' %>><span>ทั้งหมด</span></label>
-      <% [5, 4, 3, 2, 1].forEach(rating=> { %><label class="recipe-check"><input type="radio" name="minRating"
-            value="<%= rating %>" form="recipe-browse-form" <%=Number(filters.minRating)===rating ? 'checked' : ''
+      <legend>คะแนนรีวิว</legend><div class="recipe-check"><input type="radio" name="minRating" aria-label="ทั้งหมด" value=""
+          form="recipe-browse-form" <%=!filters.minRating ? 'checked' : '' %>><span>ทั้งหมด</span></div>
+      <% [5, 4, 3, 2, 1].forEach(rating=> { %><div class="recipe-check"><input type="radio" name="minRating"
+            value="<%= rating %>" aria-label="<%= rating === 5 ? '5 ดาว' : rating + ' ดาวขึ้นไป' %>" form="recipe-browse-form" <%=Number(filters.minRating)===rating ? 'checked' : ''
             %>><span class="recipe-stars">
             <%= '★' .repeat(rating) %><span>
                 <%= '★' .repeat(5 - rating) %>
               </span>
           </span><small>
             <%= rating===5 ? '5 ดาว' : rating + ' ดาวขึ้นไป' %>
-          </small></label>
+          </small></div>
         <% }); %>
     </fieldset>
     <div class="recipe-filter-footer"><button type="button" class="recipe-btn"
