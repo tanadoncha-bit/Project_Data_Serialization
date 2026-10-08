@@ -10,6 +10,7 @@ const { MongoStore } = require('connect-mongo');
 const connectDB = require('./config/db');
 
 const currentUser = require('./middleware/currentUser');
+const { requireChef } = require('./middleware/requireRole');
 var authRouter = require('./routes/auth');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -50,6 +51,8 @@ app.use(currentUser);
 app.use('/', authRouter);
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+// ทุกหน้าที่ขึ้นต้นด้วย /chef ต้องเป็นเชฟเท่านั้น
+app.use('/chef', requireChef);
 app.use('/chef/recipes', chefRecipesRouter);
 app.use('/recipes', recipesRouter);
 app.use('/api/meals', mealsRouter);
