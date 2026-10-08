@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <%- include('partials/head', { title }) %>
+  <link rel="stylesheet" href="/stylesheets/profile.css">
+</head>
+
+<body>
+  <%- include('partials/navbar', { active }) %>
+
+  <main class="profile-page">
+
+    <% if (saved) { %>
+      <div class="alert-success"><i data-lucide="circle-check"></i> บันทึกการแก้ไขเรียบร้อยแล้ว</div>
+    <% } %>
+    <% if (error) { %>
+      <div class="alert-error" role="alert"><i data-lucide="circle-alert"></i> <%= error %></div>
+    <% } %>
+
+    <!-- ===== หัวโปรไฟล์: รูป + ชื่อ + อีเมล + bio (ผู้เรียน) / สถาบัน (เชฟ) ===== -->
+    <section class="card profile-header">
+      <div class="avatar-wrap">
+        <div class="avatar-circle">
+          <img id="avatarPreview" src="<%= user.avatar %>" alt="รูปโปรไฟล์" <%= user.avatar ? '' : 'hidden' %>>
+          <i data-lucide="user" class="avatar-placeholder" <%= user.avatar ? 'hidden' : '' %>></i>
+        </div>
+        <label for="avatarInput" class="avatar-camera" aria-label="เปลี่ยนรูปโปรไฟล์">
+          <i data-lucide="camera"></i>
+        </label>
+        <input type="file" id="avatarInput" accept="image/jpeg,image/png,image/gif,image/webp" hidden>
+      </div>
+
+      <div class="profile-info">
+        <h1><%= user.name %></h1>
+        <a href="mailto:<%= user.email %>" class="profile-email"><%= user.email %></a>
+        <% if (isChef) { %>
+          <p class="profile-sub"><%= user.institution || 'ยังไม่ได้ระบุสถาบัน' %></p>
+        <% } else { %>
+          <p class="profile-sub"><%= user.bio || 'ยังไม่ได้เขียนแนะนำตัว' %></p>
+        <% } %>
+        <p class="avatar-status" id="avatarStatus" role="status"></p>
+      </div>
+    </section>
+
+    <% if (!isChef) { %>
+    <!-- ===== แท็บ เฉพาะผู้เรียร ===== -->
+    <nav class="profile-tabs" role="tablist">
+      <button type="button" class="profile-tab active" data-tab="info"><i data-lucide="user"></i> ข้อมูลส่วนตัว</button>
+      <button type="button" class="profile-tab" data-tab="favorites"><i data-lucide="heart"></i> รายการโปรด</button>
+      <button type="button" class="profile-tab" data-tab="history"><i data-lucide="receipt-text"></i> ประวัติการซื้อคอร์สและสูตร</button>
+    </nav>
+    <% } %>
+
+    <!-- ===== ข้อมูลส่วนตัว ===== -->
+    <section class="card tab-panel" data-panel="info">
+      <h2 class="card-title">ข้อมูลส่วนตัว</h2>
+
+      <form action="/profile" method="POST" class="profile-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name">ชื่อ</label>
+            <input type="text" id="name" name="name" value="<%= form.name %>" required>
+          </div>
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="<%= form.username || '' %>"
+                   pattern="[a-z0-9_]{3,20}" title="a-z, 0-9 หรือ _ ยาว 3–20 ตัว" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="<%= form.email %>" required>
+          </div>
+          <% if (isChef) { %>
+          <div class="form-group">
+            <label for="institution">สถาบันการศึกษา / สถาบันทำอาหารที่จบมา</label>
+            <input type="text" id="institution" name="institution" value="<%= form.institution || '' %>" required>
+          </div>
+          <% } %>
+          <div class="form-group full">
+            <label for="bio">คำแนะนำตัว (Bio)</label>
+            <textarea id="bio" name="bio" rows="4" maxlength="300"><%= form.bio || '' %></textarea>
+            <span class="char-count"><span id="bioCount">0</span>/300</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary">บันทึกการแก้ไข</button>
+      </form>
+    </section>
+
+    <% if (!isChef) { %>
+    <!-- ===== รายการโปรด ===== -->
+    <section class="tab-panel" data-panel="favorites" hidden>
+      <h2 class="section-title"><i data-lucide="heart" class="heart"></i> รายการโปรดของฉัน</h2>
+      <p class="section-sub">สูตรอาหารและคอร์สเรียนที่คุณกดถูกใจไว้</p>
+      <% if (!favorites.length) { %>
+        <p class="empty-state">ยังไม่มีรายการโปรด</p>
+      <% } else { %>
+        <div class="fav-grid">
+          <% favorites.forEach(item => { %>
+          <a href="<%= item.url %>" class="fav-card">
+            <% if (item.image) { %><img src="<%= item.image %>" alt=""><% } else { %><div class="fav-noimg"></div><% } %>
+            <div class="fav-body">
+              <span class="item-badge"><%= item.label %></span>
+              <h3><%= item.title %></h3>
+              <span class="item-price">฿<%= Number(item.price).toLocaleString() %></span>
+            </div>
+          </a>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
+    <!-- ===== ประวัติการซื้อ ===== -->
+    <section class="tab-panel" data-panel="history" hidden>
+      <h2 class="section-title"><i data-lucide="receipt-text"></i> ประวัติการซื้อคอร์สและสูตร</h2>
+      <p class="section-sub">รายการคอร์สและสูตรทั้งหมดที่คุณซื้อไว้</p>
+      <% if (!purchases.length) { %>
+        <p class="empty-state">ยังไม่มีประวัติการซื้อ</p>
+      <% } else { %>
+        <div class="history-list">
+          <% purchases.forEach(item => { %>
+          <div class="history-row">
+            <% if (item.image) { %><img src="<%= item.image %>" alt=""><% } else { %><div class="fav-noimg"></div><% } %>
+            <div class="history-info">
+              <span class="item-badge"><%= item.label %></span>
+              <h3><%= item.title %></h3>
+            </div>
+            <div class="history-paid">
+              <span class="paid-ok"><i data-lucide="circle-check"></i> ชำระเงินสำเร็จ</span>
+              <span>ซื้อเมื่อ <%= new Date(item.date).toLocaleDateString('th-TH', { dateStyle: 'long' }) %></span>
+              <span class="item-price">฿<%= Number(item.price).toLocaleString() %></span>
+            </div>
+            <a href="<%= item.url %>" class="btn-primary btn-sm"><%= item.type === 'Recipe' ? 'ดูสูตร' : 'เข้าเรียน' %></a>
+          </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+    <% } %>
+  </main>
+
+  <%- include('partials/footer') %>
+  <script src="/javascripts/profile.js"></script>
+</body>
+
+</html>

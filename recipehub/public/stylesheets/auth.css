@@ -10,9 +10,12 @@
   text-align: center;
 }
 .auth-modal::backdrop { background: rgba(0, 0, 0, 0.55); }
+.auth-modal { scrollbar-width: none; }
+.auth-modal::-webkit-scrollbar { display: none; }
 
 .auth-close {
   position: absolute; top: 20px; right: 20px;
+  width: 32px; height: 32px; padding: 0;
   background: none; border: 0; cursor: pointer; color: var(--text);
 }
 .auth-close svg { width: 28px; height: 28px; }
@@ -79,4 +82,6 @@
 }
 .auth-chef-box[hidden] { display: none; }
 .auth-chef-box input { background: #fff; }
+
 #registerForm .auth-submit { margin-top: 24px; }
+#registerModal { width: min(600px, calc(100% - 32px)); }

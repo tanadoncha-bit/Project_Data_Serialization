@@ -2,7 +2,6 @@
 <% const current = typeof active !== 'undefined' ? active : ''; %>
 <% const loggedIn = typeof currentUser !== 'undefined' && currentUser; %>
 <% const isChef = loggedIn && currentUser.role === 'chef'; %>
-<%# ผู้เรียนเห็นเมนูหน้าเว็บทั่วไปเสมอ ส่วนเชฟเห็นเมนูจัดการ (ยกเว้นหน้าที่ตั้ง recipePublicNav) %>
 <% const publicNav = !isChef || (typeof recipePublicNav !== 'undefined' && recipePublicNav); %>
 <nav class="navbar">
   <a href="#" class="nav-brand">
@@ -12,7 +11,6 @@
 
   <ul class="nav-menu">
     <% if (!loggedIn) { %>
-    <%# ยังไม่ login: ไม่มีเมนูตรงกลาง (ul ว่างไว้เพื่อคง layout 3 คอลัมน์) %>
     <% } else if (publicNav) { %>
     <li><a href="/home">หน้าแรก</a></li>
     <li><a href="/courses">คอร์ส</a></li>
@@ -37,12 +35,10 @@
       </button>
 
       <div class="profile-menu" id="profileMenu" role="menu">
-        <% if (isChef) { %>
-        <a href="/chef/profile" class="profile-item" role="menuitem">
+        <a href="/profile" class="profile-item" role="menuitem">
           <i data-lucide="user"></i> My Profile
         </a>
         <hr class="profile-divider">
-        <% } %>
         <a href="/logout" class="profile-item logout" role="menuitem">
           <i data-lucide="log-out"></i> Log Out
         </a>
