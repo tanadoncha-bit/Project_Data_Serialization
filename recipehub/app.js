@@ -4,9 +4,13 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const session = require('express-session');
+const { MongoStore } = require('connect-mongo');
 
 const connectDB = require('./config/db');
 
+const currentUser = require('./middleware/currentUser');
+var authRouter = require('./routes/auth');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var chefRouter = require('./routes/chef');
@@ -32,6 +36,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/bootstrap', express.static(
   path.join(__dirname, 'node_modules/bootstrap/dist')));
 
+// session เก็บใน MongoDB (collection sessions) รีสตาร์ทเซิร์ฟเวอร์แล้วไม่หลุด login
+app.use(session({
+  name: 'cookhub.sid',
+  secret: process.env.SESSION_SECRET || process.env.JWT_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
+  cookie: { httpOnly: true, sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 },
+}));
+app.use(currentUser);
+
+app.use('/', authRouter);
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/chef/recipes', chefRecipesRouter);

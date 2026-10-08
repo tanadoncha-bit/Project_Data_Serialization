@@ -1,0 +1,43 @@
+<%# Register Modal: เปิดด้วยปุ่มที่มี data-open-register | สลับแท็บ ผู้เรียน / เชฟ %>
+<dialog class="auth-modal" id="registerModal" aria-labelledby="registerTitle">
+  <button type="button" class="auth-close" data-close-auth aria-label="ปิด"><i data-lucide="x"></i></button>
+
+  <h2 id="registerTitle" class="auth-title-lg">มาเริ่มต้นเส้นทางการทำอาหารกัน!</h2>
+  <p class="auth-sub">สมัครสมาชิก CookHub เพื่อเรียนรู้ เก็บสูตรโปรด และค้นพบเมนูใหม่ ๆ</p>
+
+  <div class="auth-tabs" role="tablist">
+    <button type="button" class="auth-tab active" data-role="user" role="tab" aria-selected="true">
+      <i data-lucide="user"></i> ผู้เรียน
+    </button>
+    <button type="button" class="auth-tab" data-role="chef" role="tab" aria-selected="false">
+      <i data-lucide="chef-hat"></i> เชฟ / ผู้สอน
+    </button>
+  </div>
+
+  <form id="registerForm" class="auth-form" novalidate>
+    <p class="auth-error" role="alert" hidden></p>
+    <input type="hidden" name="role" value="user">
+
+    <label for="regName">Name</label>
+    <input type="text" id="regName" name="name" placeholder="Boommii Kayeejai" autocomplete="name" required>
+
+    <label for="regEmail">Email</label>
+    <input type="email" id="regEmail" name="email" placeholder="kayeejai@example.com" autocomplete="email" required>
+
+    <label for="regPassword">Password</label>
+    <input type="password" id="regPassword" name="password" placeholder="•••••••" autocomplete="new-password" required>
+
+    <label for="regConfirm">Confirm Password</label>
+    <input type="password" id="regConfirm" name="confirmPassword" placeholder="•••••••" autocomplete="new-password" required>
+
+    <%# กล่องนี้โชว์เฉพาะแท็บเชฟ %>
+    <div class="auth-chef-box" hidden>
+      <label for="regInstitution"><i data-lucide="graduation-cap"></i> ยืนยันตัวตน</label>
+      <input type="text" id="regInstitution" name="institution" placeholder="ระบุสถาบันการทำอาหาร">
+    </div>
+
+    <button type="submit" class="auth-submit">Continue</button>
+  </form>
+
+  <p class="auth-switch">เป็นสมาชิก CookHub อยู่แล้ว? <a href="/login" data-open-login>เข้าสู่ระบบ</a></p>
+</dialog>

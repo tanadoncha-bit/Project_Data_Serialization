@@ -47,9 +47,15 @@
   </div>
 </footer>
 
+<% if (typeof currentUser === 'undefined' || !currentUser) { %>
+  <%- include('loginModal') %>
+  <%- include('registerModal') %>
+<% } %>
+
 <script>
   // แปลงทุก <i data-lucide="..."> ในหน้าให้เป็นไอคอน SVG
   lucide.createIcons();
 </script>
 
 <script src="/javascripts/navbar.js"></script>
+<script src="/javascripts/auth.js"></script>
