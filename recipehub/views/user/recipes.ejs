@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <%# head / navbar / footer ใช้ของเพื่อน (views/partials) — ไฟล์นี้เปลี่ยนแค่เนื้อหา %>
+  <%- include('../partials/head', { title: 'สูตรอาหาร' }) %>
+  <link rel="stylesheet" href="/stylesheets/cookhub.css">
+</head>
+<body>
+  <%- include('../partials/navbar', { active: 'recipes', recipePublicNav: true }) %>
+
+  <main class="cookhub">
+
+  <!-- ================= Hero ================= -->
+  <section class="hero hero--list hero--recipes">
+    <div class="hero__content">
+      <h1 class="hero__title">
+        <span class="l1">Find Your</span>
+        <span class="l2">Perfect Recipe</span>
+      </h1>
+      <p class="hero__desc">
+        ค้นพบสูตรอาหารที่ทำตามได้ง่าย<br>
+        พร้อมขั้นตอนและวัตถุดิบที่ครบถ้วน<br>
+        ไม่ว่าจะคาว หวาน หรือเมนูโปรดของคุณ
+      </p>
+    </div>
+  </section>
+
+  <div class="container container--wide">
+
+    <!-- ================= แถบเครื่องมือ ================= -->
+    <div class="toolbar">
+      <form class="toolbar__bar" method="get" action="/recipes">
+        <% Object.keys(filterQuery).forEach(k => { [].concat(filterQuery[k]).forEach(v => { %>
+          <input type="hidden" name="<%= k %>" value="<%= v %>">
+        <% }) }) %>
+        <input type="hidden" name="sort" value="<%= sort %>">
+        <div class="toolbar__group">
+          <span class="toolbar__label">ระดับ:</span>
+          <div class="level-select">
+            <select name="level" onchange="this.form.submit()">
+              <% levels.forEach(l => { %>
+                <option value="<%= l.value %>" <%= level === l.value ? 'selected' : '' %>><%= l.label %></option>
+              <% }) %>
+            </select>
+            <i data-lucide="chevron-down" class="ic-12"></i>
+          </div>
+        </div>
+
+        <div class="toolbar__group">
+          <span class="toolbar__label">เรียงตาม:</span>
+          <% sorts.forEach(s => { %>
+            <a href="<%= makeUrl({ sort: s.value, page: 1 }) %>" class="sort-pill <%= sort === s.value ? 'active' : '' %>"><%= s.label %></a>
+          <% }) %>
+        </div>
+      </form>
+
+      <button class="filter-btn" type="button" id="openFilter">
+        <i data-lucide="sliders-horizontal" class="ic-18"></i>
+        ตัวกรอง
+      </button>
+    </div>
+
+    <p class="result-count">ผลลัพธ์ <%= total %> สูตร</p>
+
+    <!-- ================= รายการสูตร ================= -->
+    <div class="course-grid">
+      <% recipes.forEach(r => { %>
+        <a href="/recipes/<%= r.id %>" class="card recipe-card">
+          <div class="card__img">
+              <%- include('_image', { src: r.image, alt: r.title, cls: 'card__photo' }) %>
+            <span class="tag tag--<%= r.tagType %>"><%= r.tag %></span>
+            <button class="fav" type="button" onclick="event.preventDefault(); this.classList.toggle('on')" aria-label="รายการโปรด">
+              <i data-lucide="heart" class="ic-14"></i>
+            </button>
+          </div>
+
+          <div class="card__body">
+            <div class="recipe-top">
+              <span class="cook-time">
+                <i data-lucide="clock-3" class="ic-12"></i>
+                <%= r.cookMin %> นาที
+              </span>
+              <span class="level level--<%= r.difficulty %>"><%= difficultyLabel[r.difficulty] %></span>
+            </div>
+
+            <div class="card__row">
+              <h3 class="card__title"><%= r.title %></h3>
+              <span class="card__rating">★ <%= r.rating.toFixed(1) %></span>
+            </div>
+            <p class="card__desc"><%= r.description %></p>
+
+            <div class="chef-mini">
+              <%- include('_image', { src: r.chefAvatar, alt: '', cls: 'chef-mini__avatar', icon: 'user' }) %>
+              <%= r.chef %>
+            </div>
+
+            <div class="card__foot">
+              <% if (r.price === 0) { %>
+                <span class="price free">ฟรี</span>
+              <% } else { %>
+                <span class="price">฿<%= r.price.toLocaleString('en-US') %></span>
+              <% } %>
+              <span class="more">ดูสูตร →</span>
+            </div>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+
+    <!-- ================= เลขหน้า ================= -->
+    <nav class="pagination" aria-label="เลขหน้า">
+      <a href="<%= makeUrl({ page: page - 1 }) %>" class="arrow <%= page <= 1 ? 'disabled' : '' %>" aria-label="หน้าก่อน">
+        <i data-lucide="chevron-left" class="ic-12"></i>
+      </a>
+      <% pageList.forEach(p => { %>
+        <% if (p === '...') { %>
+          <span>···</span>
+        <% } else if (p === page) { %>
+          <span class="current"><%= p %></span>
+        <% } else { %>
+          <a href="<%= makeUrl({ page: p }) %>" class="num"><%= p %></a>
+        <% } %>
+      <% }) %>
+      <a href="<%= makeUrl({ page: page + 1 }) %>" class="arrow <%= page >= totalPages ? 'disabled' : '' %>" aria-label="หน้าถัดไป">
+        <i data-lucide="chevron-right" class="ic-12"></i>
+      </a>
+    </nav>
+  </div>
+  </main>
+
+  <%- include('../partials/filter-modal', {
+        filterTitle: 'ตัวกรองสูตรอาหาร',
+        filterAction: '/recipes',
+        filters: filters,
+        keep: { sort: sort, level: level }
+      }) %>
+
+  <%- include('../partials/footer') %>
+
+</body>
+</html>

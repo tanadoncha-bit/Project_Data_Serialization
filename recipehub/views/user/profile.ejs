@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <%# head / navbar / footer ใช้ของเพื่อน (views/partials) — ไฟล์นี้เปลี่ยนแค่เนื้อหา %>
+  <%- include('../partials/head', { title: 'บัญชีของฉัน' }) %>
+  <link rel="stylesheet" href="/stylesheets/cookhub.css">
+</head>
+<body>
+  <%- include('../partials/navbar', { active: '' }) %>
+
+  <main class="cookhub">
+
+  <div class="profile-wrap">
+
+    <!-- ================= หัวโปรไฟล์ ================= -->
+    <section class="panel profile-head">
+      <div class="avatar">
+        <%# รูปโปรไฟล์: เก็บเป็นลิงก์ใน Client.avatar (อัปโหลดผ่าน POST /profile/avatar ของเพื่อน) %>
+        <img class="avatar__img" id="avatarPreview" src="<%= user.avatar || '' %>" alt="รูปโปรไฟล์" <%= user.avatar ? '' : 'hidden' %>>
+        <% if (!user.avatar) { %><div class="avatar__img img-placeholder avatar-placeholder"><i data-lucide="user"></i></div><% } %>
+        <label class="avatar__cam" title="เปลี่ยนรูปโปรไฟล์">
+          <i data-lucide="camera" class="ic-14"></i>
+          <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" id="avatarInput">
+        </label>
+      </div>
+      <div>
+        <h1 class="profile-head__name"><%= user.firstName %>&nbsp; <%= user.lastName %></h1>
+        <a href="mailto:<%= user.email %>" class="profile-head__email"><%= user.email %></a>
+        <p class="profile-head__bio"><%= user.bio %></p>
+        <p class="avatar-status" id="avatarStatus" role="status"></p>
+      </div>
+    </section>
+
+    <!-- ================= แท็บ ================= -->
+    <nav class="panel tabs">
+      <a href="/profile?tab=info" class="tab <%= tab === 'info' ? 'active' : '' %>">
+        <i data-lucide="user" class="ic-18"></i>
+        ข้อมูลส่วนตัว
+      </a>
+      <a href="/profile?tab=favorites" class="tab <%= tab === 'favorites' ? 'active' : '' %>">
+        <i data-lucide="heart" class="ic-18 is-filled tab-ic--fav"></i>
+        รายการโปรด
+      </a>
+      <a href="/profile?tab=history" class="tab <%= tab === 'history' ? 'active' : '' %>">
+        <i data-lucide="receipt-text" class="ic-18 tab-ic--history"></i>
+        ประวัติการซื้อคอร์สและสูตร
+      </a>
+    </nav>
+
+    <% if (tab === 'info') { %>
+      <!-- ================= ข้อมูลส่วนตัว ================= -->
+      <section class="panel info">
+        <h2>ข้อมูลส่วนตัว</h2>
+        <% if (saved) { %><p class="alert-ok">บันทึกการแก้ไขเรียบร้อยแล้ว</p><% } %>
+
+        <form method="post" action="/profile">
+          <div class="form-grid">
+            <div class="field">
+              <label for="firstName">ชื่อ</label>
+              <input id="firstName" name="firstName" value="<%= user.firstName %>">
+            </div>
+            <div class="field">
+              <label for="lastName">นามสกุล</label>
+              <input id="lastName" name="lastName" value="<%= user.lastName %>">
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" value="<%= user.email %>">
+            </div>
+            <div></div>
+            <div class="field field--full">
+              <label for="bio">คำแนะนำตัว (Bio)</label>
+              <textarea id="bio" name="bio" maxlength="300"><%= user.bio %></textarea>
+              <div class="field__count"><span id="bioCount">0</span>/300</div>
+            </div>
+          </div>
+          <button type="submit" class="save-btn">บันทึกการแก้ไข</button>
+        </form>
+      </section>
+
+    <% } else if (tab === 'favorites') { %>
+      <!-- ================= รายการโปรด ================= -->
+      <section>
+        <h2 class="tab-title">
+          <i data-lucide="heart" class="ic-30 is-filled" style="color:#ef5a6f"></i>
+          รายการโปรดของฉัน
+        </h2>
+        <p class="tab-sub">สูตรอาหารและคอร์สเรียนที่คุณกดใจไว้</p>
+
+        <% if (!favorites.length) { %>
+          <p class="empty">ยังไม่มีรายการโปรด</p>
+        <% } %>
+
+        <div class="fav-grid">
+          <% favorites.forEach(f => { %>
+            <% if (f.kind === 'recipe') { %>
+              <a href="/recipes/<%= f.id %>" class="card recipe-card">
+                <div class="card__img">
+              <%- include('_image', { src: f.image, alt: f.title, cls: 'card__photo' }) %>
+                  <span class="tag tag--<%= f.tagType %>"><%= f.tag %></span>
+                  <button class="fav on" type="button" onclick="event.preventDefault(); this.classList.toggle('on')" aria-label="เอาออกจากรายการโปรด">
+                    <i data-lucide="heart" class="ic-14"></i>
+                  </button>
+                </div>
+                <div class="card__body">
+                  <div class="recipe-top">
+                    <span class="cook-time">
+                      <i data-lucide="clock-3" class="ic-12"></i>
+                      <%= f.cookMin %> นาที
+                    </span>
+                    <span class="level level--<%= f.difficulty %>"><%= difficultyLabel[f.difficulty] %></span>
+                  </div>
+                  <div class="card__row">
+                    <h3 class="card__title"><%= f.title %></h3>
+                    <span class="card__rating">★ <%= f.rating.toFixed(1) %></span>
+                  </div>
+                  <p class="card__desc"><%= f.description %></p>
+                  <div class="chef-mini">
+                    <%- include('_image', { src: f.chefAvatar, alt: '', cls: 'chef-mini__avatar', icon: 'user' }) %>
+                    <%= f.chef %>
+                  </div>
+                  <div class="card__foot">
+                    <% if (f.price === 0) { %><span class="price free">ฟรี</span>
+                    <% } else { %><span class="price">฿<%= f.price.toLocaleString('en-US') %></span><% } %>
+                    <span class="more">ดูสูตร →</span>
+                  </div>
+                </div>
+              </a>
+
+            <% } else { %>
+              <a href="/courses/<%= f.id %>" class="card course-card">
+                <div class="card__img">
+                  <% (f.images && f.images.length ? f.images : ['']).forEach(img => { %>
+              <%- include('_image', { src: img, alt: f.title, cls: 'half' }) %>
+                  <% }) %>
+                  <div class="tags">
+                    <% if (f.isPack) { %><span class="tag tag--pack">แพ็กคอร์ส</span>
+                    <% } else { %><span class="tag tag--<%= f.tagType %>"><%= f.tag %></span><% } %>
+                  </div>
+                  <button class="fav on" type="button" onclick="event.preventDefault(); this.classList.toggle('on')" aria-label="เอาออกจากรายการโปรด">
+                    <i data-lucide="heart" class="ic-14"></i>
+                  </button>
+                </div>
+                <div class="card__body">
+                  <div class="card__row">
+                    <h3 class="card__title">
+                      <% if (f.isPack) { %>
+                        <i data-lucide="package" class="ic-13 pack-icon"></i>
+                      <% } %>
+                      <%= f.title %>
+                    </h3>
+                    <span class="card__rating">★ <%= f.rating.toFixed(1) %></span>
+                  </div>
+                  <p class="card__desc"><%= f.description %></p>
+                  <div class="chef-mini">
+                    <%- include('_image', { src: f.chefAvatar, alt: '', cls: 'chef-mini__avatar', icon: 'user' }) %>
+                    <%= f.chef %>
+                  </div>
+                  <div class="card__meta">
+                    <span><i data-lucide="circle-play" class="ic-12"></i><%= f.lessons %> บทเรียน</span>
+                    <span><i data-lucide="clock-3" class="ic-12"></i><%= f.duration %></span>
+                    <span><i data-lucide="users" class="ic-12"></i><%= f.students %> คนเรียน</span>
+                  </div>
+                  <div class="card__foot">
+                    <span class="price">฿<%= f.price.toLocaleString('en-US') %></span>
+                    <span class="more">ดูรายละเอียด →</span>
+                  </div>
+                </div>
+              </a>
+            <% } %>
+          <% }) %>
+        </div>
+      </section>
+
+    <% } else { %>
+      <!-- ================= ประวัติการซื้อ ================= -->
+      <section>
+        <h2 class="tab-title">
+          <i data-lucide="receipt-text" class="ic-28" style="color:#ef5a3a"></i>
+          ประวัติการซื้อคอร์สและสูตร
+        </h2>
+        <p class="tab-sub">รายการคอร์สและสูตรทั้งหมดที่คุณซื้อไว้</p>
+
+        <% if (!orders.length) { %>
+          <p class="empty">ยังไม่มีประวัติการซื้อ</p>
+        <% } %>
+
+        <% orders.forEach(o => { %>
+          <div class="order">
+            <%- include('_image', { src: o.image, alt: o.title, cls: 'order__img' }) %>
+
+            <div class="order__main">
+              <span class="order__type order__type--<%= o.kind %>"><%= o.kind === 'course' ? 'คอร์สเรียน' : 'สูตรอาหาร' %></span>
+              <h3 class="order__title"><%= o.title %></h3>
+              <p class="order__desc"><%= o.description %></p>
+              <div class="order__meta">
+                <% if (o.kind === 'course') { %>
+                  <span><i data-lucide="circle-play" class="ic-11"></i><%= o.lessons %> บทเรียน</span>
+                  <span><i data-lucide="clock-3" class="ic-11"></i><%= o.duration %></span>
+                  <span><i data-lucide="users" class="ic-11"></i><%= o.students %> คนเรียน</span>
+                <% } else { %>
+                  <span><i data-lucide="clock-3" class="ic-11"></i><%= o.duration %></span>
+                  <span><i data-lucide="signal" class="ic-11"></i>ระดับ<%= difficultyLabel[o.difficulty] %></span>
+                <% } %>
+              </div>
+            </div>
+
+            <div class="order__side">
+              <div>
+                <span class="order__paid">
+                  <i data-lucide="circle-check" class="ic-12"></i>
+                  ชำระเงินสำเร็จ
+                </span>
+                <div class="order__date">ซื้อเมื่อ <%= o.date %></div>
+                <div class="order__price">฿<%= o.price.toLocaleString('en-US') %></div>
+              </div>
+              <a href="<%= o.kind === 'course' ? '/courses/' + o.id : '/recipes/' + o.id %>" class="order__btn">
+                <%= o.kind === 'course' ? 'เข้าเรียน' : 'ดูสูตร' %>
+              </a>
+            </div>
+          </div>
+        <% }) %>
+      </section>
+    <% } %>
+  </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+
+  <script>
+    // นับตัวอักษร Bio
+    (function () {
+      const bio = document.getElementById('bio');
+      const count = document.getElementById('bioCount');
+      if (bio && count) {
+        const update = () => count.textContent = bio.value.length;
+        bio.addEventListener('input', update);
+        update();
+      }
+      // อัปโหลดรูปโปรไฟล์ → POST /profile/avatar (route ของเพื่อน เก็บไฟล์ใน public/uploads/avatars)
+      const input = document.getElementById('avatarInput');
+      const preview = document.getElementById('avatarPreview');
+      const status = document.getElementById('avatarStatus');
+      if (input) input.addEventListener('change', async () => {
+        const file = input.files[0];
+        if (!file) return;
+        status.textContent = 'กำลังอัปโหลด...';
+        const body = new FormData();
+        body.append('avatar', file);
+        try {
+          const res = await fetch('/profile/avatar', { method: 'POST', body, headers: { Accept: 'application/json' } });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || 'อัปโหลดไม่สำเร็จ ลองใหม่อีกครั้ง');
+          preview.src = data.avatar;
+          preview.hidden = false;
+          document.querySelector('.avatar-placeholder')?.remove();
+          status.textContent = '';
+        } catch (err) {
+          status.textContent = err.message;
+        } finally {
+          input.value = '';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -64,6 +64,7 @@ app.use('/chef/recipes', chefRecipesRouter);
 app.use('/recipes', recipesRouter);
 app.use('/api/meals', mealsRouter);
 app.use('/chef', chefRouter);
+app.use('/courses', require('./routes/courses'));
 app.use('/home', homepageRouter);
 
 // ===== จัดการ error =====
