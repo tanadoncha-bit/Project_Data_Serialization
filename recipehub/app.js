@@ -12,6 +12,7 @@ const connectDB = require('./config/db');
 const currentUser = require('./middleware/currentUser');
 const { requireChef } = require('./middleware/requireRole');
 var authRouter = require('./routes/auth');
+var profileRouter = require('./routes/profile');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var chefRouter = require('./routes/chef');
@@ -49,6 +50,7 @@ app.use(session({
 app.use(currentUser);
 
 app.use('/', authRouter);
+app.use('/profile', profileRouter);
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 // ทุกหน้าที่ขึ้นต้นด้วย /chef ต้องเป็นเชฟเท่านั้น

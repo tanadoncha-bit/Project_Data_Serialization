@@ -24,16 +24,20 @@ router.post('/register', async (req, res, next) => {
   try {
     const role = req.body.role === 'chef' ? 'chef' : 'user';
     const name = String(req.body.name || '').trim();
+    const username = String(req.body.username || '').trim().toLowerCase();
     const email = String(req.body.email || '').trim().toLowerCase();
     const password = String(req.body.password || '');
     const confirmPassword = String(req.body.confirmPassword || '');
     const institution = String(req.body.institution || '').trim();
 
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !username || !email || !password || !confirmPassword) {
       return res.status(400).json({ error: 'กรุณากรอกข้อมูลให้ครบทุกช่อง' });
     }
     if (role === 'chef' && !institution) {
       return res.status(400).json({ error: 'กรุณาระบุสถาบันการทำอาหาร' });
+    }
+    if (!/^[a-z0-9_]{3,20}$/.test(username)) {
+      return res.status(400).json({ error: 'username ต้องเป็น a-z, 0-9 หรือ _ ยาว 3–20 ตัว' });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: 'รูปแบบอีเมลไม่ถูกต้อง' });
@@ -47,9 +51,13 @@ router.post('/register', async (req, res, next) => {
     if (await Client.exists({ email })) {
       return res.status(409).json({ error: 'อีเมลนี้ถูกใช้สมัครแล้ว' });
     }
+    if (await Client.exists({ username })) {
+      return res.status(409).json({ error: 'username นี้ถูกใช้แล้ว' });
+    }
 
     const user = await Client.create({
       name,
+      username,
       email,
       role,
       passwordHash: await bcrypt.hash(password, 10),
@@ -59,25 +67,30 @@ router.post('/register', async (req, res, next) => {
     // สมัครเสร็จ login ให้เลย ไม่ต้องกรอกซ้ำ
     startSession(req, res, next, user);
   } catch (err) {
-    // กดสมัครพร้อมกัน 2 ครั้ง unique index ของ email จะกันไว้ให้
-    if (err.code === 11000) return res.status(409).json({ error: 'อีเมลนี้ถูกใช้สมัครแล้ว' });
+    // กดสมัครพร้อมกัน 2 ครั้ง unique index ของ email/username จะกันไว้ให้
+    if (err.code === 11000) {
+      const field = err.keyPattern && err.keyPattern.username ? 'username' : 'อีเมล';
+      return res.status(409).json({ error: `${field}นี้ถูกใช้แล้ว` });
+    }
     next(err);
   }
 });
 
-/** POST /login → เช็คอีเมลกับรหัสผ่าน ถ้าถูกเก็บ userId ไว้ใน session */
+/** POST /login → รับ username หรืออีเมล + รหัสผ่าน ถ้าถูกเก็บ userId ไว้ใน session */
 router.post('/login', async (req, res, next) => {
   try {
-    const email = String(req.body.email || '').trim().toLowerCase();
+    const login = String(req.body.login || '').trim();
     const password = String(req.body.password || '');
-    if (!email || !password) {
-      return res.status(400).json({ error: 'กรุณากรอกอีเมลและรหัสผ่าน' });
+    if (!login || !password) {
+      return res.status(400).json({ error: 'กรุณากรอก username/อีเมล และรหัสผ่าน' });
     }
 
-    const user = await Client.findOne({ email });
-    // ตอบข้อความเดียวกันทั้งกรณีไม่มีอีเมลและรหัสผิด จะได้เดาไม่ได้ว่าอีเมลไหนมีในระบบ
+    // มี @ ถือว่าเป็นอีเมล ไม่มี @ ถือว่าเป็น username
+    const query = login.includes('@') ? { email: login.toLowerCase() } : { username: login.toLowerCase() };
+    const user = await Client.findOne(query);
+    // ตอบข้อความเดียวกันทั้งกรณีไม่มีบัญชีและรหัสผิด จะได้เดาไม่ได้ว่าบัญชีไหนมีในระบบ
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-      return res.status(401).json({ error: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
+      return res.status(401).json({ error: 'username/อีเมล หรือรหัสผ่านไม่ถูกต้อง' });
     }
 
     startSession(req, res, next, user);

@@ -5,13 +5,13 @@ const modals = {
   register: document.getElementById('registerModal'),
 };
 
-
+/** ปิด modal ที่เปิดอยู่ แล้วเปิดตัวที่ต้องการ (ใช้ตอนสลับ login ↔ register) */
 function openModal(name) {
   Object.values(modals).forEach((m) => m && m.open && m.close());
   modals[name].showModal();
 }
 
-
+/** ส่งข้อมูลฟอร์มเป็น JSON ไปที่ url ถ้าผ่านให้ไปหน้าที่เซิร์ฟเวอร์บอก ถ้าไม่ผ่านโชว์ error */
 function handleSubmit(form, url) {
   const errorBox = form.querySelector('.auth-error');
   const submitBtn = form.querySelector('.auth-submit');
@@ -52,7 +52,7 @@ if (modals.login && modals.register) {
 
   Object.values(modals).forEach((modal) => {
     modal.querySelector('[data-close-auth]').addEventListener('click', () => modal.close());
-    modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
+    modal.addEventListener('cancel', (e) => e.preventDefault());
   });
 
   const regForm = document.getElementById('registerForm');
@@ -70,7 +70,6 @@ if (modals.login && modals.register) {
 
   handleSubmit(document.getElementById('loginForm'), '/login');
   handleSubmit(regForm, '/register');
-
 
   const params = new URLSearchParams(location.search);
   if (params.get('login') === '1') openModal('login');

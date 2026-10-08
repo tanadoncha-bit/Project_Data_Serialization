@@ -9,6 +9,7 @@ const recipeSchema = new Schema({
   title:       { type: String, required: true, trim: true, maxlength: 200, alias: 'name' },
   description: { type: String, default: null, maxlength: 10000 },
   category:    { type: String, required: true, trim: true, maxlength: 80 },
+  cuisine:     { type: String, enum: ['Thai', 'Japanese', 'Chinese', 'British', 'Korean', 'International'], default: null }, 
   level:       { type: String, enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'], default: 'BEGINNER' },
   difficulty:  { type: String, enum: ['EASY', 'MEDIUM', 'HARD'] },
   duration:    { type: Number, default: null, min: 0 },
@@ -23,7 +24,7 @@ const recipeSchema = new Schema({
   isFree:      { type: Boolean, default: true },
 }, { timestamps: true });
 
-// Keep numeric Client/publisher references compatible with Transaction and the team's models.
+
 recipeSchema.virtual('chef', { ref: 'Client', localField: 'publisher', foreignField: '_id', justOne: true });
 recipeSchema.index({ publisher: 1, createdAt: -1 });
 recipeSchema.index({ category: 1, difficulty: 1, price: 1 });
