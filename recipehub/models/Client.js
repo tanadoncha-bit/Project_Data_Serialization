@@ -9,6 +9,7 @@ const clientSchema = new Schema({
   role:           { type: String, enum: ['user', 'chef'], default: 'user' },
   isVerifiedChef: { type: Boolean, default: false },
   certificateUrl: { type: String, default: null },
+  institution:    { type: String, trim: true, default: null }, // สถาบันการทำอาหาร (เชฟกรอกตอนสมัคร)
 }, { timestamps: true });
 
 clientSchema.plugin(autoIncrement, { name: 'client' });

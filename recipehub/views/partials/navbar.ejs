@@ -1,5 +1,6 @@
 <%# Navbar: ใช้ร่วมกันทุกหน้า | active = ชื่อเมนูที่ต้องการไฮไลต์ %>
 <% const current = typeof active !== 'undefined' ? active : ''; %>
+<% const loggedIn = typeof currentUser !== 'undefined' && currentUser; %>
 <nav class="navbar">
   <a href="#" class="nav-brand">
     <span class="logo-box"><i data-lucide="chef-hat"></i></span>
@@ -7,7 +8,9 @@
   </a>
 
   <ul class="nav-menu">
-    <% if (typeof recipePublicNav !== 'undefined' && recipePublicNav) { %>
+    <% if (!loggedIn) { %>
+    <%# ยังไม่ login: ไม่มีเมนูตรงกลาง (ul ว่างไว้เพื่อคง layout 3 คอลัมน์) %>
+    <% } else if (typeof recipePublicNav !== 'undefined' && recipePublicNav) { %>
     <li><a href="/">หน้าแรก</a></li>
     <li><a href="/chef/courses">คอร์ส</a></li>
     <li><a href="/recipes" class="active">สูตรอาหาร</a></li>
@@ -19,6 +22,7 @@
   </ul>
 
   <div class="nav-actions">
+    <% if (loggedIn) { %>
     <% if (typeof recipePublicNav === 'undefined' || !recipePublicNav) { %><button class="nav-bell" aria-label="การแจ้งเตือน">
       <i data-lucide="bell"></i>
       <span class="badge-dot"></span>
@@ -39,5 +43,12 @@
         </a>
       </div>
     </div>
+    <% } else { %>
+    <!-- ยังไม่ login: ปุ่มเข้าสู่ระบบ + สมัครสมาชิก -->
+    <div class="nav-guest">
+      <button type="button" class="nav-btn nav-btn-outline" data-open-login>เข้าสู่ระบบ</button>
+      <a href="/register" class="nav-btn nav-btn-fill" data-open-register>สมัครสมาชิก</a>
+    </div>
+    <% } %>
   </div>
 </nav>

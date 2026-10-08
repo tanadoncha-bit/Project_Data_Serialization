@@ -1,0 +1,82 @@
+/* auth.css — หน้าต่าง Login / Register */
+.auth-modal {
+  margin: auto;
+  inset: 0;
+  width: min(400px, calc(100% - 32px));
+  padding: 32px 36px 24px;
+  border: 0;
+  border-radius: 36px;
+  font-family: 'Prompt', sans-serif;
+  text-align: center;
+}
+.auth-modal::backdrop { background: rgba(0, 0, 0, 0.55); }
+
+.auth-close {
+  position: absolute; top: 20px; right: 20px;
+  background: none; border: 0; cursor: pointer; color: var(--text);
+}
+.auth-close svg { width: 28px; height: 28px; }
+
+.auth-logo {
+  width: 44px; height: 44px; margin: 0 auto 10px;
+  border-radius: 10px; background: var(--orange); color: #fff;
+  display: grid; place-items: center;
+}
+.auth-modal h2 { margin: 0; font-size: 18px; }
+.auth-sub { margin: 2px 0 24px; font-size: 12px; }
+
+.auth-form { display: flex; flex-direction: column; text-align: left; }
+.auth-form label { font-size: 13px; margin: 14px 0 6px; }
+.auth-form input {
+  padding: 8px 10px; font: inherit; font-size: 13px;
+  border: 1px solid #C9C9C9; border-radius: 8px; background: #EAEAEA;
+}
+.auth-form input:focus { outline: 2px solid var(--orange); background: #fff; }
+
+.auth-submit {
+  margin-top: 40px; padding: 10px; border: 0; border-radius: 10px;
+  background: var(--orange); color: #fff; font: inherit; font-size: 17px; cursor: pointer;
+}
+.auth-submit:disabled { opacity: 0.6; cursor: wait; }
+
+.auth-error {
+  margin: 0; padding: 8px 10px; border-radius: 8px;
+  background: #FDECEC; color: var(--red-dot); font-size: 13px;
+}
+.auth-switch {
+  margin: 20px 0 0; padding-top: 16px; border-top: 1px solid #DDD; font-size: 12px;
+}
+.auth-switch a { color: var(--orange); text-decoration: none; }
+
+/* ปุ่มใน navbar ตอนยังไม่ login */
+.nav-guest { display: flex; gap: 18px; }
+.nav-btn {
+  padding: 6px 22px; border: 1px solid var(--orange); border-radius: 999px;
+  font: inherit; font-size: 15px; cursor: pointer;
+}
+.nav-btn-outline { background: #fff; color: var(--orange); }
+.nav-btn-fill { background: var(--orange); color: #fff; }
+
+/* ---------- Register ---------- */
+.auth-title-lg { font-size: 22px; font-weight: 500; }
+
+.auth-tabs {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+  padding: 6px; margin-bottom: 18px; border-radius: 10px; background: #EAEAEA;
+}
+.auth-tab {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px; border: 0; border-radius: 8px; background: none;
+  font: inherit; font-size: 13px; cursor: pointer;
+}
+.auth-tab svg { width: 18px; height: 18px; }
+.auth-tab.active { background: #fff; }
+
+.auth-form label svg { width: 14px; height: 14px; vertical-align: -2px; }
+.auth-chef-box {
+  display: flex; flex-direction: column; margin-top: 16px; padding: 0 10px 10px;
+  border: 1px solid #F5D9A8; border-radius: 10px; background: #FFF6E3;
+}
+.auth-chef-box[hidden] { display: none; }
+.auth-chef-box input { background: #fff; }
+#registerForm .auth-submit { margin-top: 24px; }
