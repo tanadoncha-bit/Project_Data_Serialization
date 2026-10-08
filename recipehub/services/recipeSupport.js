@@ -3,13 +3,14 @@ const mongoose = require('mongoose');
 const { randomBytes } = require('crypto');
 const session = require('express-session');
 const Client = require('../models/Client');
+const countries = require('./recipeCountries');
 
 const levels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
 const levelLabels = { BEGINNER: 'เริ่มต้น', INTERMEDIATE: 'ปานกลาง', ADVANCED: 'ขั้นสูง' };
 const difficulties = ['EASY', 'MEDIUM', 'HARD'];
 const difficultyLabels = { EASY: 'ง่าย', MEDIUM: 'ปานกลาง', HARD: 'ยาก' };
 const difficultyLevels = { EASY: 'BEGINNER', MEDIUM: 'INTERMEDIATE', HARD: 'ADVANCED' };
-const categories = ['อาหารไทย', 'อาหารนานาชาติ', 'อาหารญี่ปุ่น', 'อาหารจีน', 'อาหารอินเดีย', 'เบเกอรี่ & ขนมหวาน', 'เครื่องดื่ม'];
+const categories = countries.countryOptions;
 const categoryLabels = { Thai: 'อาหารไทย', International: 'อาหารนานาชาติ', Dessert: 'เบเกอรี่ & ขนมหวาน', Healthy: 'อาหารเพื่อสุขภาพ' };
 const demoMode = process.env.RECIPE_DEMO_MODE === 'true' && process.env.NODE_ENV !== 'production';
 const demoSession = demoMode ? session({
@@ -65,7 +66,7 @@ const chefContext = asyncRoute(async (req, res, next) => {
   res.locals.csrfToken = req.session.recipeCsrf;
   res.locals.demoMode = demoMode && !req.session.userId;
   if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) &&
-      (typeof req.body._csrf !== 'string' || req.body._csrf !== req.session.recipeCsrf)) {
+      ((req.get('X-CSRF-Token') || req.body?._csrf) !== req.session.recipeCsrf)) {
     throw createError(403, 'ฟอร์มหมดอายุ กรุณาเปิดหน้าใหม่แล้วลองอีกครั้ง');
   }
   next();
@@ -81,10 +82,11 @@ function safeUrl(value) {
 function parseRecipe(body, existing) {
   const names = list(body.ingredientName);
   const amounts = list(body.ingredientAmount);
-  const difficulty = text(body.difficulty) || Object.keys(difficultyLevels).find(key => difficultyLevels[key] === text(body.level));
+  const difficulty = text(body.difficulty) || Object.keys(difficultyLevels).find(key => difficultyLevels[key] === text(body.level)) || (existing && existing.difficulty);
   const recipe = { title: text(body.title || body.name),
-    category: text(body.category), difficulty, level: difficultyLevels[difficulty], price: Number(body.price),
+    category: text(body.category), cuisine: countries.localCountry(text(body.category)), difficulty, level: difficultyLevels[difficulty] || (existing && existing.level) || 'BEGINNER', price: Number(body.price),
     image: text(body.image || body.imageUrl),
+    videoUrl: body.videoUrl === undefined ? (existing && existing.videoUrl) || '' : text(body.videoUrl),
     duration: body.duration === undefined ? (existing && existing.duration) ?? null : text(body.duration) ? Number(body.duration) : null,
     ingredients: names.map((name, i) => ({ name: text(name), amount: text(amounts[i]) }))
       .filter(item => item.name || item.amount),
@@ -93,10 +95,11 @@ function parseRecipe(body, existing) {
   const errors = [];
   if (!recipe.title || recipe.title.length > 200) errors.push('กรุณาระบุชื่อสูตรไม่เกิน 200 ตัวอักษร');
   if (!recipe.category || recipe.category.length > 80) errors.push('กรุณาระบุหมวดหมู่ไม่เกิน 80 ตัวอักษร');
-  if (!difficulties.includes(recipe.difficulty)) errors.push('กรุณาเลือกระดับความยาก');
+  if (recipe.difficulty && !difficulties.includes(recipe.difficulty)) errors.push('กรุณาเลือกระดับความยาก');
   if (!text(body.price) || !Number.isFinite(recipe.price) || recipe.price < 0) errors.push('ราคาต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป');
-  if (!recipe.image || recipe.image.length > 2000 || !safeUrl(recipe.image)) errors.push('กรุณาระบุ URL รูปภาพเมนูเป็น http หรือ https');
+  if (!recipe.image || recipe.image.length > 2000 || !(safeUrl(recipe.image) || /^\/uploads\/recipes\/[a-f0-9]{32}\.(jpg|png|webp)$/.test(recipe.image))) errors.push('กรุณาเลือกรูปภาพเมนู');
   if (recipe.duration !== null && (!Number.isFinite(recipe.duration) || recipe.duration < 0)) errors.push('ระยะเวลาต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป');
+  if (recipe.videoUrl && (recipe.videoUrl.length > 2000 || !videoEmbed(recipe.videoUrl))) errors.push('กรุณาใช้ลิงก์ YouTube ที่ถูกต้อง');
   if (names.length > 100 || amounts.length > 100 || list(body.stepDescription).length > 100) errors.push('เพิ่มวัตถุดิบและขั้นตอนได้ไม่เกินอย่างละ 100 รายการ');
   if (names.length !== amounts.length || !recipe.ingredients.length || recipe.ingredients.some(item => !item.name || !item.amount || item.name.length > 200 || item.amount.length > 100)) errors.push('กรุณาระบุวัตถุดิบและปริมาณให้ครบ');
   if (!recipe.steps.length || recipe.steps.some(step => step.description.length > 4000)) errors.push('กรุณาระบุขั้นตอนทำอาหาร แต่ละขั้นตอนไม่เกิน 4000 ตัวอักษร');
@@ -104,16 +107,19 @@ function parseRecipe(body, existing) {
 }
 
 function parseFilters(query) {
-  const filters = { search: text(query.search), category: list(query.category).filter(value => value !== '').map(text),
+  const filters = { source: text(query.source) || 'all', country: list(query.country).filter(value => value !== '').map(text), search: text(query.search), category: list(query.category).filter(value => value !== '').map(text),
     level: text(query.level), difficulty: text(query.difficulty), sort: text(query.sort) || 'popular',
     minPrice: text(query.minPrice), maxPrice: text(query.maxPrice), minDuration: text(query.minDuration),
     maxDuration: text(query.maxDuration), minRating: text(query.minRating) };
-  if (Object.keys(filters).filter(key => key !== 'category').some(key => query[key] !== undefined && typeof query[key] !== 'string') || list(query.category).some(value => typeof value !== 'string')) throw createError(400, 'ตัวกรองไม่ถูกต้อง');
+  if (Object.keys(filters).filter(key => !['category', 'country'].includes(key)).some(key => query[key] !== undefined && typeof query[key] !== 'string') || list(query.category).some(value => typeof value !== 'string')) throw createError(400, 'ตัวกรองไม่ถูกต้อง');
+  if (filters.country.length > 80 || filters.country.some(value => value.length > 80) || list(query.country).some(value => typeof value !== 'string')) throw createError(400, 'ตัวกรองประเทศไม่ถูกต้อง');
+  filters.country = [...new Set(filters.country.map(countries.normalizeCountry))];
   if (filters.search.length > 200 || filters.category.length > 20 || filters.category.some(value => value.length > 80)) throw createError(400, 'คำค้นหายาวเกินกำหนด');
   if (filters.level && !levels.includes(filters.level)) throw createError(400, 'ระดับความยากไม่ถูกต้อง');
   if (!filters.difficulty && filters.level) filters.difficulty = Object.keys(difficultyLevels).find(key => difficultyLevels[key] === filters.level);
   if (filters.difficulty && !difficulties.includes(filters.difficulty)) throw createError(400, 'ระดับความยากไม่ถูกต้อง');
   if (!['popular', 'rating', 'newest'].includes(filters.sort)) throw createError(400, 'การเรียงลำดับไม่ถูกต้อง');
+  if (!['all','chef','general'].includes(filters.source)) throw createError(400, 'ประเภทสูตรไม่ถูกต้อง');
   const clauses = [];
   if (filters.search) {
     const escaped = filters.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -123,6 +129,7 @@ function parseFilters(query) {
     const values = filters.category.flatMap(category => [category, ...Object.keys(categoryLabels).filter(key => categoryLabels[key] === category)]);
     clauses.push({ category: { $in: values } });
   }
+  if (filters.country.length) clauses.push(countries.localCountryCriteria(filters.country));
   if (filters.difficulty) {
     const legacy = { difficulty: { $exists: false }, level: difficultyLevels[filters.difficulty] };
     if (filters.difficulty === 'EASY') {
@@ -169,7 +176,7 @@ function filterQuery(filters) {
 }
 
 function viewContext(req, res, next) {
-  Object.assign(res.locals, { levels, levelLabels, difficulties, difficultyLabels, recipeCategories: categories, categoryLabels, brandName: 'CookHub' });
+  Object.assign(res.locals, { levels, levelLabels, difficulties, difficultyLabels, recipeCategories: categories, categoryLabels, countryLabel: countries.countryLabel, mealCountry: countries.mealCountry, localCountry: countries.localCountry, brandName: 'CookHub' });
   next();
 }
 

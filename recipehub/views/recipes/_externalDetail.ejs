@@ -1,0 +1,31 @@
+<% const instructionText = (meal.instructions || '').replace(/\r\n?/g, '\n');
+   const steps = instructionText.split(/(?:^|\n)\s*step\s*\d+\s*[.:)-]?\s*\n|\n\s*\n/i).map(text => text.trim()).filter(Boolean); %>
+<div class="recipe-detail recipe-external-detail">
+  <header class="recipe-external-hero">
+    <div class="recipe-external-media">
+      <% if (videoEmbed) { %>
+        <iframe class="recipe-video" src="<%= videoEmbed %>" title="วิดีโอสอนทำ <%= meal.title %>" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+      <% } else if (/^https?:\/\//i.test(meal.image || '')) { %>
+        <img class="recipe-image" src="<%= meal.image %>" alt="<%= meal.title %>">
+      <% } %>
+    </div>
+    <div class="recipe-external-intro">
+      <span class="recipe-tag"><%= countryLabel(mealCountry(meal)) %></span>
+      <h1><%= meal.title %></h1>
+      <p class="recipe-external-source">สูตรจาก <a href="https://www.themealdb.com" target="_blank" rel="noopener noreferrer">TheMealDB</a></p>
+      <div class="recipe-external-summary"><span><i data-lucide="shopping-basket"></i> <%= (meal.ingredients || []).length %> วัตถุดิบ</span><span><i data-lucide="list-ordered"></i> <%= steps.length %> ขั้นตอน</span></div>
+    </div>
+  </header>
+  <div class="recipe-detail-grid">
+    <section class="recipe-detail-panel recipe-external-ingredients">
+      <h2><i data-lucide="shopping-basket"></i> วัตถุดิบ</h2>
+      <ul class="recipe-ingredients"><% (meal.ingredients || []).forEach(item => { %><li><span><%= item.name %></span><span><%= item.amount %></span></li><% }); %></ul>
+      <% if (!(meal.ingredients || []).length) { %><p class="recipe-muted">ไม่มีข้อมูลวัตถุดิบ</p><% } %>
+    </section>
+    <section class="recipe-detail-panel recipe-external-method">
+      <h2><i data-lucide="chef-hat"></i> วิธีทำ</h2>
+      <ol class="recipe-external-steps"><% steps.forEach((step, i) => { %><li><span class="recipe-external-step-number"><%= i + 1 %></span><p><%= step %></p></li><% }); %></ol>
+      <% if (!steps.length) { %><p class="recipe-muted">ไม่มีข้อมูลวิธีทำ</p><% } %>
+    </section>
+  </div>
+</div>

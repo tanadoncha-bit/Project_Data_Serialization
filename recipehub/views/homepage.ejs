@@ -1,158 +1,161 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-    <!-- 1. ดึง head ส่วนกลาง (มี Meta, Fonts, style.css, layout.css ของเพื่อน) -->
-    <%- include('partials/head') %>
+  <!-- 1. ดึง head ส่วนกลาง (มี Meta, Fonts, style.css, layout.css ของเพื่อน) -->
+  <%- include('partials/head') %>
 
-    <!-- 2. ดึง CSS เฉพาะหน้า Homepage -->
-    <link rel="stylesheet" href="/stylesheets/homepage.css">
-    <link rel="stylesheet" href="/stylesheets/recipes.css">
+  <!-- 2. ดึง CSS เฉพาะหน้า Homepage -->
+  <link rel="stylesheet" href="/stylesheets/homepage.css">
+  <link rel="stylesheet" href="/stylesheets/recipes.css">
 </head>
+
 <body class="recipe-site public-recipe-site">
-    <!-- 3. ดึง Navbar ส่วนกลาง -->
-    <%- include('partials/navbar', { active: 'home', recipePublicNav: true }) %>
+  <!-- 3. ดึง Navbar ส่วนกลาง -->
+  <%- include('partials/navbar', { active: 'home', recipePublicNav: true }) %>
 
-    <section class="hero">
-        <div class="hero-text" style="margin-left: -390px;">
-            <h1><span class="text-orange">Learn to Cook</span><br>Easy, Fun, Delicious</h1>
-            <p>เรียนทำอาหารออนไลน์กับเชฟมืออาชีพ ครบทุกเมนู ทุกระดับ<br>เริ่มต้นได้จากที่บ้าน พร้อมสูตรอาหารและเทคนิคที่ทำตามได้จริง</p>
-        </div>
-        <div class="hero-image">
-            <img src="/images/hero-pasta.jpg" alt="Delicious Pasta with Tomatoes">
-        </div>
-    </section>
+  <section class="hero">
+    <div class="hero-text" style="margin-left: -390px;">
+      <h1><span class="text-orange">Learn to Cook</span><br>Easy, Fun, Delicious</h1>
+      <p>เรียนทำอาหารออนไลน์กับเชฟมืออาชีพ ครบทุกเมนู ทุกระดับ<br>เริ่มต้นได้จากที่บ้าน พร้อมสูตรอาหารและเทคนิคที่ทำตามได้จริง</p>
+    </div>
+    <div class="hero-image">
+      <img src="/images/hero-pasta.jpg" alt="Delicious Pasta with Tomatoes">
+    </div>
+  </section>
 
-    <!-- Features Section -->
-    <section class="features">
-        <div class="feature-card">
-            <div class="feature-icon">
-                <img src="/icons/hat.svg" alt="Chef Hat Icon">
-            </div>
-            <h3>เรียนกับเชฟมืออาชีพ</h3>
-            <p>คอร์สเรียนคุณภาพจากเชฟที่มีประสบการณ์จริง สอนอย่างละเอียด เข้าใจง่าย</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">
-                <img src="/icons/book.svg" alt="Book Icon">
-            </div>
-            <h3>คลังสูตรอาหาร</h3>
-            <p>ค้นพบสูตรอาหารหลากหลาย ทั้งอาหารไทย อาหารนานาชาติ และเบเกอรี่</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">
-                <img src="/icons/heart.svg" alt="Heart Icon">
-            </div>
-            <h3>สร้างรายได้จากสูตรลับ</h3>
-            <p>เปิดโอกาสให้คุณแชร์สูตรอาหารและสร้างรายได้จากสิ่งที่คุณรัก</p>
-        </div>
-    </section>
+  <!-- Features Section -->
+  <section class="features">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <img src="/icons/hat.svg" alt="Chef Hat Icon">
+      </div>
+      <h3>เรียนกับเชฟมืออาชีพ</h3>
+      <p>คอร์สเรียนคุณภาพจากเชฟที่มีประสบการณ์จริง สอนอย่างละเอียด เข้าใจง่าย</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <img src="/icons/book.svg" alt="Book Icon">
+      </div>
+      <h3>คลังสูตรอาหาร</h3>
+      <p>ค้นพบสูตรอาหารหลากหลาย ทั้งอาหารไทย อาหารนานาชาติ และเบเกอรี่</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <img src="/icons/heart.svg" alt="Heart Icon">
+      </div>
+      <h3>สร้างรายได้จากสูตรลับ</h3>
+      <p>เปิดโอกาสให้คุณแชร์สูตรอาหารและสร้างรายได้จากสิ่งที่คุณรัก</p>
+    </div>
+  </section>
 
-    <!-- Popular Courses Section -->
-    <section class="popular-courses">
-        <div class="section-header">
-            <div>
-                <h2>คอร์สเรียนยอดนิยม</h2>
-                <p class="subtitle">ตัวอย่างคอร์สคุณภาพที่เปิดสอนอยู่บน CookHub</p>
-            </div>
-            <a href="/courses" class="see-all">ดูทั้งหมด &rarr;</a>
-        </div>
-        
-        <div class="course-grid">
-            <!-- ดึงข้อมูลคอร์สจาก Controller -->
-            <% courses.forEach(course => { %>
-                <div class="course-card">
-                    <div class="course-image">
-                        <span class="badge"><%= course.category %></span>
-                        
-                    </div>
-                    <div class="course-content">
-                        <div class="course-title-row">
-                            <h3><%= course.title %></h3>
-                            <div class="rating"><span class="star">★</span> <%= course.rating %></div>
-                        </div>
-                        <p class="course-desc"><%= course.description %></p>
-                        <div class="course-meta">
-                            <span><i class="far fa-play-circle"></i> <%= course.lesson_count %> บทเรียน</span>
-                            <span><i class="far fa-clock"></i> <%= course.duration_text %></span>
-                            <span><i class="far fa-user"></i> <%= course.student_count %> คนเรียน</span>
-                        </div>
-                    </div>
-                </div>
-            <% }) %>
-        </div>
-    </section>
+  <!-- Popular Courses Section -->
+  <section class="popular-courses">
+    <div class="section-header">
+      <div>
+        <h2>คอร์สเรียนยอดนิยม</h2>
+        <p class="subtitle">ตัวอย่างคอร์สคุณภาพที่เปิดสอนอยู่บน CookHub</p>
+      </div>
+      <a href="/courses" class="see-all">ดูทั้งหมด &rarr;</a>
+    </div>
 
-    <!-- Categories Section -->
-    <section class="categories-section">
-        <div class="section-header-left">
-            <h2>เลือกเรียนตามหมวดหมู่</h2>
-            <p class="subtitle">ค้นหาคอร์สที่ใช่สำหรับคุณ</p>
-        </div>
-        <div class="category-grid">
-            <% categories.forEach(cat => { %>
-                <div class="category-card">
-                    <div class="cat-icon">
-                        <img src="<%= cat.icon_url %>" alt="<%= cat.name %>">
-                    </div>
-                    <h4><%= cat.name %></h4>
-                    <span class="cat-count">(<%= cat.count %> คอร์ส)</span>
-                </div>
-            <% }) %>
-        </div>
-    </section>
+    <div class="course-grid">
+      <!-- ดึงข้อมูลคอร์สจาก Controller -->
+      <% courses.forEach(course => { %>
+      <div class="course-card">
+        <div class="course-image">
+          <span class="badge"><%= course.category %></span>
 
-    <!-- 3 Steps Section -->
-    <section class="steps-section">
-        <h2>เริ่มต้นเรียนกับ CookHub ง่ายๆ ใน 3 ขั้นตอน</h2>
-        <div class="steps-grid">
-            <div class="step-card">
-                <div class="step-num">1</div>
-                <div class="step-text">
-                    <h4>สมัครสมาชิก</h4>
-                    <p>สร้างบัญชีฟรี ใช้เวลาแค่ไม่กี่นาที</p>
-                </div>
-            </div>
-            <div class="step-card">
-                <div class="step-num">2</div>
-                <div class="step-text">
-                    <h4>เลือกคอร์สที่สนใจ</h4>
-                    <p>เลือกเรียนได้จากหลายหมวดหมู่</p>
-                </div>
-            </div>
-            <div class="step-card">
-                <div class="step-num">3</div>
-                <div class="step-text">
-                    <h4>เริ่มเรียนได้ทันที</h4>
-                    <p>เรียนได้ทุกที่ ทุกเวลา บนทุกอุปกรณ์</p>
-                </div>
-            </div>
         </div>
-    </section>
-
-    <!-- CTA Banner Section -->
-    <section class="cta-section">
-        <div class="cta-banner">
-            <div class="cta-content">
-                <h2>พร้อมเริ่มต้นเส้นทางการทำอาหารของคุณแล้วหรือยัง?</h2>
-                <p>สมัครสมาชิกวันนี้ และเข้าถึงคอร์สเรียนมากมายจากเชฟมืออาชีพ</p>
-                <a href="/register" class="btn-cta"><i class="fas fa-plus"></i> สมัครสมาชิกเลย</a>
-            </div>
-            <div class="cta-image">
-                <img src="/images/cta-tomatoes.png" alt="Fresh Ingredients">
-            </div>
+        <div class="course-content">
+          <div class="course-title-row">
+            <h3><%= course.title %></h3>
+            <div class="rating"><span class="star">★</span> <%= course.rating %></div>
+          </div>
+          <p class="course-desc"><%= course.description %></p>
+          <div class="course-meta">
+            <span><i class="far fa-play-circle"></i> <%= course.lesson_count %> บทเรียน</span>
+            <span><i class="far fa-clock"></i> <%= course.duration_text %></span>
+            <span><i class="far fa-user"></i> <%= course.student_count %> คนเรียน</span>
+          </div>
         </div>
-    </section>
+      </div>
+      <% }) %>
+    </div>
+  </section>
 
-    
-    <!-- ==================== MAIN CONTENT ==================== -->
-    <main class="homepage-main">
+  <!-- Categories Section -->
+  <section class="categories-section">
+    <div class="section-header-left">
+      <h2>เลือกเรียนตามหมวดหมู่</h2>
+      <p class="subtitle">ค้นหาคอร์สที่ใช่สำหรับคุณ</p>
+    </div>
+    <div class="category-grid">
+      <% categories.forEach(cat => { %>
+      <div class="category-card">
+        <div class="cat-icon">
+          <img src="<%= cat.icon_url %>" alt="<%= cat.name %>">
+        </div>
+        <h4><%= cat.name %></h4>
+        <span class="cat-count">(<%= cat.count %> คอร์ส)</span>
+      </div>
+      <% }) %>
+    </div>
+  </section>
+
+  <!-- 3 Steps Section -->
+  <section class="steps-section">
+    <h2>เริ่มต้นเรียนกับ CookHub ง่ายๆ ใน 3 ขั้นตอน</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <h4>สมัครสมาชิก</h4>
+          <p>สร้างบัญชีฟรี ใช้เวลาแค่ไม่กี่นาที</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <h4>เลือกคอร์สที่สนใจ</h4>
+          <p>เลือกเรียนได้จากหลายหมวดหมู่</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <h4>เริ่มเรียนได้ทันที</h4>
+          <p>เรียนได้ทุกที่ ทุกเวลา บนทุกอุปกรณ์</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner Section -->
+  <section class="cta-section">
+    <div class="cta-banner">
+      <div class="cta-content">
+        <h2>พร้อมเริ่มต้นเส้นทางการทำอาหารของคุณแล้วหรือยัง?</h2>
+        <p>สมัครสมาชิกวันนี้ และเข้าถึงคอร์สเรียนมากมายจากเชฟมืออาชีพ</p>
+        <a href="/register" class="btn-cta"><i class="fas fa-plus"></i> สมัครสมาชิกเลย</a>
+      </div>
+      <div class="cta-image">
+        <img src="/images/cta-tomatoes.png" alt="Fresh Ingredients">
+      </div>
+    </div>
+  </section>
 
 
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="homepage-main">
 
-    </main>
-    <!-- ====================================================== -->
 
-    <!-- 4. ดึง Footer ส่วนกลาง -->
-    <%- include('partials/footer') %>
+
+  </main>
+  <!-- ====================================================== -->
+
+  <!-- 4. ดึง Footer ส่วนกลาง -->
+  <%- include('partials/footer') %>
 </body>
+
 </html>

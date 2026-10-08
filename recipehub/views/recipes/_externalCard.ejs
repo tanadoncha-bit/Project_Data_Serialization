@@ -1,0 +1,17 @@
+<article class="recipe-card public-recipe-card recipe-external-card">
+  <div class="recipe-card-photo">
+    <a href="/recipes/external/<%= meal.id %>" data-recipe-modal="preview">
+      <% if (/^https?:\/\//i.test(meal.image || '')) { %><img class="recipe-image" src="<%= meal.image %>" alt="<%= meal.title %>" loading="lazy"><% } %>
+    </a>
+    <span class="recipe-tag"><%= countryLabel(mealCountry(meal)) %></span>
+    <button type="button" class="recipe-favorite" data-favorite-recipe="<%= meal.id %>" data-favorite-type="external" aria-pressed="<%= favoriteKeys.has('ExternalRecipe:'+meal.id) %>" aria-label="<%= favoriteKeys.has('ExternalRecipe:'+meal.id) ? 'ยกเลิก' : 'เพิ่ม' %> <%= meal.title %> เป็นรายการโปรด"><i data-lucide="heart"></i></button>
+  </div>
+  <div class="recipe-card-body">
+    <div class="recipe-card-meta"><span><i data-lucide="globe"></i><%= countryLabel(mealCountry(meal)) %></span><span class="recipe-api-badge">TheMealDB</span></div>
+    <div class="recipe-card-title">
+      <h2><a href="/recipes/external/<%= meal.id %>" data-recipe-modal="preview"><%= meal.title %></a></h2>
+    </div>
+    <p class="recipe-muted recipe-card-counts">วัตถุดิบ <%= (meal.ingredients || []).length %> อย่าง</p>
+    <div class="recipe-card-bottom"><strong class="recipe-price recipe-free-price">ฟรี</strong><a href="/recipes/external/<%= meal.id %>" data-recipe-modal="preview" class="recipe-preview-link">ดูสูตร →</a></div>
+  </div>
+</article>

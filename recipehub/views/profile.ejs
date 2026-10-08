@@ -3,6 +3,7 @@
 
 <head>
   <%- include('partials/head', { title }) %>
+  <link rel="stylesheet" href="/stylesheets/recipes.css">
   <link rel="stylesheet" href="/stylesheets/profile.css">
 </head>
 
@@ -98,12 +99,12 @@
       <% } else { %>
         <div class="fav-grid">
           <% favorites.forEach(item => { %>
-          <a href="<%= item.url %>" class="fav-card">
+          <a href="<%= item.url %>" class="fav-card" <%= ['Recipe','ExternalRecipe'].includes(item.type) ? 'data-recipe-modal=preview' : '' %>>
             <% if (item.image) { %><img src="<%= item.image %>" alt=""><% } else { %><div class="fav-noimg"></div><% } %>
             <div class="fav-body">
               <span class="item-badge"><%= item.label %></span>
               <h3><%= item.title %></h3>
-              <span class="item-price">฿<%= Number(item.price).toLocaleString() %></span>
+              <span class="item-price <%= Number(item.price) === 0 ? 'fav-price-free' : '' %>"><%= Number(item.price) === 0 ? 'ฟรี' : '฿' + Number(item.price).toLocaleString('th-TH') %></span>
             </div>
           </a>
           <% }) %>
@@ -140,8 +141,10 @@
     <% } %>
   </main>
 
+  <dialog id="recipe-content-dialog" class="recipe-dialog recipe-content-dialog recipe-preview-dialog" aria-label="รายละเอียดสูตรอาหาร"><button class="recipe-modal-close recipe-preview-close" type="button" data-close-recipe aria-label="ปิดสูตรอาหาร">×</button><div id="recipe-modal-content"></div></dialog>
   <%- include('partials/footer') %>
   <script src="/javascripts/profile.js"></script>
+  <script src="/javascripts/recipeModals.js" defer></script>
 </body>
 
 </html>

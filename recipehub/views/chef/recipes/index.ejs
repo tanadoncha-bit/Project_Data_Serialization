@@ -38,7 +38,7 @@
     <div class="recipe-grid">
       <% recipes.forEach(recipe=> { %>
       <article class="recipe-card chef-recipe-card">
-        <div class="recipe-card-photo"><a href="/chef/recipes/<%= recipe._id %>" data-recipe-modal="preview"><%- include('../../recipes/_image', { recipe }) %></a><span class="recipe-tag">
+        <div class="recipe-card-photo"><a href="/chef/recipes/<%= recipe._id %>" data-recipe-modal="preview"><%- include('../../recipes/_image', { recipe }) %></a><span class="recipe-tag recipe-tag-chef">
             <%= categoryLabels[recipe.category] || recipe.category || 'ไม่ระบุหมวดหมู่' %>
           </span></div>
         <div class="recipe-card-body">

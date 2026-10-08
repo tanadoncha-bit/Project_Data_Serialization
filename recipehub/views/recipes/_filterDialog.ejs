@@ -1,56 +1,28 @@
-<% const options=Array.from(new Set(recipeCategories.concat(categories.map(category=> categoryLabels[category] ||
-  category)))); const selectedCategories = filters.category.map(category => categoryLabels[category] || category); %>
-  <dialog id="recipe-filter-dialog" class="recipe-dialog recipe-filter-dialog" aria-labelledby="recipe-filter-title">
-    <div class="recipe-filter-heading">
-      <h2 id="recipe-filter-title">ตัวกรองสูตรอาหาร</h2><button type="button" class="recipe-modal-close"
-        data-close-filter aria-label="ปิดตัวกรอง">×</button>
+<dialog id="recipe-filter-dialog" class="recipe-dialog recipe-filter-dialog" aria-labelledby="recipe-filter-title">
+  <div class="recipe-filter-heading">
+    <h2 id="recipe-filter-title">ตัวกรองสูตรอาหาร</h2><button type="button" class="recipe-modal-close" data-close-filter aria-label="ปิดตัวกรอง">×</button>
+  </div>
+  <fieldset>
+    <legend>ประเทศ</legend>
+    <div class="recipe-country-options">
+    <% countryOptions.forEach(country => { %><div class="recipe-check"><input type="checkbox" name="country" value="<%= country %>" aria-label="<%= countryLabel(country) %>" form="recipe-browse-form" <%= filters.country.includes(country) ? 'checked' : '' %>><span><%= countryLabel(country) %></span></div><% }); %>
     </div>
-    <fieldset>
-      <legend>ประเภทอาหาร</legend>
-      <% options.forEach(category=> { %><div class="recipe-check"><input type="checkbox" name="category"
-            value="<%= category %>" aria-label="<%= category %>" form="recipe-browse-form" <%=selectedCategories.includes(category) ? 'checked' : ''
-            %>><span>
-            <%= category %>
-          </span></div>
-        <% }); %>
-    </fieldset>
-    <fieldset>
-      <legend>ระยะเวลา (นาที)</legend>
-      <div class="recipe-range-slider" data-range="Duration"><span class="recipe-range-track"></span><input type="range"
-          min="0" max="480" step="5" value="<%= filters.minDuration || 0 %>" data-range-min
-          aria-label="เวลาต่ำสุด"><input type="range" min="0" max="480" step="5"
-          value="<%= filters.maxDuration || 480 %>" data-range-max aria-label="เวลาสูงสุด"></div>
-      <div class="recipe-range-fields"><label>ตั้งแต่<input type="number" min="0" name="minDuration"
-            form="recipe-browse-form" value="<%= filters.minDuration %>"
-            placeholder="0"></label><span>—</span><label>ถึง<input type="number" min="0" name="maxDuration"
-            form="recipe-browse-form" value="<%= filters.maxDuration %>" placeholder="480+"></label></div>
-    </fieldset>
-    <fieldset>
-      <legend>ช่วงราคา (บาท)</legend>
-      <div class="recipe-range-slider" data-range="Price"><span class="recipe-range-track"></span><input type="range"
-          min="0" max="5000" step="10" value="<%= filters.minPrice || 0 %>" data-range-min
-          aria-label="ราคาต่ำสุด"><input type="range" min="0" max="5000" step="10"
-          value="<%= filters.maxPrice || 5000 %>" data-range-max aria-label="ราคาสูงสุด"></div>
-      <div class="recipe-range-fields"><label>ตั้งแต่<input type="number" min="0" step="0.01" name="minPrice"
-            form="recipe-browse-form" value="<%= filters.minPrice %>"
-            placeholder="0"></label><span>—</span><label>ถึง<input type="number" min="0" step="0.01" name="maxPrice"
-            form="recipe-browse-form" value="<%= filters.maxPrice %>" placeholder="5000+"></label></div>
-    </fieldset>
-    <fieldset>
-      <legend>คะแนนรีวิว</legend><div class="recipe-check"><input type="radio" name="minRating" aria-label="ทั้งหมด" value=""
-          form="recipe-browse-form" <%=!filters.minRating ? 'checked' : '' %>><span>ทั้งหมด</span></div>
-      <% [5, 4, 3, 2, 1].forEach(rating=> { %><div class="recipe-check"><input type="radio" name="minRating"
-            value="<%= rating %>" aria-label="<%= rating === 5 ? '5 ดาว' : rating + ' ดาวขึ้นไป' %>" form="recipe-browse-form" <%=Number(filters.minRating)===rating ? 'checked' : ''
-            %>><span class="recipe-stars">
-            <%= '★' .repeat(rating) %><span>
-                <%= '★' .repeat(5 - rating) %>
-              </span>
-          </span><small>
-            <%= rating===5 ? '5 ดาว' : rating + ' ดาวขึ้นไป' %>
-          </small></div>
-        <% }); %>
-    </fieldset>
-    <div class="recipe-filter-footer"><button type="button" class="recipe-btn"
-        data-clear-filters>ล้างตัวกรอง</button><button type="submit" form="recipe-browse-form"
-        class="recipe-btn recipe-primary">แสดงผลลัพธ์</button></div>
-  </dialog>
+  </fieldset>
+  <fieldset><legend>ระยะเวลา (นาที)</legend>
+    <div class="recipe-range-slider" data-range="Duration"><span class="recipe-range-track"></span><input type="range" min="0" max="480" step="5" value="<%= filters.maxDuration || 0 %>" data-range-max aria-label="เวลาสูงสุด (ศูนย์คือไม่จำกัด)"></div>
+    <div class="recipe-range-fields"><label>ตั้งแต่<input type="number" min="0" name="minDuration" form="recipe-browse-form" value="0" readonly placeholder="0"></label><span>—</span><label>ถึง<input type="number" min="0" name="maxDuration" form="recipe-browse-form" value="<%= filters.maxDuration %>" placeholder="0"></label></div>
+  </fieldset>
+  <fieldset><legend>ช่วงราคา (บาท)</legend>
+    <div class="recipe-range-slider" data-range="Price"><span class="recipe-range-track"></span><input type="range" min="0" max="5000" step="10" value="<%= filters.maxPrice || 0 %>" data-range-max aria-label="ราคาสูงสุด (ศูนย์คือไม่จำกัด)"></div>
+    <div class="recipe-range-fields"><label>ตั้งแต่<input type="number" min="0" step="0.01" name="minPrice" form="recipe-browse-form" value="0" readonly placeholder="0"></label><span>—</span><label>ถึง<input type="number" min="0" step="0.01" name="maxPrice" form="recipe-browse-form" value="<%= filters.maxPrice %>" placeholder="0"></label></div>
+  </fieldset>
+  <fieldset><legend>คะแนนรีวิว</legend>
+    <div class="recipe-check"><input type="radio" name="minRating" aria-label="ทั้งหมด" value="" form="recipe-browse-form" <%=!filters.minRating ? 'checked' : '' %>><span>ทั้งหมด</span></div>
+    <% [5, 4, 3, 2, 1].forEach(rating=> { %><div class="recipe-check"><input type="radio" name="minRating" value="<%= rating %>" aria-label="<%= rating === 5 ? '5 ดาว' : rating + ' ดาวขึ้นไป' %>" form="recipe-browse-form" <%=Number(filters.minRating)===rating ? 'checked' : ''
+            %>><span class="recipe-stars" aria-hidden="true"><% for (let star = 0; star < 5; star++) { %><span class="<%= star >= rating ? 'recipe-star-empty' : '' %>">★</span><% } %></span><small>
+        <%= rating===5 ? '5 ดาว' : rating + ' ดาวขึ้นไป' %>
+      </small></div>
+    <% }); %>
+  </fieldset>
+  <div class="recipe-filter-footer"><button type="button" class="recipe-btn" data-clear-filters>ล้างตัวกรอง</button><button type="submit" form="recipe-browse-form" class="recipe-btn recipe-primary">แสดงผลลัพธ์</button></div>
+</dialog>

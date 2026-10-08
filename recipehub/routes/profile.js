@@ -33,6 +33,7 @@ const itemLabels = { Recipe: 'สูตรอาหาร', SingleCourse: 'ค�
 /** แปลงรายการ { itemType, itemId } เป็นข้อมูลที่ใช้แสดง (ชื่อ ราคา รูป ลิงก์) ตัดรายการที่ถูกลบไปแล้วทิ้ง */
 async function loadItems(rows) {
   const items = await Promise.all(rows.map(async (row) => {
+    if (row.itemType === 'ExternalRecipe') return { type: row.itemType, label: 'สูตรทั่วไป', title: row.title || 'สูตรจาก TheMealDB', image: row.image || '', price: 0, date: row.createdAt, url: '/recipes/external/' + row.itemId };
     const doc = await itemModels[row.itemType].findById(row.itemId).lean();
     if (!doc) return null;
     return {
