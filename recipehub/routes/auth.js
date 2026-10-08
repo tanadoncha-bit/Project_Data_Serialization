@@ -5,6 +5,10 @@ const Client = require('../models/Client');
 
 const router = express.Router();
 
+/** query หา username แบบตรงตัวพิมพ์ (Preem กับ preem เป็นคนละชื่อ) */
+const usernameQuery = (username) => ({ username });
+
+
 /** เก็บ userId ลง session ใหม่ แล้วตอบหน้าที่ต้องไปต่อ (เชฟ → dashboard, ผู้เรียน → home) */
 function startSession(req, res, next, user) {
   // สร้าง session ใหม่ทุกครั้ง กันการขโมย session เดิม
@@ -24,7 +28,7 @@ router.post('/register', async (req, res, next) => {
   try {
     const role = req.body.role === 'chef' ? 'chef' : 'user';
     const name = String(req.body.name || '').trim();
-    const username = String(req.body.username || '').trim().toLowerCase();
+    const username = String(req.body.username || '').trim();
     const email = String(req.body.email || '').trim().toLowerCase();
     const password = String(req.body.password || '');
     const confirmPassword = String(req.body.confirmPassword || '');
@@ -36,8 +40,8 @@ router.post('/register', async (req, res, next) => {
     if (role === 'chef' && !institution) {
       return res.status(400).json({ error: 'กรุณาระบุสถาบันการทำอาหาร' });
     }
-    if (!/^[a-z0-9_]{3,20}$/.test(username)) {
-      return res.status(400).json({ error: 'username ต้องเป็น a-z, 0-9 หรือ _ ยาว 3–20 ตัว' });
+    if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
+      return res.status(400).json({ error: 'username ต้องเป็น A-Z, a-z, 0-9 หรือ _ ยาว 3–20 ตัว' });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: 'รูปแบบอีเมลไม่ถูกต้อง' });
@@ -51,7 +55,7 @@ router.post('/register', async (req, res, next) => {
     if (await Client.exists({ email })) {
       return res.status(409).json({ error: 'อีเมลนี้ถูกใช้สมัครแล้ว' });
     }
-    if (await Client.exists({ username })) {
+    if (await Client.exists(usernameQuery(username))) {
       return res.status(409).json({ error: 'username นี้ถูกใช้แล้ว' });
     }
 
@@ -86,7 +90,7 @@ router.post('/login', async (req, res, next) => {
     }
 
     // มี @ ถือว่าเป็นอีเมล ไม่มี @ ถือว่าเป็น username
-    const query = login.includes('@') ? { email: login.toLowerCase() } : { username: login.toLowerCase() };
+    const query = login.includes('@') ? { email: login.toLowerCase() } : usernameQuery(login);
     const user = await Client.findOne(query);
     // ตอบข้อความเดียวกันทั้งกรณีไม่มีบัญชีและรหัสผิด จะได้เดาไม่ได้ว่าบัญชีไหนมีในระบบ
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
@@ -108,4 +112,5 @@ router.get('/logout', (req, res, next) => {
   });
 });
 
+router.usernameQuery = usernameQuery;
 module.exports = router;

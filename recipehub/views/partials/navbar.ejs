@@ -31,7 +31,11 @@
     <!-- โปรไฟล์ + เมนูป๊อปอัพ -->
     <div class="nav-profile">
       <button class="nav-avatar" id="profileToggle" aria-label="เมนูโปรไฟล์" aria-haspopup="true" aria-expanded="false">
-        <i data-lucide="user"></i>
+        <% if (currentUser.avatar) { %>
+          <img src="<%= currentUser.avatar %>" alt="" class="nav-avatar-img">
+        <% } else { %>
+          <i data-lucide="user"></i>
+        <% } %>
       </button>
 
       <div class="profile-menu" id="profileMenu" role="menu">
