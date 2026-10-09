@@ -37,6 +37,7 @@ router.use(support.databaseReady);
 
 const demoPurchasesEnabled = () => process.env.RECIPE_DEMO_PAYMENTS === 'true' && process.env.NODE_ENV !== 'production';
 router.get('/checkout/:id', support.asyncRoute(async(req,res)=>{
+  if(require('../services/omiseGateway').configured())return res.json({gateway:'omise',quoteUrl:'/payments/promptpay/quote/'+encodeURIComponent(req.params.id)});
   if(!demoPurchasesEnabled())return res.status(503).json({error:'ยังไม่เปิดระบบซื้อสูตร'});
   const buyer=support.numericId(req.session?.userId);if(!buyer||!await Client.exists({_id:buyer}))return res.status(401).json({error:'กรุณาเข้าสู่ระบบก่อนซื้อสูตร'});
   const id=support.numericId(req.params.id);if(!id)return res.status(400).json({error:'สูตรไม่ถูกต้อง'});
@@ -45,6 +46,7 @@ router.get('/checkout/:id', support.asyncRoute(async(req,res)=>{
   res.json({id,title:recipe.title,price:recipe.price,demo:true,csrf:req.session.purchaseCsrf,owned:recipe.price===0||recipe.publisher===buyer||!!await Transaction.exists({buyer,itemType:'Recipe',itemId:id})});
 }));
 router.post('/checkout/:id', support.asyncRoute(async(req,res)=>{
+  if(require('../services/omiseGateway').configured())return res.status(409).json({error:'กรุณาใช้การชำระเงินผ่าน QR'});
   if(!demoPurchasesEnabled())return res.status(503).json({error:'ยังไม่เปิดระบบซื้อสูตร'});
   const buyer=support.numericId(req.session?.userId);if(!buyer||!await Client.exists({_id:buyer}))return res.status(401).json({error:'กรุณาเข้าสู่ระบบก่อนซื้อสูตร'});
   if(!req.session.purchaseCsrf||req.get('X-CSRF-Token')!==req.session.purchaseCsrf)return res.status(403).json({error:'ฟอร์มหมดอายุ กรุณาเปิดใหม่'});
@@ -137,7 +139,7 @@ router.get('/:id', support.asyncRoute(async (req, res) => {
   const demoChefId = support.numericId(req.session && req.session.recipeDemoChefId);
   let canAccess = recipe.price === 0 || (recipe.publisher && [userId, demoChefId].includes(recipe.publisher._id));
   // Transaction is the existing purchase integration point; payment stays with the team's purchase system.
-  if (!canAccess && userId) canAccess = !!(await Transaction.exists({ buyer: userId, itemType: 'Recipe', itemId: id, ...(process.env.NODE_ENV === 'production' ? {paymentMode:{$ne:'demo'}} : {}) }));
+  if (!canAccess && userId) canAccess = !!(await Transaction.exists({ buyer: userId, itemType: 'Recipe', itemId: id, ...(process.env.NODE_ENV === 'production' ? {paymentMode:{$nin:['demo','gateway-test']}} : {}) }));
   if (!canAccess) {
     delete recipe.ingredients;
     delete recipe.steps;

@@ -149,7 +149,8 @@ async function main() {
       assert(await p.locator('.recipe-external-media').evaluate(e => e.getBoundingClientRect().width < innerWidth));
       await p.keyboard.press('Escape');
       assert(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-      console.log('PASS: external modal preview and mobile width');
+      await p.locator('[data-open-filter]').click();await p.locator('#recipe-filter-dialog[open]').waitFor();await p.locator('#recipe-filter-dialog').evaluate(el=>Promise.all(el.getAnimations().map(a=>a.finished)));const filterHeight=await p.locator('#recipe-filter-dialog').evaluate(el=>el.getBoundingClientRect().height);assert(filterHeight<=await p.evaluate(()=>innerHeight*.85+2));const headBefore=await p.locator('.recipe-filter-heading').boundingBox(),footBefore=await p.locator('.recipe-filter-footer').boundingBox();await p.locator('.recipe-filter-body').evaluate(el=>el.scrollTop=el.scrollHeight);const headAfter=await p.locator('.recipe-filter-heading').boundingBox(),footAfter=await p.locator('.recipe-filter-footer').boundingBox();assert(Math.abs(headBefore.y-headAfter.y)<1);assert(Math.abs(footBefore.y-footAfter.y)<1);await p.screenshot({path:'node_modules/.cache/filter-mobile.png'});await p.locator('[data-close-filter]').click();
+      console.log('PASS: external modal/mobile width and bottom sheet fixed header/footer');
     } finally { await browser.close(); }
   }
 }

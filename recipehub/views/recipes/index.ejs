@@ -28,7 +28,7 @@
               </div>
             </details>
           </div>
-          <div class="recipe-sort-options"><span>เรียงตาม:</span>
+          <div class="recipe-sort-options" role="group" aria-label="เรียงลำดับสูตรอาหาร"><span>เรียงตาม:</span>
             <% [['popular', 'ยอดนิยม' ], ['rating', 'คะแนนสูงสุด' ], ['newest', 'ใหม่ล่าสุด' ]].forEach(([value,
               label])=> { %><button type="button" data-sort="<%= value %>" class="<%= filters.sort === value ? 'active' : '' %>">
               <%= label %>

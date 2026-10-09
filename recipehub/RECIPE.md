@@ -1,54 +1,72 @@
-# CookHub recipe module
+# ระบบสูตรอาหาร CookHub
 
-## Start
+เอกสารนี้อธิบายการทำงานของระบบสูตรอาหาร การตั้งค่า PromptPay และการทดสอบชำระเงินอยู่ใน [PAYMENTS.md](PAYMENTS.md)
 
-Run from recipehub:
+## เริ่มต้นใช้งาน
 
-- npm install (PowerShell: npm.cmd install)
-- npm run dev
-- Configure MONGODB_URI and the existing authentication/session secrets in local .env. Never commit credentials.
+เรียกคำสั่งจากโฟลเดอร์ recipehub:
 
-The application uses the team's numeric Client IDs and req.session.userId. Chef create/edit/delete/upload operations require the chef role, ownership and a session CSRF token.
+- ติดตั้งแพ็กเกจด้วย npm install (บน PowerShell ใช้ npm.cmd install)
+- ตั้งค่า MONGODB_URI และค่าระบบเข้าสู่ระบบ/session ในไฟล์ .env ของเครื่อง ห้าม commit ข้อมูลลับ
+- เปิดระบบด้วย npm run dev
 
-## Recipes and editor
+ระบบใช้ Client ID แบบตัวเลขของทีมและ req.session.userId การสร้าง แก้ไข ลบ และอัปโหลดรูปสูตรต้องเป็นเชฟ เจ้าของสูตร และมี CSRF token ของ session
 
-- /recipes lists 12 cards per page. source=all|chef|general selects all, local recipes, or TheMealDB recipes.
-- Both sources are sorted together before pagination. popular counts Favorite records, rating uses RecipeReview averages, newest uses local createdAt. TheMealDB has no publication timestamps: external recipes retain catalogue order when dates are unavailable.
-- Country, search, category and minRating apply to both sources. External recipes are free to access (price 0). Their cooking duration and difficulty are unknown; time/difficulty filters exclude them instead of inventing values.
-- maxPrice=0 means free only. Returning a slider to zero clears its limit; entering zero explicitly retains a free-only price filter.
-- /chef/recipes uses a three-step modal: menu information, ingredients, method/review. Back preserves inputs. Required fields are validated before advancing and on the server.
-- Description, duration and optional YouTube videoUrl are persisted. Category choices match Thai, British, Chinese, Japanese, Korean and International. Difficulty is no longer a visible editor field; existing records retain legacy values.
-- Clicking the image area uploads JPG/PNG/WebP up to 5 MB via POST /chef/recipes/upload-image. Server checks file signatures, stores random filenames in public/uploads/recipes, and returns a relative URL. Uploads are ignored by Git; deployment storage must preserve this directory. Incomplete/cancelled forms may leave uploaded files to be cleaned up later.
-- Local and external previews share the same layout. Accessible video replaces the hero image; otherwise the image appears. Chef avatar, name, institution and bio come from Client. The close button stays outside scrolling content.
-- Free recipes, the owner, and purchasers can see ingredients/steps/video. Paid content is excluded from server responses for other visitors.
+## รายการสูตรและแบบฟอร์ม
 
-## External catalogue
+- /recipes แสดง 12 การ์ดต่อหน้า โดย source=all|chef|general เลือกทั้งหมด สูตรในระบบ หรือสูตรจาก TheMealDB
+- เรียงสูตรทั้งสองแหล่งรวมกันก่อนแบ่งหน้า: ยอดนิยมใช้จำนวน Favorite คะแนนรีวิวใช้ค่าเฉลี่ย RecipeReview และใหม่ล่าสุดใช้ createdAt ของสูตรในระบบ TheMealDB ไม่มีวันเผยแพร่ จึงใช้ลำดับในรายการ API เมื่อไม่มีวันที่
+- ประเทศ คำค้น หมวดหมู่ และคะแนนขั้นต่ำใช้กับทั้งสองแหล่ง สูตร API เปิดดูฟรี ไม่ระบุเวลาและความยาก ตัวกรองเวลา/ความยากจะไม่รวมสูตรที่ไม่มีข้อมูล
+- maxPrice=0 หมายถึงสูตรฟรีเท่านั้น เลื่อนแถบราคากลับเป็นศูนย์เพื่อล้างเพดานราคา ส่วนกรอกเลขศูนย์โดยตรงจะคงเงื่อนไขสูตรฟรี
+- /chef/recipes ใช้แบบฟอร์ม 3 ขั้นตอน: ข้อมูลเมนู วัตถุดิบ และวิธีทำ/ตรวจสอบ ปุ่มย้อนกลับเก็บค่าที่กรอก และตรวจช่องบังคับทั้งก่อนเปลี่ยนขั้นตอนและฝั่งเซิร์ฟเวอร์
+- บันทึกคำอธิบาย เวลา และลิงก์ YouTube ที่ใส่เพิ่มเติมได้ หมวดหมู่มี Thai, British, Chinese, Japanese, Korean และ International ช่องความยากไม่แสดงในแบบฟอร์มแล้ว แต่ข้อมูลเดิมยังเก็บไว้
+- คลิกพื้นที่รูปเพื่ออัปโหลด JPG/PNG/WebP ไม่เกิน 5 MB ผ่าน POST /chef/recipes/upload-image เซิร์ฟเวอร์ตรวจชนิดไฟล์จากเนื้อหา ตั้งชื่อสุ่ม และเก็บใน public/uploads/recipes โฟลเดอร์นี้ไม่เข้า Git ต้องจัดเก็บให้ถาวรเมื่อ Deploy รูปจากแบบฟอร์มที่ยกเลิกอาจค้างอยู่และต้องจัดการภายหลัง
+- หน้าดูสูตรในระบบและ API ใช้รูปแบบเดียวกัน หากมีวิดีโอและมีสิทธิ์เข้าถึงจะแสดงแทนรูป รูปเชฟ ชื่อ สถาบัน และประวัติมาจาก Client ปุ่ม X อยู่กับที่ขณะเลื่อนเนื้อหา
+- สูตรฟรี เจ้าของสูตร และผู้ซื้อดูวัตถุดิบ วิธีทำ และวิดีโอได้ ผู้ที่ไม่มีสิทธิ์จะไม่ได้รับเนื้อหาสูตรเสียเงินจากเซิร์ฟเวอร์
+- บนมือถือ เมนูนำทางใช้ปุ่มเปิด/ปิด และตัวกรองเปิดจากด้านล่างสูงไม่เกิน 85% ของจอ หัวข้อและปุ่มท้ายแผงอยู่กับที่ เลื่อนเฉพาะเนื้อหา
 
-TheMealDB recipes are not imported into MongoDB. First browse returns the first-letter batch and loads the full 26-letter catalogue in the background. Cards show a pending message while the total is incomplete. A memory/disk cache (node_modules/.cache/meal-catalogue.json) is refreshed every 30 minutes; stale cached data remains available during refresh. Opening a recipe fetches its detail by external ID. API outages do not prevent local recipes from rendering.
+## รายการสูตรจาก API
 
-## Favorites
+สูตร TheMealDB ไม่ถูกนำเข้า MongoDB เมื่อยังไม่มีแคช ระบบแสดงชุดตัวอักษร a ก่อน แล้วโหลดครบ 26 ตัวอักษรในเบื้องหลัง ระหว่างโหลดจะแสดงข้อความว่าจำนวนยังไม่ครบ
 
-PUT /recipes/favorites/local|external/:id accepts {favorite:true|false} for a logged-in Client. Favorite uses client, itemType and itemId with a unique compound index. ExternalRecipe favorites additionally preserve title/image for profile cards. Numeric IDs from different sources are isolated by itemType. Profile recipe cards open previews in place. Counts for popularity are aggregated from Favorite records.
+แคชในหน่วยความจำและ node_modules/.cache/meal-catalogue.json รีเฟรชทุก 30 นาที ระหว่างรีเฟรชยังใช้แคชเดิมได้ การเปิดสูตรเรียกข้อมูลรายละเอียดตาม ID ของ API และ API ขัดข้องไม่ทำให้สูตรในระบบหายไป
 
-## Reviews
+TheMealDB ไม่มีคำอธิบายย่อสำหรับการ์ด จึงแสดงจำนวนวัตถุดิบ คะแนนที่แสดงมาจากผู้ใช้ CookHub
 
-- GET /recipes/reviews/local|external/:id returns the review section; PUT saves and DELETE removes the current user's review.
-- RecipeReview stores numeric client/recipeId, recipeType (Recipe or ExternalRecipe), integer rating 1–5, comment up to 2000 characters, and timestamps.
-- A unique index permits one review per Client/source/recipe. Only the owner can change their review, with login and X-CSRF-Token checks.
-- Displayed scores come from CookHub users, not TheMealDB. Listing aggregates review scores for both sources. Local Recipe.rating/reviewCount are also synchronized on writes.
-- Reviews show up to the 30 most recently updated entries; aggregate count/average includes every review. Text is escaped by EJS.
+## รายการโปรด
 
-## Purchase demonstration
+PUT /recipes/favorites/local|external/:id รับ {favorite:true|false} สำหรับผู้ใช้ที่เข้าสู่ระบบ Favorite ใช้ client, itemType และ itemId พร้อมดัชนีไม่ให้บันทึกซ้ำ
 
-Set RECIPE_DEMO_PAYMENTS=true locally and restart the server to enable the explicitly labeled simulated checkout modal. No money is charged. Authenticated users get a CSRF token from GET /recipes/checkout/:id and confirm through POST to that endpoint. Price is read from Recipe on the server; duplicate Transaction rows are prevented by the existing unique index.
+รายการ ExternalRecipe เก็บชื่อและรูปเพิ่มเติมเพื่อแสดงในโปรไฟล์ ID ตัวเลขจากคนละแหล่งแยกกันด้วย itemType การ์ดในโปรไฟล์เปิดหน้าดูสูตรได้ และยอดนิยมคำนวณจาก Favorite จริง
 
-Transaction.paymentMode distinguishes demo from real purchases (existing rows default to real). Demonstration checkout is disabled when NODE_ENV=production, and demo transactions never unlock paid content in production. Profile history labels demonstration purchases. A real payment provider is not integrated.
+## รีวิว
 
-## Verify
+- GET /recipes/reviews/local|external/:id แสดงรีวิว PUT บันทึก และ DELETE ลบรีวิวของผู้ใช้ปัจจุบัน
+- RecipeReview เก็บ client/recipeId แบบตัวเลข recipeType เป็น Recipe หรือ ExternalRecipe คะแนนจำนวนเต็ม 1–5 ความคิดเห็นไม่เกิน 2,000 ตัวอักษร และวันที่สร้าง/แก้ไข
+- ผู้ใช้รีวิวได้หนึ่งรายการต่อสูตรและแหล่งข้อมูล เฉพาะเจ้าของรีวิวแก้ไขหรือลบได้ โดยตรวจการเข้าสู่ระบบและ X-CSRF-Token
+- คะแนนการ์ดคำนวณจากรีวิว CookHub ทั้งสองแหล่ง สูตรในระบบอัปเดต Recipe.rating/reviewCount เมื่อบันทึกหรือลบรีวิวด้วย
+- แสดงรีวิวที่แก้ไขล่าสุดสูงสุด 30 รายการ แต่จำนวนและค่าเฉลี่ยรวมทุกรายการ EJS ป้องกันข้อความรีวิวถูกตีความเป็น HTML
 
-- npm test: isolated MongoDB fixtures for source filtering, global rating/popularity sorting, pagination, API failures, reviews, CSRF, duplicate prevention, access control, and simulated purchase isolation.
-- npm run test:browser: Edge/Playwright desktop and mobile editor flow, upload, adding ingredients, retained values, save, preview, edit, and single close button.
-- PowerShell external preview QA: set RECIPE_TEST_BROWSER=true then run node tests/externalRecipes.integration.js.
-- Tests do not mutate the application's database. MongoMemoryServer downloads a MongoDB binary on first use. Browser QA uses locally installed Microsoft Edge and stubs external icons/video responses. Screenshots go to node_modules/.cache.
+## การซื้อสูตร
 
-No bulk migration of existing recipes is performed. New review records live in their own collection. Existing Favorite and Transaction records remain compatible with added optional fields/types.
+ระบบรองรับทั้งการซื้อจำลองและ PromptPay ผ่าน Omise ดูการตั้งค่าใน [PAYMENTS.md](PAYMENTS.md)
+
+เปิดการซื้อจำลองด้วย RECIPE_DEMO_PAYMENTS=true ใน .env และรีสตาร์ตเซิร์ฟเวอร์ โหมดนี้ไม่เรียกเก็บเงิน ผู้ใช้รับ CSRF token ผ่าน GET /recipes/checkout/:id และยืนยันด้วย POST ไปยัง endpoint เดียวกัน ราคาอ่านจาก Recipe ฝั่งเซิร์ฟเวอร์และป้องกัน Transaction ซ้ำด้วยดัชนีเดิม
+
+เมื่อมีการตั้งค่า Omise ระบบใช้ QR แทนการซื้อจำลอง Transaction.paymentMode แยก real, demo และ gateway-test รายการเดิมมีค่าเริ่มต้นเป็น real การซื้อจำลองปิดเมื่อ NODE_ENV=production และรายการ demo/gateway-test ไม่ปลดล็อกสูตรใน production
+
+## การตรวจสอบ
+
+- npm test: ใช้ MongoDB จำลองแยกจากฐานข้อมูลของแอป ตรวจตัวกรอง การเรียงคะแนน/ยอดนิยม แบ่งหน้า API ขัดข้อง รีวิว CSRF การซื้อซ้ำ สิทธิ์เข้าถึง การซื้อจำลอง และ PromptPay
+- npm run test:browser: ใช้ Edge/Playwright ตรวจแบบฟอร์มบนคอมและมือถือ อัปโหลดรูป วัตถุดิบ การเก็บค่าระหว่างขั้นตอน บันทึก ดูสูตร แก้ไข ปุ่ม X และหน้าชำระเงิน
+- ตรวจหน้าดูสูตร API และตัวกรองมือถือเพิ่มเติมบน PowerShell: ตั้ง $env:RECIPE_TEST_BROWSER='true' แล้วเรียก node tests/externalRecipes.integration.js
+- การทดสอบไม่แก้ฐานข้อมูลของแอป MongoMemoryServer ดาวน์โหลด MongoDB ครั้งแรก การตรวจเบราว์เซอร์ใช้ Microsoft Edge ที่ติดตั้งในเครื่อง และจำลองการตอบกลับไอคอน/วิดีโอภายนอก ภาพตรวจสอบเก็บใน node_modules/.cache
+
+ไม่มีการย้ายข้อมูลสูตรเดิมทั้งชุด รีวิวเก็บใน collection ใหม่ Favorite และ Transaction เดิมยังใช้งานร่วมกับชนิดและฟิลด์ที่เพิ่มได้
+
+## งานก่อน Deploy
+
+- ตั้ง HTTPS และ webhook ตาม PAYMENTS.md
+- จัดพื้นที่เก็บรูปอัปโหลดให้ถาวร
+- เตรียมการจัดการไฟล์อัปโหลดที่ไม่ได้ใช้งาน
+- หากเปิดรับเงินจริง ต้องตรวจการตั้งค่า Live และเตรียมกระบวนการคืนเงิน/จัดการคำสั่งซื้อค้าง

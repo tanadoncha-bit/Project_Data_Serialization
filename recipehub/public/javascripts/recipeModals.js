@@ -50,12 +50,12 @@
     if(!dialog||!content)return;
     const preview=dialog.classList.contains('recipe-preview-dialog');
     let button=dialog.querySelector(':scope > .recipe-preview-close');
-    if(preview){
-      if(!button){button=document.createElement('button');button.type='button';button.className='recipe-modal-close recipe-preview-close';button.setAttribute('data-close-recipe','');button.setAttribute('aria-label','ปิดสูตรอาหาร');button.textContent='×';dialog.prepend(button);}
-      content.querySelectorAll('[data-close-recipe]').forEach(close=>close.remove());
-      dialog.querySelectorAll(':scope > .recipe-preview-close').forEach(close=>{if(close!==button)close.remove();});
-      button.hidden=false;
-    }else{dialog.querySelectorAll(':scope > .recipe-preview-close').forEach(close=>close.remove());content.querySelectorAll('.recipe-preview-close').forEach(close=>close.remove());}
+    if(!button){button=document.createElement('button');button.type='button';button.className='recipe-modal-close recipe-preview-close';button.setAttribute('data-close-recipe','');button.textContent='×';dialog.prepend(button);}
+    button.setAttribute('aria-label',preview?'ปิดสูตรอาหาร':'ปิดฟอร์ม');
+    button.classList.toggle('recipe-form-fixed-close',!preview);
+    content.querySelectorAll('.recipe-modal-close[data-close-recipe]').forEach(close=>close.remove());
+    dialog.querySelectorAll(':scope > .recipe-preview-close').forEach(close=>{if(close!==button)close.remove();});
+    button.hidden=false;
   }
   pinPreviewClose();
   let toastTimer;
@@ -119,6 +119,21 @@
   requestAnimationFrame(fitVisibleSteps);
   const recipeSuccess = document.querySelector('[data-recipe-success]');
   if(recipeSuccess){showToast(recipeSuccess.dataset.recipeSuccess,'recipe');recipeSuccess.remove();const url=new URL(location.href);url.searchParams.delete('saved');url.searchParams.delete('deleted');history.replaceState(history.state,'',url.pathname+url.search+url.hash);}
+  async function openPromptpay(quoteUrl) {
+    const response=await fetch(quoteUrl),quote=await response.json();if(!response.ok)throw Error(quote.error||'เปิดการจ่ายเงินไม่สำเร็จ');
+    async function unlock(){const res=await fetch('/recipes/'+quote.id+'?fragment=1');if(!res.ok)throw Error('โหลดสูตรไม่สำเร็จ กรุณาเปิดใหม่');content.innerHTML=await res.text();pinPreviewClose();loadReviews();icons();}
+    if(quote.owned){await unlock();return;}
+    const payment=document.createElement('dialog');payment.className='recipe-dialog recipe-promptpay-checkout';
+    payment.innerHTML='<button type="button" class="recipe-qr-close" aria-label="ปิดการจ่ายเงิน">×</button><div class="recipe-pay-brand">CookHub <span>CHECKOUT</span></div><h2>ชำระเงิน</h2><div class="recipe-pay-summary"><span class="recipe-pay-label">สูตรอาหาร</span><p class="recipe-qr-title"></p><div class="recipe-pay-total"><span>ยอดชำระทั้งหมด</span><strong class="recipe-checkout-price"></strong></div></div><div class="recipe-pay-method"><span class="recipe-promptpay-mark">QR</span><div><strong>PromptPay</strong><small>สแกนผ่านแอปธนาคาร</small></div></div><div class="recipe-qr-box" hidden><img alt="QR สำหรับชำระค่าสูตรอาหาร"><span class="recipe-qr-countdown"></span></div><p class="recipe-qr-status" role="status" aria-live="polite"></p><button type="button" class="recipe-btn recipe-primary" data-create-qr>แสดง QR สำหรับชำระเงิน</button><div class="recipe-pay-footer">ระบบจะเปิดสูตรให้เมื่อยืนยันการชำระเงินสำเร็จ</div>';
+    payment.querySelector('.recipe-qr-title').textContent=quote.title;payment.querySelector('.recipe-checkout-price').textContent='฿'+Number(quote.price).toLocaleString('th-TH');
+    document.body.append(payment);let pollTimer,countdownTimer,orderId;const status=payment.querySelector('.recipe-qr-status'),button=payment.querySelector('[data-create-qr]');
+    function stop(){clearTimeout(pollTimer);clearInterval(countdownTimer);}payment.addEventListener('close',()=>{stop();payment.remove();});payment.querySelector('.recipe-qr-close').onclick=()=>payment.close();
+    function display(order){if(order.qrUrl){payment.querySelector('.recipe-qr-box').hidden=false;payment.querySelector('img').src=order.qrUrl;}clearInterval(countdownTimer);function clock(){if(!order.expiresAt)return;const seconds=Math.max(0,Math.ceil((new Date(order.expiresAt)-Date.now())/1000));payment.querySelector('.recipe-qr-countdown').textContent=seconds?'เหลือ '+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0'):'QR หมดเวลา กำลังตรวจสอบสถานะ';}clock();countdownTimer=setInterval(clock,1000);}
+    async function check(){if(!payment.open)return;try{const res=await fetch('/payments/promptpay/orders/'+orderId);const order=await res.json();if(!payment.open)return;if(!res.ok)throw Error(order.error||'ตรวจสอบไม่สำเร็จ');if(order.status==='paid'){stop();await unlock();payment.close();showToast(quote.test?'ทดสอบจ่ายเงินสำเร็จ':'ชำระเงินสำเร็จ','recipe');return;}if(['failed','expired'].includes(order.status)){stop();payment.querySelector('.recipe-qr-box').hidden=true;status.textContent=order.status==='expired'?'QR หมดอายุ กรุณาขอ QR ใหม่':'การชำระเงินไม่สำเร็จ กรุณาลองอีกครั้ง';payment.dataset.paymentState=order.status;button.textContent='ขอ QR ใหม่';button.hidden=false;button.disabled=false;return;}display(order);payment.dataset.paymentState=order.status;status.textContent=order.status==='creating'?'กำลังเตรียม QR สำหรับคุณ':'รอการยืนยันชำระเงิน';}catch(error){status.textContent=error.message+' ระบบจะตรวจสอบอีกครั้ง';}pollTimer=setTimeout(check,5000);}
+    button.onclick=async()=>{button.disabled=true;payment.dataset.paymentState='creating';status.textContent='กำลังเตรียม QR สำหรับคุณ…';try{const res=await fetch('/payments/promptpay/orders',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':quote.csrf},body:JSON.stringify({recipeId:quote.id})});const order=await res.json();if(!payment.open)return;if(!res.ok)throw Error(order.error||'สร้าง QR ไม่สำเร็จ');orderId=order.id;button.hidden=true;display(order);await check();}catch(error){status.textContent=error.message;button.disabled=false;}};
+    payment.showModal();
+    if(quote.activeOrder){payment.dataset.paymentState=quote.activeOrder.status;orderId=quote.activeOrder.id;button.hidden=true;display(quote.activeOrder);await check();}
+  }
   let request;
   let opener;
   function icons() { if (window.lucide) window.lucide.createIcons(); }
@@ -256,6 +271,7 @@
       try {
         const endpoint='/recipes/checkout/'+purchase.dataset.purchaseRecipe;
         const response=await fetch(endpoint);const info=await response.json();if(!response.ok)throw Error(info.error||'เปิดรายการซื้อไม่สำเร็จ');
+        if(info.gateway==='omise'){await openPromptpay(info.quoteUrl);return;}
         if(info.owned){const html=await (await fetch('/recipes/'+info.id+'?fragment=1')).text();content.innerHTML=html;pinPreviewClose();loadReviews();icons();return;}
         const checkout=document.createElement('dialog');checkout.className='recipe-dialog recipe-demo-checkout';
         checkout.innerHTML='<h2>ซื้อสูตร · โหมดสาธิต</h2><p class="recipe-checkout-title"></p><strong class="recipe-checkout-price"></strong><p class="recipe-muted">จำลองการซื้อ ไม่มีการเรียกเก็บเงินจริง</p><p role="status"></p><div class="recipe-checkout-actions"><button type="button" class="recipe-btn" data-cancel>ยกเลิก</button><button type="button" class="recipe-btn recipe-primary" data-confirm>ยืนยันซื้อจำลอง</button></div>';
@@ -298,6 +314,7 @@
       const response = await fetch(url, { method: 'POST', body: new URLSearchParams(new FormData(form)) });
       if (response.status === 422) {
         content.innerHTML = await response.text();
+        pinPreviewClose();
       initWizard();
         icons();
         content.querySelector('[role=alert]').scrollIntoView({ block: 'nearest' });
