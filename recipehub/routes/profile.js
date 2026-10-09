@@ -40,7 +40,7 @@ async function loadItems(rows) {
     if (!doc) return null;
     return {
       type: row.itemType,
-      label: itemLabels[row.itemType],
+      label: itemLabels[row.itemType] + (row.paymentMode === 'demo' ? ' (ซื้อจำลอง)' : ''),
       title: doc.title,
       image: doc.image || '',
       price: row.amountPaid ?? doc.price ?? 0,

@@ -1,0 +1,25 @@
+const assert=require('node:assert/strict'),express=require('express'),mongoose=require('mongoose'),{MongoMemoryServer}=require('mongodb-memory-server');
+const api=require('../services/mealApiService'),original=api.lookup;
+let db,server;
+(async()=>{
+ db=await MongoMemoryServer.create();await mongoose.connect(db.getUri());
+ await require('../models/Client').collection.insertMany([{_id:1,email:'one@example.test',name:'Reviewer'},{_id:2,email:'two@example.test',name:'Other'}]);
+ await require('../models/Recipe').collection.insertOne({_id:7,title:'Test',price:0});
+ api.lookup=async()=>({id:'7',title:'API'});
+ const app=express();app.set('views',require('path').resolve('views'));app.set('view engine','ejs');app.use(express.json());
+ const sessions={1:{},2:{}};app.use((req,res,next)=>{const id=Number(req.get('X-Test-User')||1);req.session=sessions[id]||{};req.user=id?{_id:id}:null;next()});
+ app.use('/reviews',require('../routes/recipeReviews'));app.use((err,req,res,next)=>res.status(err.status||500).send(err.message));
+ server=app.listen(0);const base='http://localhost:'+server.address().port+'/reviews';
+ assert.equal((await fetch(base+'/local/7')).status,200);
+ const opts={method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-Token':sessions[1].reviewCsrf},body:JSON.stringify({rating:5,comment:'<script>test</script>'})};
+ let r=await fetch(base+'/local/7',opts);assert.equal(r.status,200);assert((await r.text()).includes('&lt;script&gt;'));
+ await fetch(base+'/local/7',opts);await fetch(base+'/external/7',opts);
+ const Review=require('../models/RecipeReview');assert.equal(await Review.countDocuments(),2);
+ assert.equal((await require('../models/Recipe').findById(7)).rating,5);
+ assert.equal((await fetch(base+'/local/7',{...opts,headers:{'Content-Type':'application/json'}})).status,403);
+ assert.equal((await fetch(base+'/local/7',{...opts,headers:{...opts.headers,'X-Test-User':'0'}})).status,401);
+ assert.equal((await fetch(base+'/local/7',{...opts,body:JSON.stringify({rating:6,comment:''})})).status,400);
+ await fetch(base+'/local/7',{method:'DELETE',headers:opts.headers});assert.equal(await Review.countDocuments(),1);
+ assert.equal((await require('../models/Recipe').findById(7)).reviewCount,0);
+ console.log('PASS: review persistence, edit, duplicate prevention, ID isolation, escaping, CSRF, auth, rating synchronization and delete');
+})().catch(e=>{console.error(e);process.exitCode=1}).finally(async()=>{api.lookup=original;if(server)await new Promise(r=>server.close(r));await mongoose.disconnect();if(db)await db.stop()});

@@ -51,39 +51,7 @@
     </section>
     <% } %>
     <div class="recipe-grid">
-      <% recipes.forEach(recipe=> { %><article class="recipe-card public-recipe-card">
-        <div class="recipe-card-photo"><a href="/recipes/<%= recipe._id %>" data-recipe-modal="preview"><%-
-                      include('_image', { recipe }) %></a><span class="recipe-tag <%= recipe.publisher && recipe.publisher.role === 'chef' ? 'recipe-tag-chef' : '' %>">
-            <%= countryLabel(localCountry(recipe.category)) %>
-          </span><button type="button" class="recipe-favorite" data-favorite-recipe="<%= recipe._id %>" data-favorite-type="local" aria-pressed="<%= favoriteKeys.has('Recipe:'+recipe._id) %>" aria-label="<%= favoriteKeys.has('Recipe:'+recipe._id) ? 'ยกเลิก' : 'เพิ่ม' %> <%= recipe.title %> เป็นรายการโปรด"><i data-lucide="heart"></i></button></div>
-        <div class="recipe-card-body">
-          <div class="recipe-card-meta"><span><i data-lucide="clock-3"></i>
-              <%= recipe.duration==null ? 'ไม่ระบุเวลา' : recipe.duration + ' นาที' %>
-            </span><span class="recipe-difficulty-badge <%= recipe.difficulty.toLowerCase() %>">
-              <%= difficultyLabels[recipe.difficulty] %>
-            </span></div>
-          <div class="recipe-card-title">
-            <h2><a href="/recipes/<%= recipe._id %>" data-recipe-modal="preview">
-                <%= recipe.title %>
-              </a></h2><span class="recipe-rating">
-              <%= recipe.rating==null ? 'ยังไม่มีรีวิว' : '★ ' + recipe.rating.toFixed(1) %>
-            </span>
-          </div>
-          <% if (recipe.description) { %>
-          <p class="recipe-card-description recipe-muted">
-            <%= recipe.description %>
-          </p>
-          <% } %>
-          <p class="recipe-card-chef recipe-muted"><i data-lucide="circle-user-round"></i>
-            <%= recipe.publisher ? recipe.publisher.name : 'เจ้าของสูตร' %>
-          </p>
-          <div class="recipe-card-bottom"><strong class="recipe-price <%= recipe.price === 0 ? 'recipe-free-price' : '' %>">
-              <%= recipe.price===0 ? 'ฟรี' : '฿' + recipe.price.toLocaleString('th-TH') %>
-            </strong><a href="/recipes/<%= recipe._id %>" data-recipe-modal="preview" class="recipe-preview-link">ดูสูตร →</a></div>
-        </div>
-      </article>
-      <% }); %>
-      <% externalMeals.forEach(meal => { %><%- include('_externalCard', { meal }) %><% }); %>
+      <% orderedCards.forEach(item=> { %><%- item.type==='Recipe' ? include('_localCard',{recipe:item.value}) : include('_externalCard',{meal:item.value}) %><% }); %>
     </div>
     <nav class="recipe-pagination" aria-label="หน้ารายการสูตร">
       <% if (page> 1) { %><a href="/recipes?<%= pageQuery %>&amp;page=<%= page - 1 %>" aria-label="หน้าก่อนหน้า">‹</a>

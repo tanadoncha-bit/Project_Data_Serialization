@@ -7,11 +7,12 @@
     <button type="button" class="recipe-favorite" data-favorite-recipe="<%= meal.id %>" data-favorite-type="external" aria-pressed="<%= favoriteKeys.has('ExternalRecipe:'+meal.id) %>" aria-label="<%= favoriteKeys.has('ExternalRecipe:'+meal.id) ? 'ยกเลิก' : 'เพิ่ม' %> <%= meal.title %> เป็นรายการโปรด"><i data-lucide="heart"></i></button>
   </div>
   <div class="recipe-card-body">
-    <div class="recipe-card-meta"><span><i data-lucide="globe"></i><%= countryLabel(mealCountry(meal)) %></span><span class="recipe-api-badge">TheMealDB</span></div>
+    <div class="recipe-card-meta"><span><i data-lucide="clock-3" aria-hidden="true"></i>ไม่ระบุเวลา</span><span class="recipe-api-badge">TheMealDB</span></div>
     <div class="recipe-card-title">
-      <h2><a href="/recipes/external/<%= meal.id %>" data-recipe-modal="preview"><%= meal.title %></a></h2>
+      <h2><a href="/recipes/external/<%= meal.id %>" data-recipe-modal="preview"><%= meal.title %></a></h2><span class="recipe-rating"><%= meal.rating == null ? 'ยังไม่มีรีวิว' : '★ ' + meal.rating.toFixed(1) %></span>
     </div>
     <p class="recipe-muted recipe-card-counts">วัตถุดิบ <%= (meal.ingredients || []).length %> อย่าง</p>
+    <p class="recipe-card-chef recipe-muted"><i data-lucide="globe" aria-hidden="true"></i>TheMealDB</p>
     <div class="recipe-card-bottom"><strong class="recipe-price recipe-free-price">ฟรี</strong><a href="/recipes/external/<%= meal.id %>" data-recipe-modal="preview" class="recipe-preview-link">ดูสูตร →</a></div>
   </div>
 </article>
