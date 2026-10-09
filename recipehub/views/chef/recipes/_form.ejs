@@ -11,6 +11,7 @@
     <div class="recipe-category-field"><span id="recipe-category-label">หมวดหมู่</span><details class="recipe-difficulty-control recipe-form-dropdown"><summary aria-labelledby="recipe-category-label recipe-category-value"><span id="recipe-category-value" data-dropdown-value><%= countryLabel(selectedCategory) %></span><i data-lucide="chevron-down" aria-hidden="true"></i></summary><div class="recipe-difficulty-menu" role="group" aria-labelledby="recipe-category-label"><% categoryOptions.forEach(category=>{ %><label class="recipe-difficulty-option"><input type="radio" name="category" value="<%= category %>" <%= selectedCategory===category ? 'checked' : '' %> required><span><%= countryLabel(category) %></span></label><% }); %></div></details></div>
     <label>ราคา (บาท)<input type="number" name="price" value="<%= Number.isFinite(recipe.price) ? recipe.price : '' %>" min="0" step="0.01" required></label>
     <label>เวลาทำ (นาที)<input type="number" name="duration" value="<%= recipe.duration ?? '' %>" min="0" placeholder="เช่น 30"></label>
+    <label class="recipe-wide">คำอธิบายสูตรอาหาร<textarea name="description" rows="3" maxlength="10000" placeholder="เล่าจุดเด่น รสชาติ หรือเรื่องราวของเมนูนี้"><%= recipe.description || '' %></textarea></label>
     <input type="hidden" name="image" value="<%= recipe.image || '' %>">
   </div>
   <input type="file" data-recipe-image-file accept="image/jpeg,image/png,image/webp" hidden>

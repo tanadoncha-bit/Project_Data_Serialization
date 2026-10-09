@@ -58,10 +58,11 @@ const chefContext = asyncRoute(async (req, res, next) => {
     }
   }
   if (!id) throw createError(401, 'กรุณาเข้าสู่ระบบด้วยบัญชีเชฟ');
-  const chef = await Client.findById(id).select('name role');
+  const chef = await Client.findById(id).select('name role avatar bio institution');
   if (!chef || chef.role !== 'chef') throw createError(403, 'เฉพาะเชฟเท่านั้นที่จัดการสูตรอาหารได้');
   req.recipeChefId = id;
   res.locals.recipeChefName = chef.name;
+  res.locals.recipeChefInfo = chef;
   req.session.recipeCsrf = req.session.recipeCsrf || randomBytes(32).toString('hex');
   res.locals.csrfToken = req.session.recipeCsrf;
   res.locals.demoMode = demoMode && !req.session.userId;
@@ -84,6 +85,7 @@ function parseRecipe(body, existing) {
   const amounts = list(body.ingredientAmount);
   const difficulty = text(body.difficulty) || Object.keys(difficultyLevels).find(key => difficultyLevels[key] === text(body.level)) || (existing && existing.difficulty);
   const recipe = { title: text(body.title || body.name),
+    description: body.description === undefined ? (existing && existing.description) || '' : text(body.description),
     category: text(body.category), cuisine: countries.localCountry(text(body.category)), difficulty, level: difficultyLevels[difficulty] || (existing && existing.level) || 'BEGINNER', price: Number(body.price),
     image: text(body.image || body.imageUrl),
     videoUrl: body.videoUrl === undefined ? (existing && existing.videoUrl) || '' : text(body.videoUrl),
@@ -93,6 +95,7 @@ function parseRecipe(body, existing) {
     steps: list(body.stepDescription).map(text).filter(Boolean)
       .map((description, i) => ({ stepNumber: i + 1, description })) };
   const errors = [];
+  if (recipe.description.length > 10000) errors.push('คำอธิบายสูตรต้องไม่เกิน 10000 ตัวอักษร');
   if (!recipe.title || recipe.title.length > 200) errors.push('กรุณาระบุชื่อสูตรไม่เกิน 200 ตัวอักษร');
   if (!recipe.category || recipe.category.length > 80) errors.push('กรุณาระบุหมวดหมู่ไม่เกิน 80 ตัวอักษร');
   if (recipe.difficulty && !difficulties.includes(recipe.difficulty)) errors.push('กรุณาเลือกระดับความยาก');

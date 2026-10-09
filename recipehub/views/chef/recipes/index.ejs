@@ -25,9 +25,7 @@
       <a href="/chef/recipes/create" data-recipe-modal="form" class="recipe-btn recipe-primary">+ สร้างสูตรอาหาร</a>
     </div>
     <% if (saved || deleted) { %>
-    <p class="recipe-alert" role="status">
-      <%= deleted ? 'ลบสูตรอาหารเรียบร้อยแล้ว' : 'บันทึกสูตรอาหารเรียบร้อยแล้ว' %>
-    </p>
+    <span hidden data-recipe-success="<%= deleted ? 'ลบสูตรอาหารเรียบร้อยแล้ว' : 'บันทึกสูตรอาหารเรียบร้อยแล้ว' %>"></span>
     <% } %>
     <% if (!recipes.length) { %>
     <section class="recipe-empty"><i data-lucide="utensils"></i>

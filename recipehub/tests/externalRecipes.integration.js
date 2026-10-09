@@ -84,6 +84,23 @@ async function main() {
   await Recipe.collection.insertOne({_id:90001,publisher:2,title:'Ordinary user recipe',category:'Thai',price:0});
   const userPage = await get('/recipes');
   assert(!userPage.html.split('<article ').find(card=>card.includes('Ordinary user recipe')).includes('recipe-tag-chef'));
+  const Review = require('../models/RecipeReview'), Favorite = require('../models/Favorite');
+  await Review.create({client:1,recipeType:'ExternalRecipe',recipeId:90014,rating:5,comment:'Great'});
+  await Review.create({client:2,recipeType:'Recipe',recipeId:90000,rating:4,comment:'Good'});
+  await Recipe.updateOne({_id:90000},{$set:{rating:4,reviewCount:1}});
+  await Favorite.create({client:1,itemType:'ExternalRecipe',itemId:90013,title:'API meal 13'});
+  page = await get('/recipes?sort=rating');
+  assert(page.html.indexOf('API meal 14') < page.html.indexOf('Local recipe'));
+  page = await get('/recipes?minRating=5');
+  assert(page.html.includes('API meal 14') && !page.html.includes('Local recipe') && !page.html.includes('API meal 0<'));
+  page = await get('/recipes?sort=popular');
+  assert(page.html.indexOf('API meal 13') < page.html.indexOf('API meal 14'));
+  page = await get('/recipes?source=general&maxPrice=0');
+  assert(page.html.includes('API meal 13') && !page.html.includes('Local recipe'));
+  page = await get('/recipes?source=chef');
+  assert(page.html.includes('Local recipe') && !page.html.includes('API meal 0'));
+  await Review.deleteMany({}); await Favorite.deleteMany({});
+  await Recipe.updateOne({_id:90000},{$set:{rating:null,reviewCount:0}});
   mealApi.browse = async () => { throw new Error('offline'); };
   page = await get('/recipes');
   assert.equal(page.status, 200);
@@ -92,7 +109,7 @@ async function main() {
   assert.equal((await get('/recipes/external/90000?fragment=1')).status, 502);
   mealApi.browse = async () => meals;
   mealApi.lookup = original.lookup;
-  console.log('PASS: external cards, pagination, filters, escaping, ID isolation and API failures');
+  console.log('PASS: external cards, pagination, filters, global review/popularity sorting, escaping, ID isolation and API failures');
   if (process.env.RECIPE_TEST_BROWSER === 'true') {
     const { chromium } = require('playwright');
     const browser = await chromium.launch({ channel: 'msedge', headless: true });
@@ -111,7 +128,7 @@ async function main() {
       await p.locator('.recipe-loading-state').waitFor();
       assert.equal(await p.locator('#recipe-content-dialog [data-close-recipe]').count(), 1);
       assert.equal(await p.locator('#recipe-modal-content').getAttribute('aria-busy'), 'true');
-      assert(await p.locator('#recipe-content-dialog').evaluate(e=>e.getBoundingClientRect().height>360));
+      assert(await p.locator('.recipe-loading-spinner').isVisible());
       await p.locator('#recipe-content-dialog[open] .recipe-ingredients').waitFor();
       assert.equal(await p.locator('#recipe-modal-content').getAttribute('aria-busy'), 'false');
       assert(await p.locator('#recipe-modal-content').textContent().then(text => text.includes('API ingredient')));
