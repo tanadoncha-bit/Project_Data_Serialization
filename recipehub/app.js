@@ -32,7 +32,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
-app.use(express.json());
+app.use(express.json({verify:(req,res,buffer)=>{if(req.originalUrl.split('?')[0]==='/payments/omise/webhook')req.rawBody=buffer;}}));
+app.use('/payments/omise/webhook',require('./routes/omiseWebhook'));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -62,6 +63,7 @@ app.use('/users', usersRouter);
 app.use('/chef', requireChef);
 app.use('/chef/recipes', chefRecipesRouter);
 app.use('/recipes', recipesRouter);
+app.use('/payments/promptpay',require('./routes/promptpay'));
 app.use('/api/meals', mealsRouter);
 app.use('/chef', chefRouter);
 app.use('/courses', require('./routes/courses'));

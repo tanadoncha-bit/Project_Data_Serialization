@@ -58,9 +58,11 @@ module.exports = async function browserChecks(base, ownerId) {
     assert.ok(meals.length > 0);
     const fixtures = [];
     for (let i = 0; i < 2; i++) {
-      fixtures.push(await Recipe.create({ publisher: fixtureChef._id, title: meals[i].title, category: i ? 'อาหารนานาชาติ' : 'อาหารไทย',
+      fixtures.push(await Recipe.create({
+        publisher: fixtureChef._id, title: meals[i].title, category: i ? 'อาหารนานาชาติ' : 'อาหารไทย',
         difficulty: 'EASY', level: 'BEGINNER', price: i ? 150 : 0, image: meals[i].image, duration: 30 + i * 15, rating: 4.8 + i / 10,
-        ingredients: [{ name: 'ไก่', amount: '200 กรัม' }, { name: 'ผัก', amount: '100 กรัม' }], steps: [{ stepNumber: 1, description: 'เตรียมวัตถุดิบ' }, { stepNumber: 2, description: 'ปรุงอาหารและจัดเสิร์ฟ' }] }));
+        ingredients: [{ name: 'ไก่', amount: '200 กรัม' }, { name: 'ผัก', amount: '100 กรัม' }], steps: [{ stepNumber: 1, description: 'เตรียมวัตถุดิบ' }, { stepNumber: 2, description: 'ปรุงอาหารและจัดเสิร์ฟ' }]
+      }));
     }
     await page.goto(base + '/chef/recipes');
     await page.waitForFunction(() => Array.from(document.querySelectorAll('.recipe-card img')).every(image => image.complete && image.naturalWidth > 0), null, { timeout: 15000 });

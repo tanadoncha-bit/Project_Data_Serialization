@@ -9,7 +9,7 @@
     <span><%= typeof brandName !== 'undefined' ? brandName : 'CookHub' %></span>
   </a>
 
-  <ul class="nav-menu">
+  <ul class="nav-menu" id="cookhubNavMenu">
     <% if (!loggedIn) { %>
     <% } else if (publicNav) { %>
     <li><a href="/home">หน้าแรก</a></li>
@@ -23,6 +23,7 @@
   </ul>
 
   <div class="nav-actions">
+    <% if(loggedIn) { %><button type="button" class="nav-mobile-toggle" aria-label="เปิดเมนูหลัก" aria-controls="cookhubNavMenu" aria-expanded="false"><i data-lucide="menu" aria-hidden="true"></i></button><% } %>
     <% if (loggedIn) { %>
     <% if (!publicNav) { %><button class="nav-bell" aria-label="การแจ้งเตือน">
       <i data-lucide="bell"></i>
