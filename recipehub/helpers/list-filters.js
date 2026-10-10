@@ -61,35 +61,41 @@ function urlMaker(base, current) {
 
 // กรอง + เรียงรายการ
 // fields บอกว่าข้อมูลแต่ละแบบใช้ชื่อ field อะไร เช่น { level: 'level', minutes: 'durMin' }
-// TODO(function): เมื่อมี database ให้ย้ายเงื่อนไขพวกนี้ไปเป็น query ของ Mongoose แทน
+// ข้อมูลมาจาก database แล้ว (services/courseCatalog.js) แต่กรองในหน่วยความจำ เพราะบาง field
+// (คะแนน / เวลา / จำนวนคนเรียน) ต้องคำนวณจากหลาย collection ก่อน กรองด้วย query ตรง ๆ ไม่ได้
 function applyFilters(items, { level, sort, filters }, fields) {
   const minRating = filters.ratings.length ? Math.min(...filters.ratings.map(Number)) : 0;
   let list = items.filter(it =>
     (level === 'all' || it[fields.level] === level) &&
     (!filters.types.length || filters.types.includes(it.tagType)) &&
-    it[fields.minutes] >= filters.minDur && (filters.maxDur >= 480 || it[fields.minutes] <= filters.maxDur) &&
+    (filters.minDur <= 15 || it[fields.minutes] >= filters.minDur) && (filters.maxDur >= 480 || it[fields.minutes] <= filters.maxDur) &&
     it.price >= filters.minPrice && (filters.maxPrice >= 5000 || it.price <= filters.maxPrice) &&
-    it.rating >= minRating
+    (it.rating || 0) >= minRating                 // ยังไม่มีรีวิว (null) นับเป็น 0
   );
-  if (sort === 'rating') list = list.slice().sort((a, b) => b.rating - a.rating);
-  if (sort === 'latest') list = list.slice().reverse();
+  if (sort === 'popular') list = list.slice().sort((a, b) => (b.studentCount || 0) - (a.studentCount || 0));
+  if (sort === 'rating') list = list.slice().sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  if (sort === 'latest') list = list.slice().sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   return list;
 }
 
 // อ่าน level / sort / page / ตัวกรอง แล้วเตรียมค่าที่หน้ารายการต้องใช้ทั้งหมด
+const PER_PAGE = 15;
+
 function buildListPage(req, items, base, fields) {
   const level = req.query.level || 'all';
   const sort = req.query.sort || 'popular';
-  const page = Math.max(1, parseInt(req.query.page) || 1);
   const filters = readFilters(req.query);
-  const list = applyFilters(items, { level, sort, filters }, fields);
+  const all = applyFilters(items, { level, sort, filters }, fields);
 
-  const totalPages = 41; // TODO(model): Math.ceil(จำนวนทั้งหมด / 15)
+  // แบ่งหน้า หน้าละ 15 รายการ
+  const totalPages = Math.max(1, Math.ceil(all.length / PER_PAGE));
+  const page = Math.min(totalPages, Math.max(1, parseInt(req.query.page) || 1));
+  const list = all.slice((page - 1) * PER_PAGE, page * PER_PAGE);
   const filterQuery = filtersToQuery(filters);
 
   return {
     list,
-    total: list.length,
+    total: all.length,
     level, sort, page, totalPages,
     pageList: buildPageList(page, totalPages),
     sorts: sortOptions,

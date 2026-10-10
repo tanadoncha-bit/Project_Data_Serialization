@@ -5,8 +5,8 @@
   <%- include('../partials/head', { title: 'หน้าแรก' }) %>
   <link rel="stylesheet" href="/stylesheets/cookhub.css">
 </head>
-<body>
-  <%- include('../partials/navbar', { active: 'home' }) %>
+<body data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
+  <%- include('../partials/navbar', { active: 'home', recipePublicNav: true }) %>
 
   <main class="cookhub">
 
@@ -26,7 +26,7 @@
           <i data-lucide="book-open" class="ic-16"></i>
           คอร์สเรียน
         </a>
-        <a href="/recipes" class="btn btn--outline">
+        <a href="/user/recipes" class="btn btn--outline">
           <i data-lucide="cooking-pot" class="ic-16"></i>
           สูตรอาหาร
         </a>
@@ -47,19 +47,20 @@
       </div>
 
       <div class="grid-3">
+        <% if (!popularCourses.length) { %><p class="empty">ยังไม่มีคอร์สเรียน</p><% } %>
         <% popularCourses.forEach(c => { %>
-          <a href="/courses/<%= c.id %>" class="card">
+          <a href="<%= c.url %>" class="card">
             <div class="card__img">
               <%- include('_image', { src: c.image, alt: c.title, cls: 'card__photo' }) %>
               <span class="tag tag--<%= c.tagType %>"><%= c.tag %></span>
-              <button class="fav" type="button" onclick="event.preventDefault(); this.classList.toggle('on')" aria-label="รายการโปรด">
+              <button class="fav <%= favoriteKeys.has(c.kind + ':' + c.id) ? 'on' : '' %>" type="button" data-fav-url="/courses/favorites/<%= c.kind %>/<%= c.id %>" aria-label="รายการโปรด">
                 <i data-lucide="heart" class="ic-14"></i>
               </button>
             </div>
             <div class="card__body">
               <div class="card__row">
                 <h3 class="card__title"><%= c.title %></h3>
-                <span class="card__rating">★ <%= c.rating.toFixed(1) %></span>
+                <span class="card__rating"><%= c.rating == null ? 'ใหม่' : '★ ' + c.rating.toFixed(1) %></span>
               </div>
               <p class="card__desc"><%= c.description %></p>
               <div class="card__meta">
@@ -107,15 +108,16 @@
           <h2 class="section-title">สูตรอาหารแนะนำสำหรับคุณ</h2>
           <p class="section-sub">เมนูยอดนิยม ทำตามได้ง่าย</p>
         </div>
-        <a href="/recipes" class="see-all">ดูทั้งหมด →</a>
+        <a href="/user/recipes" class="see-all">ดูทั้งหมด →</a>
       </div>
 
       <div class="grid-4">
+        <% if (!recommendedRecipes.length) { %><p class="empty">ยังไม่มีสูตรอาหาร</p><% } %>
         <% recommendedRecipes.forEach(r => { %>
-          <a href="/recipes/<%= r.id %>" class="card recipe-mini">
+          <a href="<%= r.url %>" class="card recipe-mini">
             <div class="card__img">
               <%- include('_image', { src: r.image, alt: r.title, cls: 'card__photo' }) %>
-              <button class="fav" type="button" onclick="event.preventDefault(); this.classList.toggle('on')" aria-label="รายการโปรด">
+              <button class="fav <%= favoriteIds.has(r.id) ? 'on' : '' %>" type="button" data-fav-url="/recipes/favorites/local/<%= r.id %>" aria-label="รายการโปรด">
                 <i data-lucide="heart" class="ic-14"></i>
               </button>
             </div>
@@ -146,7 +148,8 @@
       </div>
 
       <div class="chefs__row">
-        <% chefs.forEach((chef, i) => { const top = i === 1; %>
+        <% if (!chefs.length) { %><p class="empty">ยังไม่มีเชฟในระบบ</p><% } %>
+        <% chefs.forEach((chef, i) => { const top = chef.isTop; %>
           <div class="chef <%= top ? 'chef--top' : 'chef--side' %>">
             <% if (top) { %>
               <!-- มงกุฎ + ช่อใบไม้ -->
@@ -160,7 +163,7 @@
                 <i data-lucide="star" class="ic-16 is-filled"></i>
               <% } %>
             </div>
-            <div class="chef__followers"><%= chef.followers %> <span>ผู้ติดตาม</span></div>
+            <div class="chef__followers"><%= chef.followers %> <span>ผู้เรียน &amp; ถูกใจ</span></div>
           </div>
         <% }) %>
       </div>
@@ -174,7 +177,7 @@
         <h3 class="cta__title">วันนี้อยากลองทำ<span>เมนูอะไรดี?</span></h3>
         <p class="cta__sub">ค้นพบสูตรอาหารใหม่ ๆ และเรียนรู้เทคนิคจากเชฟที่คุณชื่นชอบ</p>
         <div class="cta__actions">
-          <a href="/recipes" class="btn btn--primary">สำรวจสูตรอาหาร →</a>
+          <a href="/user/recipes" class="btn btn--primary">สำรวจสูตรอาหาร →</a>
           <a href="/courses" class="btn btn--outline">
             <i data-lucide="book-open" class="ic-15"></i>
             ดูคอร์สเรียน
@@ -206,5 +209,6 @@
       setInterval(() => go(cur + 1), 5000);
     })();
   </script>
+  <script src="/javascripts/userFavorites.js"></script>
 </body>
 </html>

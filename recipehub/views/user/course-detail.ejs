@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <%# รายละเอียดคอร์ส  /courses/:id และ /courses/pack/:id — ข้อมูลจาก services/userPages.js → loadCourseDetail() %>
+  <%- include('../partials/head', { title: course.title }) %>
+  <link rel="stylesheet" href="/stylesheets/cookhub.css">
+</head>
+<body data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
+  <%- include('../partials/navbar', { active: 'courses', recipePublicNav: true }) %>
+  <% const levelLabel = { BEGINNER: 'เริ่มต้น', INTERMEDIATE: 'ปานกลาง', ADVANCED: 'ขั้นสูง' }; %>
+
+  <main class="cookhub">
+  <div class="container container--wide course-detail">
+
+    <a href="/courses" class="back-link"><i data-lucide="chevron-left" class="ic-14"></i> กลับไปหน้าคอร์สเรียน</a>
+
+    <!-- ================= หัวคอร์ส ================= -->
+    <section class="cd-head">
+      <div class="cd-cover card__img">
+        <% (course.images.length ? course.images : ['']).forEach(img => { %>
+          <%- include('_image', { src: img, alt: course.title, cls: 'half' }) %>
+        <% }) %>
+        <div class="tags">
+          <span class="tag tag--<%= course.tagType %>"><%= course.tag %></span>
+          <% if (course.isPack) { %><span class="tag tag--pack">แพ็กเกจ</span><% } %>
+        </div>
+      </div>
+
+      <div class="cd-info">
+        <h1 class="cd-title">
+          <% if (course.isPack) { %><i data-lucide="package" class="ic-18 pack-icon"></i><% } %>
+          <%= course.title %>
+        </h1>
+        <div class="cd-sub">
+          <span class="card__rating"><%= course.rating == null ? 'ยังไม่มีรีวิว' : '★ ' + course.rating.toFixed(1) %></span>
+          <span class="level-badge"><%= levelLabel[course.level] || 'เริ่มต้น' %></span>
+        </div>
+        <div class="chef-mini cd-chef">
+          <%- include('_image', { src: course.chefAvatar, alt: '', cls: 'chef-mini__avatar', icon: 'user' }) %>
+          <%= course.chef %>
+        </div>
+        <% if (course.description) { %><p class="cd-desc"><%= course.description %></p><% } %>
+
+        <div class="card__meta cd-meta">
+          <span><i data-lucide="circle-play" class="ic-14"></i><%= course.lessons %> บทเรียน</span>
+          <span><i data-lucide="clock-3" class="ic-14"></i><%= course.duration %></span>
+          <span><i data-lucide="users" class="ic-14"></i><%= course.students %> คนเรียน</span>
+        </div>
+
+        <div class="cd-buy">
+          <span class="price">฿<%= course.price.toLocaleString('en-US') %></span>
+          <% if (purchased) { %>
+            <span class="cd-owned"><i data-lucide="circle-check" class="ic-16"></i> คุณซื้อคอร์สนี้แล้ว</span>
+          <% } else if (canWatch) { %>
+            <span class="cd-owned"><i data-lucide="chef-hat" class="ic-16"></i> คอร์สของคุณ</span>
+          <% } else { %>
+            <%# ระบบชำระเงินของทีมตอนนี้รองรับเฉพาะสูตรอาหาร (PromptPay) — ยังไม่มีสำหรับคอร์ส %>
+            <button type="button" class="btn btn--primary" disabled title="ระบบชำระเงินสำหรับคอร์สยังไม่เปิดให้บริการ">ซื้อคอร์ส (เร็ว ๆ นี้)</button>
+          <% } %>
+          <button class="fav cd-fav <%= favorite ? 'on' : '' %>" type="button" data-fav-url="/courses/favorites/<%= course.kind %>/<%= course.id %>" aria-pressed="<%= favorite %>" aria-label="รายการโปรด">
+            <i data-lucide="heart" class="ic-16"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= บทเรียน ================= -->
+    <section class="cd-lessons">
+      <h2 class="section-title">บทเรียนในคอร์ส</h2>
+      <% if (!canWatch) { %><p class="section-sub">ซื้อคอร์สเพื่อดูวิดีโอทั้งหมด</p><% } %>
+
+      <% sections.forEach(s => { %>
+        <div class="cd-section">
+          <% if (course.isPack) { %>
+            <h3 class="cd-section__title"><a href="<%= s.url %>"><%= s.title %></a></h3>
+          <% } %>
+          <% if (!s.videos.length) { %><p class="empty">ยังไม่มีวิดีโอ</p><% } %>
+          <ol class="cd-videos">
+            <% s.videos.forEach((v, i) => { %>
+              <li class="cd-video">
+                <div class="cd-video__row">
+                  <i data-lucide="<%= canWatch ? 'circle-play' : 'lock' %>" class="ic-16"></i>
+                  <span class="cd-video__title"><%= v.title %></span>
+                  <span class="cd-video__time"><%= v.durationText %></span>
+                </div>
+                <% if (canWatch && v.youtube) { %>
+                  <div class="cd-player">
+                    <iframe src="https://www.youtube-nocookie.com/embed/<%= v.youtube %>" title="<%= v.title %>" loading="lazy"
+                      allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                  </div>
+                <% } else if (canWatch && v.videoUrl) { %>
+                  <a class="cd-video__link" href="<%= v.videoUrl %>" target="_blank" rel="noopener">เปิดวิดีโอ</a>
+                <% } %>
+              </li>
+            <% }) %>
+          </ol>
+        </div>
+      <% }) %>
+    </section>
+  </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+  <script src="/javascripts/userFavorites.js"></script>
+</body>
+</html>

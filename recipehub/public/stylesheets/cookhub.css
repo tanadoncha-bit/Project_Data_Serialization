@@ -518,3 +518,51 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
   .order { flex-wrap: wrap; }
   .order__side { width: 100%; border-left: none; border-top: 1px solid #ddd; padding-top: 8px; }
 }
+/* ไม่มีผลลัพธ์ (หน้ารายการ) */
+.empty-state { text-align: center; padding: 56px 16px; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.empty-state h2 { font-size: 18px; color: var(--text); }
+.empty-state svg { color: var(--primary); }
+
+/* รูปโหลดไม่ได้ → ซ่อนรูป แสดงกรอบไอคอนแทน (views/user/_image.ejs) */
+.cookhub img[hidden], .img-placeholder[hidden] { display: none !important; }
+.alert-error { margin: 0 8px 10px; padding: 8px 12px; border-radius: 6px; background: #fdecec; color: #c43a2a; font-size: 12px; }
+
+/* ===========================================================
+   13. รายละเอียดคอร์ส  — views/user/course-detail.ejs
+   =========================================================== */
+.cookhub .course-detail { padding: 24px 24px 56px; }
+.back-link { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+.back-link:hover { color: var(--primary); }
+.cd-head { display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: start; }
+.cd-cover { display: flex; aspect-ratio: 16 / 10; border-radius: 12px; }
+.cd-cover .half { flex: 1; min-width: 0; height: 100%; }
+.cd-cover .half + .half { border-left: 2px solid #fff; }
+.cd-title { font-size: 26px; font-weight: 600; line-height: 1.3; }
+.cd-sub { display: flex; align-items: center; gap: 10px; margin: 8px 0 12px; }
+.cd-sub .card__rating { font-size: 14px; }
+.level-badge { font-size: 11px; padding: 3px 10px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); }
+.cd-chef { font-size: 13px; }
+.cd-chef .chef-mini__avatar { width: 26px; height: 26px; }
+.cd-desc { font-size: 14px; color: #555; line-height: 1.7; margin: 4px 0 16px; }
+.cd-meta { justify-content: flex-start; gap: 24px; font-size: 13px; }
+.cd-buy { display: flex; align-items: center; gap: 14px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+.cd-buy .price { font-size: 28px; margin-right: auto; }
+.cd-buy .btn[disabled] { opacity: .55; cursor: not-allowed; }
+.cd-owned { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #2f9e57; }
+.cd-fav { position: static; width: 38px; height: 38px; border: 1px solid var(--border); }
+.cd-lessons { margin-top: 40px; }
+.cd-lessons .section-sub { margin-bottom: 14px; }
+.cd-section { margin-top: 16px; }
+.cd-section__title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.cd-section__title a:hover { color: var(--primary); }
+.cd-videos { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.cd-video { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.cd-video__row { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--primary); }
+.cd-video__title { flex: 1; color: var(--text); }
+.cd-video__time { font-size: 12px; color: var(--text-muted); }
+.cd-player { max-width: 720px; margin-top: 10px; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; background: #000; }
+.cd-player iframe { width: 100%; height: 100%; border: 0; }
+.cd-video__link { display: inline-block; margin-top: 6px; font-size: 12px; color: var(--primary); text-decoration: underline; }
+@media (max-width: 900px) {
+  .cd-head { grid-template-columns: 1fr; }
+}

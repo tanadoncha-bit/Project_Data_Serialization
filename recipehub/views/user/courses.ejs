@@ -5,8 +5,8 @@
   <%- include('../partials/head', { title: 'คอร์สเรียน' }) %>
   <link rel="stylesheet" href="/stylesheets/cookhub.css">
 </head>
-<body>
-  <%- include('../partials/navbar', { active: 'courses' }) %>
+<body data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
+  <%- include('../partials/navbar', { active: 'courses', recipePublicNav: true }) %>
 
   <main class="cookhub">
 
@@ -62,10 +62,20 @@
 
     <p class="result-count">ผลลัพธ์ <%= total %> คอร์ส</p>
 
-    <!-- ================= รายการคอร์ส ================= -->
+    <% if (!courses.length) { %>
+      <section class="empty-state">
+        <i data-lucide="book-open" class="ic-30"></i>
+        <h2>ยังไม่มีคอร์สที่ตรงกับเงื่อนไข</h2>
+        <p>ลองเปลี่ยนระดับหรือตัวกรองดูนะ</p>
+        <a href="/courses" class="btn btn--outline">ล้างตัวกรอง</a>
+      </section>
+    <% } %>
+
+    <!-- ================= รายการคอร์ส (จาก database) ================= -->
     <div class="course-grid">
       <% courses.forEach(c => { %>
-        <a href="/courses/<%= c.id %>" class="card course-card">
+        <% const favOn = favoriteKeys.has(c.kind + ':' + c.id); %>
+        <a href="<%= c.url %>" class="card course-card">
           <div class="card__img">
             <% (c.images && c.images.length ? c.images : ['']).forEach(img => { %>
               <%- include('_image', { src: img, alt: c.title, cls: 'half' }) %>
@@ -74,7 +84,7 @@
               <span class="tag tag--<%= c.tagType %>"><%= c.tag %></span>
               <% if (c.isPack) { %><span class="tag tag--pack">แพ็กเกจ</span><% } %>
             </div>
-            <button class="fav" type="button" onclick="event.preventDefault(); this.classList.toggle('on')" aria-label="รายการโปรด">
+            <button class="fav <%= favOn ? 'on' : '' %>" type="button" data-fav-url="/courses/favorites/<%= c.kind %>/<%= c.id %>" aria-pressed="<%= favOn %>" aria-label="รายการโปรด">
               <i data-lucide="heart" class="ic-14"></i>
             </button>
           </div>
@@ -87,7 +97,7 @@
                 <% } %>
                 <%= c.title %>
               </h3>
-              <span class="card__rating">★ <%= c.rating.toFixed(1) %></span>
+              <span class="card__rating"><%= c.rating == null ? 'ใหม่' : '★ ' + c.rating.toFixed(1) %></span>
             </div>
             <p class="card__desc"><%= c.description %></p>
 
@@ -121,6 +131,7 @@
     </div>
 
     <!-- ================= เลขหน้า ================= -->
+    <% if (totalPages > 1) { %>
     <nav class="pagination" aria-label="เลขหน้า">
       <a href="<%= makeUrl({ page: page - 1 }) %>" class="arrow <%= page <= 1 ? 'disabled' : '' %>" aria-label="หน้าก่อน">
         <i data-lucide="chevron-left" class="ic-12"></i>
@@ -138,6 +149,7 @@
         <i data-lucide="chevron-right" class="ic-12"></i>
       </a>
     </nav>
+    <% } %>
   </div>
   </main>
 
@@ -150,5 +162,6 @@
 
   <%- include('../partials/footer') %>
 
+  <script src="/javascripts/userFavorites.js"></script>
 </body>
 </html>

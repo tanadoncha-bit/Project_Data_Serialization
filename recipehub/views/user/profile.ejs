@@ -5,8 +5,8 @@
   <%- include('../partials/head', { title: 'บัญชีของฉัน' }) %>
   <link rel="stylesheet" href="/stylesheets/cookhub.css">
 </head>
-<body>
-  <%- include('../partials/navbar', { active: '' }) %>
+<body data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
+  <%- include('../partials/navbar', { active: '', recipePublicNav: true }) %>
 
   <main class="cookhub">
 
@@ -33,15 +33,15 @@
 
     <!-- ================= แท็บ ================= -->
     <nav class="panel tabs">
-      <a href="/profile?tab=info" class="tab <%= tab === 'info' ? 'active' : '' %>">
+      <a href="/user/profile?tab=info" class="tab <%= tab === 'info' ? 'active' : '' %>">
         <i data-lucide="user" class="ic-18"></i>
         ข้อมูลส่วนตัว
       </a>
-      <a href="/profile?tab=favorites" class="tab <%= tab === 'favorites' ? 'active' : '' %>">
+      <a href="/user/profile?tab=favorites" class="tab <%= tab === 'favorites' ? 'active' : '' %>">
         <i data-lucide="heart" class="ic-18 is-filled tab-ic--fav"></i>
         รายการโปรด
       </a>
-      <a href="/profile?tab=history" class="tab <%= tab === 'history' ? 'active' : '' %>">
+      <a href="/user/profile?tab=history" class="tab <%= tab === 'history' ? 'active' : '' %>">
         <i data-lucide="receipt-text" class="ic-18 tab-ic--history"></i>
         ประวัติการซื้อคอร์สและสูตร
       </a>
@@ -52,8 +52,9 @@
       <section class="panel info">
         <h2>ข้อมูลส่วนตัว</h2>
         <% if (saved) { %><p class="alert-ok">บันทึกการแก้ไขเรียบร้อยแล้ว</p><% } %>
+        <% if (error) { %><p class="alert-error" role="alert"><%= error %></p><% } %>
 
-        <form method="post" action="/profile">
+        <form method="post" action="/user/profile">
           <div class="form-grid">
             <div class="field">
               <label for="firstName">ชื่อ</label>
@@ -94,11 +95,11 @@
         <div class="fav-grid">
           <% favorites.forEach(f => { %>
             <% if (f.kind === 'recipe') { %>
-              <a href="/recipes/<%= f.id %>" class="card recipe-card">
+              <a href="<%= f.url %>" class="card recipe-card">
                 <div class="card__img">
               <%- include('_image', { src: f.image, alt: f.title, cls: 'card__photo' }) %>
                   <span class="tag tag--<%= f.tagType %>"><%= f.tag %></span>
-                  <button class="fav on" type="button" onclick="event.preventDefault(); this.classList.toggle('on')" aria-label="เอาออกจากรายการโปรด">
+                  <button class="fav on" type="button" data-fav-url="<%= f.favUrl %>" data-fav-remove-card aria-label="เอาออกจากรายการโปรด">
                     <i data-lucide="heart" class="ic-14"></i>
                   </button>
                 </div>
@@ -106,13 +107,13 @@
                   <div class="recipe-top">
                     <span class="cook-time">
                       <i data-lucide="clock-3" class="ic-12"></i>
-                      <%= f.cookMin %> นาที
+                      <%= f.cookMin ? f.cookMin + ' นาที' : 'ไม่ระบุเวลา' %>
                     </span>
-                    <span class="level level--<%= f.difficulty %>"><%= difficultyLabel[f.difficulty] %></span>
+                    <% if (f.difficulty) { %><span class="level level--<%= f.difficulty %>"><%= difficultyLabel[f.difficulty] %></span><% } %>
                   </div>
                   <div class="card__row">
                     <h3 class="card__title"><%= f.title %></h3>
-                    <span class="card__rating">★ <%= f.rating.toFixed(1) %></span>
+                    <span class="card__rating"><%= f.rating == null ? 'ใหม่' : '★ ' + f.rating.toFixed(1) %></span>
                   </div>
                   <p class="card__desc"><%= f.description %></p>
                   <div class="chef-mini">
@@ -128,7 +129,7 @@
               </a>
 
             <% } else { %>
-              <a href="/courses/<%= f.id %>" class="card course-card">
+              <a href="<%= f.url %>" class="card course-card">
                 <div class="card__img">
                   <% (f.images && f.images.length ? f.images : ['']).forEach(img => { %>
               <%- include('_image', { src: img, alt: f.title, cls: 'half' }) %>
@@ -137,7 +138,7 @@
                     <% if (f.isPack) { %><span class="tag tag--pack">แพ็กคอร์ส</span>
                     <% } else { %><span class="tag tag--<%= f.tagType %>"><%= f.tag %></span><% } %>
                   </div>
-                  <button class="fav on" type="button" onclick="event.preventDefault(); this.classList.toggle('on')" aria-label="เอาออกจากรายการโปรด">
+                  <button class="fav on" type="button" data-fav-url="<%= f.favUrl %>" data-fav-remove-card aria-label="เอาออกจากรายการโปรด">
                     <i data-lucide="heart" class="ic-14"></i>
                   </button>
                 </div>
@@ -149,7 +150,7 @@
                       <% } %>
                       <%= f.title %>
                     </h3>
-                    <span class="card__rating">★ <%= f.rating.toFixed(1) %></span>
+                    <span class="card__rating"><%= f.rating == null ? 'ใหม่' : '★ ' + f.rating.toFixed(1) %></span>
                   </div>
                   <p class="card__desc"><%= f.description %></p>
                   <div class="chef-mini">
@@ -214,7 +215,7 @@
                 <div class="order__date">ซื้อเมื่อ <%= o.date %></div>
                 <div class="order__price">฿<%= o.price.toLocaleString('en-US') %></div>
               </div>
-              <a href="<%= o.kind === 'course' ? '/courses/' + o.id : '/recipes/' + o.id %>" class="order__btn">
+              <a href="<%= o.url %>" class="order__btn">
                 <%= o.kind === 'course' ? 'เข้าเรียน' : 'ดูสูตร' %>
               </a>
             </div>
@@ -263,5 +264,6 @@
       });
     })();
   </script>
+  <script src="/javascripts/userFavorites.js"></script>
 </body>
 </html>

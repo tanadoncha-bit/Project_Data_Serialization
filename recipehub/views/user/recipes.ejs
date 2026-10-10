@@ -5,7 +5,7 @@
   <%- include('../partials/head', { title: 'สูตรอาหาร' }) %>
   <link rel="stylesheet" href="/stylesheets/cookhub.css">
 </head>
-<body>
+<body data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
   <%- include('../partials/navbar', { active: 'recipes', recipePublicNav: true }) %>
 
   <main class="cookhub">
@@ -29,7 +29,7 @@
 
     <!-- ================= แถบเครื่องมือ ================= -->
     <div class="toolbar">
-      <form class="toolbar__bar" method="get" action="/recipes">
+      <form class="toolbar__bar" method="get" action="/user/recipes">
         <% Object.keys(filterQuery).forEach(k => { [].concat(filterQuery[k]).forEach(v => { %>
           <input type="hidden" name="<%= k %>" value="<%= v %>">
         <% }) }) %>
@@ -62,14 +62,23 @@
 
     <p class="result-count">ผลลัพธ์ <%= total %> สูตร</p>
 
-    <!-- ================= รายการสูตร ================= -->
+    <% if (!recipes.length) { %>
+      <section class="empty-state">
+        <i data-lucide="chef-hat" class="ic-30"></i>
+        <h2>ยังไม่มีสูตรที่ตรงกับเงื่อนไข</h2>
+        <p>ลองเปลี่ยนระดับหรือตัวกรองดูนะ</p>
+        <a href="/user/recipes" class="btn btn--outline">ล้างตัวกรอง</a>
+      </section>
+    <% } %>
+
+    <!-- ================= รายการสูตร (จาก database) ================= -->
     <div class="course-grid">
       <% recipes.forEach(r => { %>
-        <a href="/recipes/<%= r.id %>" class="card recipe-card">
+        <a href="<%= r.url %>" class="card recipe-card">
           <div class="card__img">
               <%- include('_image', { src: r.image, alt: r.title, cls: 'card__photo' }) %>
             <span class="tag tag--<%= r.tagType %>"><%= r.tag %></span>
-            <button class="fav" type="button" onclick="event.preventDefault(); this.classList.toggle('on')" aria-label="รายการโปรด">
+            <button class="fav <%= favoriteIds.has(r.id) ? 'on' : '' %>" type="button" data-fav-url="/recipes/favorites/local/<%= r.id %>" aria-label="รายการโปรด">
               <i data-lucide="heart" class="ic-14"></i>
             </button>
           </div>
@@ -78,14 +87,14 @@
             <div class="recipe-top">
               <span class="cook-time">
                 <i data-lucide="clock-3" class="ic-12"></i>
-                <%= r.cookMin %> นาที
+                <%= r.cookMin ? r.cookMin + ' นาที' : 'ไม่ระบุเวลา' %>
               </span>
-              <span class="level level--<%= r.difficulty %>"><%= difficultyLabel[r.difficulty] %></span>
+              <% if (r.difficulty) { %><span class="level level--<%= r.difficulty %>"><%= difficultyLabel[r.difficulty] %></span><% } %>
             </div>
 
             <div class="card__row">
               <h3 class="card__title"><%= r.title %></h3>
-              <span class="card__rating">★ <%= r.rating.toFixed(1) %></span>
+              <span class="card__rating"><%= r.rating == null ? 'ใหม่' : '★ ' + r.rating.toFixed(1) %></span>
             </div>
             <p class="card__desc"><%= r.description %></p>
 
@@ -108,6 +117,7 @@
     </div>
 
     <!-- ================= เลขหน้า ================= -->
+    <% if (totalPages > 1) { %>
     <nav class="pagination" aria-label="เลขหน้า">
       <a href="<%= makeUrl({ page: page - 1 }) %>" class="arrow <%= page <= 1 ? 'disabled' : '' %>" aria-label="หน้าก่อน">
         <i data-lucide="chevron-left" class="ic-12"></i>
@@ -125,17 +135,19 @@
         <i data-lucide="chevron-right" class="ic-12"></i>
       </a>
     </nav>
+    <% } %>
   </div>
   </main>
 
   <%- include('../partials/filter-modal', {
         filterTitle: 'ตัวกรองสูตรอาหาร',
-        filterAction: '/recipes',
+        filterAction: '/user/recipes',
         filters: filters,
         keep: { sort: sort, level: level }
       }) %>
 
   <%- include('../partials/footer') %>
 
+  <script src="/javascripts/userFavorites.js"></script>
 </body>
 </html>

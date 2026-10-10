@@ -2,11 +2,13 @@
   รูปภาพ — ใช้วิธีเดียวกับ views/recipes/_image.ejs ของเพื่อน
   - รูปเก็บเป็น "ลิงก์" ใน database (field image / avatar)
     เช่น /uploads/recipes/xxxx.jpg (อัปโหลดผ่านหน้าเชฟ) หรือ https://...
-  - ถ้ายังไม่มีรูป จะแสดงกรอบสีส้มอ่อน + ไอคอนแทน
+  - ถ้ายังไม่มีรูป หรือโหลดรูปไม่ได้ (เช่น ไฟล์ใน public/uploads อยู่เครื่องคนอื่น)
+    จะแสดงกรอบสีส้มอ่อน + ไอคอนแทน
   ใช้: include('_image', { src: recipe.image, alt: recipe.title, cls: 'card__photo', icon: 'utensils' })
 %>
-<% if (locals.src && /^(https?:\/\/|\/uploads\/)/i.test(locals.src)) { %>
-<img class="<%= locals.cls || '' %>" src="<%= locals.src %>" alt="<%= locals.alt || '' %>" loading="lazy" referrerpolicy="no-referrer">
-<% } else { %>
-<div class="<%= locals.cls || '' %> img-placeholder" role="img" aria-label="ยังไม่มีรูป"><i data-lucide="<%= locals.icon || 'utensils' %>"></i></div>
+<% const hasSrc = locals.src && /^(https?:\/\/|\/uploads\/)/i.test(locals.src); %>
+<% if (hasSrc) { %>
+<img class="<%= locals.cls || '' %>" src="<%= locals.src %>" alt="<%= locals.alt || '' %>" loading="lazy" referrerpolicy="no-referrer"
+     onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
 <% } %>
+<div class="<%= locals.cls || '' %> img-placeholder" role="img" aria-label="ยังไม่มีรูป" <%= hasSrc ? 'hidden' : '' %>><i data-lucide="<%= locals.icon || 'utensils' %>"></i></div>
