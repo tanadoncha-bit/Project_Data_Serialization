@@ -66,6 +66,8 @@ app.use('/recipes', recipesRouter);
 app.use('/payments/promptpay',require('./routes/promptpay'));
 app.use('/api/meals', mealsRouter);
 app.use('/chef', chefRouter);
+app.use('/courses', require('./routes/courses'));
+app.use('/user', require('./routes/user'));   // หน้าฝั่งผู้ใช้ของมุกดา (หน้าแรก / สูตร / โปรไฟล์)
 app.use('/home', homepageRouter);
 
 // ===== จัดการ error =====
