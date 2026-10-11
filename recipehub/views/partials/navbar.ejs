@@ -12,9 +12,9 @@
   <ul class="nav-menu" id="cookhubNavMenu">
     <% if (!loggedIn) { %>
     <% } else if (publicNav) { %>
-    <li><a href="/home">หน้าแรก</a></li>
-    <li><a href="/courses">คอร์ส</a></li>
-    <li><a href="/recipes" class="<%= typeof recipePublicNav !== 'undefined' && recipePublicNav ? 'active' : '' %>">สูตรอาหาร</a></li>
+    <li><a href="/home" class="<%= current === 'home' ? 'active' : '' %>">หน้าแรก</a></li>
+    <li><a href="/courses" class="<%= current === 'courses' ? 'active' : '' %>">คอร์ส</a></li>
+    <li><a href="/recipes" class="<%= current === 'recipes' ? 'active' : '' %>">สูตรอาหาร</a></li>
     <% } else { %>
     <li><a href="/chef/dashboard" class="<%= current === 'dashboard' ? 'active' : '' %>">Dashboard</a></li>
     <li><a href="/chef/courses" class="<%= current === 'courses'   ? 'active' : '' %>">จัดการคอร์ส</a></li>
