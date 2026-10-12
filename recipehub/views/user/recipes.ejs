@@ -3,6 +3,8 @@
 <head>
   <%# head / navbar / footer ใช้ของเพื่อน (views/partials) — ไฟล์นี้เปลี่ยนแค่เนื้อหา %>
   <%- include('../partials/head', { title: 'สูตรอาหาร' }) %>
+  <%# recipes.css ของเพื่อน: ใช้สไตล์หน้าต่างดูสูตร (buy recipe / free recipe) — โหลดก่อน cookhub.css ให้การ์ดของเรายังเป็นแบบเดิม %>
+  <link rel="stylesheet" href="/stylesheets/recipes.css">
   <link rel="stylesheet" href="/stylesheets/cookhub.css">
 </head>
 <body data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
@@ -36,14 +38,7 @@
         <input type="hidden" name="sort" value="<%= sort %>">
         <div class="toolbar__group">
           <span class="toolbar__label">ระดับ:</span>
-          <div class="level-select">
-            <select name="level" onchange="this.form.submit()">
-              <% levels.forEach(l => { %>
-                <option value="<%= l.value %>" <%= level === l.value ? 'selected' : '' %>><%= l.label %></option>
-              <% }) %>
-            </select>
-            <i data-lucide="chevron-down" class="ic-12"></i>
-          </div>
+          <%- include('_levelSelect', { levels, level }) %>
         </div>
 
         <div class="toolbar__group">
@@ -74,7 +69,7 @@
     <!-- ================= รายการสูตร (จาก database) ================= -->
     <div class="course-grid">
       <% recipes.forEach(r => { %>
-        <a href="<%= r.url %>" class="card recipe-card">
+        <a href="<%= r.url %>" class="card recipe-card" data-recipe-modal="preview">
           <div class="card__img">
               <%- include('_image', { src: r.image, alt: r.title, cls: 'card__photo' }) %>
             <span class="tag tag--<%= r.tagType %>"><%= r.tag %></span>
@@ -148,6 +143,12 @@
 
   <%- include('../partials/footer') %>
 
+  <%# หน้าต่างดูสูตรของเพื่อน (views/recipes/index.ejs) — เนื้อหาโหลดจาก /recipes/:id?fragment=1 %>
+  <dialog id="recipe-content-dialog" class="recipe-dialog recipe-content-dialog recipe-preview-dialog" aria-label="รายละเอียดสูตรอาหาร"><button class="recipe-modal-close recipe-preview-close" type="button" data-close-recipe aria-label="ปิดสูตรอาหาร">×</button>
+    <div id="recipe-modal-content"></div>
+  </dialog>
   <script src="/javascripts/userFavorites.js"></script>
+  <script src="/javascripts/recipeModals.js" defer></script>
+  <script src="/javascripts/userUi.js"></script>
 </body>
 </html>

@@ -36,14 +36,7 @@
         <input type="hidden" name="sort" value="<%= sort %>">
         <div class="toolbar__group">
           <span class="toolbar__label">ระดับ:</span>
-          <div class="level-select">
-            <select name="level" onchange="this.form.submit()">
-              <% levels.forEach(l => { %>
-                <option value="<%= l.value %>" <%= level === l.value ? 'selected' : '' %>><%= l.label %></option>
-              <% }) %>
-            </select>
-            <i data-lucide="chevron-down" class="ic-12"></i>
-          </div>
+          <%- include('_levelSelect', { levels, level }) %>
         </div>
 
         <div class="toolbar__group">
@@ -75,7 +68,7 @@
     <div class="course-grid">
       <% courses.forEach(c => { %>
         <% const favOn = favoriteKeys.has(c.kind + ':' + c.id); %>
-        <a href="<%= c.url %>" class="card course-card">
+        <a href="<%= c.url %>" class="card course-card" data-course-modal>
           <div class="card__img">
             <% (c.images && c.images.length ? c.images : ['']).forEach(img => { %>
               <%- include('_image', { src: img, alt: c.title, cls: 'half' }) %>
@@ -162,6 +155,8 @@
 
   <%- include('../partials/footer') %>
 
+  <%- include('_courseDialog') %>
   <script src="/javascripts/userFavorites.js"></script>
+  <script src="/javascripts/userUi.js"></script>
 </body>
 </html>

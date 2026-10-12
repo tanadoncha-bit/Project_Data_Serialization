@@ -1,0 +1,18 @@
+<%#
+  dropdown ระดับ / ความยาก ตามแบบ Figma "Difficulty" (ชื่อ + คำอธิบาย + เครื่องหมายถูก)
+  โครงเดียวกับ .recipe-difficulty-control ของเพื่อน (<details> + radio) ไม่ต้องพึ่ง select ของเบราว์เซอร์
+  ใช้: include('_levelSelect', { levels, level })   — อยู่ใน <form> เลือกแล้วส่งฟอร์มทันที (public/javascripts/userUi.js)
+%>
+<% const currentLevel = locals.levels.find(l => l.value === locals.level) || locals.levels[0]; %>
+<details class="level-dd">
+  <summary aria-label="เลือกระดับ"><span><%= currentLevel.label %></span><i data-lucide="chevron-down" class="ic-12"></i></summary>
+  <div class="level-dd__menu" role="radiogroup">
+    <% locals.levels.forEach(l => { %>
+      <label class="level-dd__option <%= l.value === currentLevel.value ? 'is-selected' : '' %>">
+        <input type="radio" name="level" value="<%= l.value %>" <%= l.value === currentLevel.value ? 'checked' : '' %>>
+        <span class="level-dd__text"><strong><%= l.label %></strong><% if (l.desc) { %><small><%= l.desc %></small><% } %></span>
+        <i data-lucide="check" class="ic-16 level-dd__check"></i>
+      </label>
+    <% }) %>
+  </div>
+</details>

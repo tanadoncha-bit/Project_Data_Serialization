@@ -10,22 +10,34 @@ const Favorite = require('../models/Favorite');
 const { localCountry } = require('./recipeCountries');
 
 const levelOptions = [
-  { value: 'all', label: 'ทั้งหมด' },
-  { value: 'BEGINNER', label: 'เริ่มต้น' },
-  { value: 'INTERMEDIATE', label: 'ปานกลาง' },
-  { value: 'ADVANCED', label: 'ขั้นสูง' },
+  { value: 'all', label: 'ทั้งหมด', desc: 'แสดงทุกระดับ' },
+  { value: 'BEGINNER', label: 'เริ่มต้น', desc: 'เหมาะสำหรับผู้เริ่มต้น' },
+  { value: 'INTERMEDIATE', label: 'ปานกลาง', desc: 'มีพื้นฐานการทำอาหารมาบ้าง' },
+  { value: 'ADVANCED', label: 'ขั้นสูง', desc: 'สำหรับผู้ที่มีประสบการณ์' },
 ];
 const levelRank = { BEGINNER: 1, INTERMEDIATE: 2, ADVANCED: 3 };
 
-/** หมวดของสูตร → ป้ายสี (tagType ตรงกับ .tag--xxx ใน cookhub.css) */
+/** หมวดของสูตร → ป้ายสี (tagType ตรงกับ .tag--xxx ใน cookhub.css และตัวเลือกใน partials/filter-modal.ejs) */
+const tagTypes = [
+  { value: 'thai', label: 'อาหารไทย' },
+  { value: 'inter', label: 'อาหารนานาชาติ' },
+  { value: 'japan', label: 'อาหารญี่ปุ่น' },
+  { value: 'chinese', label: 'อาหารจีน' },
+  { value: 'indian', label: 'อาหารอินเดีย' },
+  { value: 'bakery', label: 'ขนมหวาน & เบเกอรี่' },
+  { value: 'drink', label: 'เครื่องดื่ม' },
+];
 function tagFor(category) {
   const text = (category || '').toLowerCase();
-  if (/เบเกอรี่|ขนม|bakery|dessert|cake|เค้ก/.test(text)) return { tag: category || 'เบเกอรี่ & ขนมหวาน', tagType: 'bakery' };
-  if (/สุขภาพ|healthy|vegan|salad|สลัด/.test(text)) return { tag: category || 'อาหารเพื่อสุขภาพ', tagType: 'healthy' };
+  const pick = (tagType, fallback) => ({ tag: category || fallback, tagType });
+  if (/เครื่องดื่ม|drink|beverage|smoothie|coffee|กาแฟ|cocktail|juice/.test(text)) return pick('drink', 'เครื่องดื่ม');
+  if (/เบเกอรี่|ขนม|bakery|dessert|cake|เค้ก|pastry/.test(text)) return pick('bakery', 'ขนมหวาน & เบเกอรี่');
+  if (/อินเดีย|indian|india/.test(text)) return pick('indian', 'อาหารอินเดีย');
   const country = localCountry(category);
-  if (country === 'Thai') return { tag: category || 'อาหารไทย', tagType: 'thai' };
-  if (country === 'Japanese') return { tag: category || 'อาหารญี่ปุ่น', tagType: 'japan' };
-  return { tag: category || 'อาหารนานาชาติ', tagType: 'inter' };
+  if (country === 'Thai') return pick('thai', 'อาหารไทย');
+  if (country === 'Japanese') return pick('japan', 'อาหารญี่ปุ่น');
+  if (country === 'Chinese') return pick('chinese', 'อาหารจีน');
+  return pick('inter', 'อาหารนานาชาติ');
 }
 
 /** นาที → "2 ชม. 30 นาที" */
@@ -155,4 +167,4 @@ async function setFavorite(clientId, kind, id, on) {
   return true;
 }
 
-module.exports = { levelOptions, loadCourses, favoriteKeys, setFavorite, tagFor, formatDuration, formatCount };
+module.exports = { tagTypes, levelOptions, loadCourses, favoriteKeys, setFavorite, tagFor, formatDuration, formatCount };

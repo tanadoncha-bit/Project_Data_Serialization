@@ -129,7 +129,7 @@
               </a>
 
             <% } else { %>
-              <a href="<%= f.url %>" class="card course-card">
+              <a href="<%= f.url %>" class="card course-card" data-course-modal>
                 <div class="card__img">
                   <% (f.images && f.images.length ? f.images : ['']).forEach(img => { %>
               <%- include('_image', { src: img, alt: f.title, cls: 'half' }) %>
@@ -264,6 +264,8 @@
       });
     })();
   </script>
+  <%- include('_courseDialog') %>
   <script src="/javascripts/userFavorites.js"></script>
+  <script src="/javascripts/userUi.js"></script>
 </body>
 </html>

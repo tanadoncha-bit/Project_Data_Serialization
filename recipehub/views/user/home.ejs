@@ -49,7 +49,7 @@
       <div class="grid-3">
         <% if (!popularCourses.length) { %><p class="empty">ยังไม่มีคอร์สเรียน</p><% } %>
         <% popularCourses.forEach(c => { %>
-          <a href="<%= c.url %>" class="card">
+          <a href="<%= c.url %>" class="card" data-course-modal>
             <div class="card__img">
               <%- include('_image', { src: c.image, alt: c.title, cls: 'card__photo' }) %>
               <span class="tag tag--<%= c.tagType %>"><%= c.tag %></span>
@@ -209,6 +209,8 @@
       setInterval(() => go(cur + 1), 5000);
     })();
   </script>
+  <%- include('_courseDialog') %>
   <script src="/javascripts/userFavorites.js"></script>
+  <script src="/javascripts/userUi.js"></script>
 </body>
 </html>

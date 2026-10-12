@@ -14,10 +14,10 @@ const catalog = require('./courseCatalog');
 
 const difficultyLabel = { easy: 'ง่าย', medium: 'ปานกลาง', hard: 'ยาก' };
 const recipeLevels = [
-  { value: 'all', label: 'ทั้งหมด' },
-  { value: 'easy', label: 'ง่าย' },
-  { value: 'medium', label: 'ปานกลาง' },
-  { value: 'hard', label: 'ยาก' },
+  { value: 'all', label: 'ทั้งหมด', desc: 'แสดงทุกระดับ' },
+  { value: 'easy', label: 'ง่าย', desc: 'เหมาะสำหรับผู้เริ่มต้น' },
+  { value: 'medium', label: 'ปานกลาง', desc: 'มีพื้นฐานการทำอาหารมาบ้าง' },
+  { value: 'hard', label: 'ยาก', desc: 'สำหรับผู้ที่มีประสบการณ์' },
 ];
 
 /** วันที่ภาษาไทย เช่น "12 กันยายน 2026" */
@@ -189,31 +189,54 @@ async function saveProfile(clientId, body) {
 
 const youtubeId = url => (String(url || '').match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/) || [])[1] || null;
 
+const levelLabel = { BEGINNER: 'เริ่มต้น', INTERMEDIATE: 'ปานกลาง', ADVANCED: 'ขั้นสูง' };
+const toList = v => (Array.isArray(v) ? v.map(String).map(s => s.trim()).filter(Boolean) : []);
+
+/** ข้อมูลรายละเอียดคอร์ส ใช้ทั้งหน้าต่างเด้ง (?fragment=1) และหน้าเต็ม (ดูวิดีโอ) */
 async function loadCourseDetail(kind, id, clientId) {
   const courses = await catalog.loadCourses();
   const course = courses.find(c => c.kind === kind && c.id === id);
   if (!course) return null;
+  const byId = new Map(courses.filter(c => c.kind === 'single').map(c => [c.id, c]));
 
-  // คลิปวิดีโอ (แพ็ก = รวมคลิปของทุกคอร์สในแพ็ก)
+  // บทเรียน (แพ็ก = รวมบทเรียนของทุกคอร์สในแพ็ก)
   let sections = [];
+  let learnPoints = [];
   if (kind === 'single') {
-    const doc = await SingleCourse.findById(id).select('videos').lean();
-    sections = [{ title: course.title, url: null, videos: doc ? doc.videos : [] }];
+    const doc = await SingleCourse.findById(id).lean();
+    sections = [{ id, title: course.title, url: null, image: course.images[0], description: course.description, videos: doc ? doc.videos || [] : [] }];
+    learnPoints = toList(doc && doc.learnPoints);          // ยังไม่มีใน model ของทีม → ถ้ามีในฐานข้อมูลจะแสดงเอง
   } else {
-    const pack = await MultiCourse.findById(id).select('includedCourses').lean();
-    const docs = await SingleCourse.find({ _id: { $in: pack ? pack.includedCourses : [] } }).select('title videos').lean();
-    sections = docs.map(d => ({ title: d.title, url: '/courses/' + d._id, videos: d.videos || [] }));
+    const pack = await MultiCourse.findById(id).lean();
+    const ids = pack ? pack.includedCourses || [] : [];
+    const docs = await SingleCourse.find({ _id: { $in: ids } }).select('title videos').lean();
+    const docById = new Map(docs.map(d => [d._id, d]));
+    sections = ids.map(cid => docById.get(cid)).filter(Boolean).map(d => {
+      const card = byId.get(d._id) || {};
+      return { id: d._id, title: d.title, url: '/courses/' + d._id, image: (card.images || [''])[0], description: card.description || '', videos: d.videos || [] };
+    });
+    learnPoints = toList(pack && pack.learnPoints);
   }
-  sections.forEach(s => s.videos = s.videos.map(v => ({ ...v, youtube: youtubeId(v.videoUrl), durationText: catalog.formatDuration(v.duration) })));
+  sections.forEach(s => s.videos = s.videos.map(v => {
+    const yt = youtubeId(v.videoUrl);
+    return { ...v, youtube: yt, thumb: yt ? `https://img.youtube.com/vi/${yt}/mqdefault.jpg` : s.image, durationText: catalog.formatDuration(v.duration) };
+  }));
 
   const itemType = kind === 'single' ? 'SingleCourse' : 'MultiCourse';
-  const [purchased, favorite] = clientId ? await Promise.all([
-    Transaction.exists({ buyer: clientId, itemType, itemId: id }),
-    Favorite.exists({ client: clientId, itemType, itemId: id }),
-  ]) : [false, false];
-  const isOwner = clientId && course.chefId === clientId;
+  const [purchased, favorite, chef] = await Promise.all([
+    clientId ? Transaction.exists({ buyer: clientId, itemType, itemId: id }) : null,
+    clientId ? Favorite.exists({ client: clientId, itemType, itemId: id }) : null,
+    course.chefId ? Client.findById(course.chefId).select('name avatar bio institution').lean() : null,
+  ]);
+  const isOwner = Boolean(clientId && course.chefId === clientId);
+  const lessonCount = sections.reduce((n, s) => n + s.videos.length, 0);
 
-  return { course, sections, purchased: Boolean(purchased), canWatch: Boolean(purchased || isOwner), favorite: Boolean(favorite) };
+  return {
+    course, sections, learnPoints, lessonCount,
+    levelText: levelLabel[course.level] || 'เริ่มต้น',
+    chefInfo: { name: course.chef, avatar: course.chefAvatar, bio: (chef && chef.bio) || '', institution: (chef && chef.institution) || '' },
+    purchased: Boolean(purchased), isOwner, canWatch: Boolean(purchased || isOwner), favorite: Boolean(favorite),
+  };
 }
 
 module.exports = { difficultyLabel, recipeLevels, loadRecipes, favoriteRecipeIds, loadHome, loadProfile, saveProfile, loadCourseDetail };

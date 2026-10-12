@@ -1,0 +1,120 @@
+<%#
+  ป๊อปอัปตัวกรอง ตามแบบ Figma "ตัวกรองคอร์สเรียน / ตัวกรองสูตรอาหาร" — ใช้ร่วมกันหน้าคอร์สและหน้าสูตรของมุกดา
+  สไตล์อยู่ใน cookhub.css ข้อ 10 | เปิดด้วยปุ่ม id="openFilter"
+  ใช้: include('../partials/filter-modal', { filterTitle, filterAction, filters, keep: { sort, level }, durationLabel })
+  filters มาจาก helpers/list-filters.js → readFilters()
+%>
+<%
+  // ตรงกับ tagTypes ใน services/courseCatalog.js
+  const typeOptions = locals.typeOptions || [
+    { value: 'thai', label: 'อาหารไทย' },
+    { value: 'inter', label: 'อาหารนานาชาติ' },
+    { value: 'japan', label: 'อาหารญี่ปุ่น' },
+    { value: 'chinese', label: 'อาหารจีน' },
+    { value: 'indian', label: 'อาหารอินเดีย' },
+    { value: 'bakery', label: 'ขนมหวาน & เบเกอรี่' },
+    { value: 'drink', label: 'เครื่องดื่ม' },
+  ];
+  const keepVals = locals.keep || {};
+  const durationLabel = locals.durationLabel || 'ระยะเวลาเรียน';
+%>
+<div class="modal" id="filterModal" hidden>
+  <div class="modal__backdrop" data-close-filter></div>
+
+  <form class="modal__box" method="get" action="<%= filterAction %>" role="dialog" aria-modal="true" aria-labelledby="filterTitle">
+    <% Object.keys(keepVals).forEach(k => { if (keepVals[k] && keepVals[k] !== 'all') { %>
+      <input type="hidden" name="<%= k %>" value="<%= keepVals[k] %>">
+    <% } }) %>
+
+    <div class="filter__head">
+      <h2 id="filterTitle"><%= filterTitle %></h2>
+      <button type="button" class="filter__close" data-close-filter aria-label="ปิด"><i data-lucide="x" class="ic-18"></i></button>
+    </div>
+
+    <!-- ประเภทอาหาร -->
+    <div class="filter__section">
+      <h3>ประเภทอาหาร</h3>
+      <% typeOptions.forEach(t => { %>
+        <label class="check">
+          <input type="checkbox" name="type" value="<%= t.value %>" <%= filters.types.includes(t.value) ? 'checked' : '' %>>
+          <span class="check__box"></span><%= t.label %>
+        </label>
+      <% }) %>
+    </div>
+
+    <!-- ระยะเวลา (นาที) -->
+    <div class="filter__section">
+      <h3><%= durationLabel %></h3>
+      <div class="range" data-range data-min="15" data-max="480">
+        <div class="range__track"><div class="range__fill"></div></div>
+        <input type="range" name="minDur" min="15" max="480" step="15" value="<%= filters.minDur %>" aria-label="เวลาต่ำสุด">
+        <input type="range" name="maxDur" min="15" max="480" step="15" value="<%= filters.maxDur %>" aria-label="เวลาสูงสุด">
+      </div>
+      <div class="range__labels"><span data-label-min></span><span data-label-max></span></div>
+    </div>
+
+    <!-- ช่วงราคา (บาท) -->
+    <div class="filter__section">
+      <h3>ช่วงราคา</h3>
+      <div class="range" data-range data-min="0" data-max="5000" data-unit="฿">
+        <div class="range__track"><div class="range__fill"></div></div>
+        <input type="range" name="minPrice" min="0" max="5000" step="100" value="<%= filters.minPrice %>" aria-label="ราคาต่ำสุด">
+        <input type="range" name="maxPrice" min="0" max="5000" step="100" value="<%= filters.maxPrice %>" aria-label="ราคาสูงสุด">
+      </div>
+      <div class="range__labels"><span data-label-min></span><span data-label-max></span></div>
+    </div>
+
+    <!-- คะแนนรีวิว -->
+    <div class="filter__section filter__section--last">
+      <h3>คะแนนรีวิว</h3>
+      <% [5, 4, 3, 2, 1].forEach(n => { %>
+        <label class="check check--stars">
+          <input type="checkbox" name="rating" value="<%= n %>" <%= filters.ratings.includes(String(n)) ? 'checked' : '' %>>
+          <span class="check__box"></span>
+          <span class="stars">
+            <% for (let s = 1; s <= 5; s++) { %><i data-lucide="star" class="ic-12 <%= s <= n ? 'on' : '' %>"></i><% } %>
+          </span>
+          <small><%= n === 5 ? '5 ดาว' : n + ' ดาวขึ้นไป' %></small>
+        </label>
+      <% }) %>
+    </div>
+
+    <div class="filter__actions">
+      <a href="<%= filterAction %>" class="btn btn--outline filter__btn">ล้างตัวกรอง</a>
+      <button type="submit" class="btn btn--primary filter__btn">แสดงผลลัพธ์</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  (function () {
+    const modal = document.getElementById('filterModal');
+    const openBtn = document.getElementById('openFilter');
+    if (!modal || !openBtn) return;
+
+    const setOpen = (open) => { modal.hidden = !open; document.body.style.overflow = open ? 'hidden' : ''; };
+    openBtn.addEventListener('click', () => setOpen(true));
+    modal.querySelectorAll('[data-close-filter]').forEach(el => el.addEventListener('click', () => setOpen(false)));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) setOpen(false); });
+
+    // แถบเลื่อนสองหัว: กันหัวซ้ายเลยหัวขวา + อัปเดตแถบสีและตัวเลข
+    modal.querySelectorAll('[data-range]').forEach(range => {
+      const [lo, hi] = range.querySelectorAll('input');
+      const min = +range.dataset.min, max = +range.dataset.max, unit = range.dataset.unit || '';
+      const fill = range.querySelector('.range__fill');
+      const labels = range.nextElementSibling;
+      const fmt = v => unit ? unit + Number(v).toLocaleString('en-US') + (v >= max ? '+' : '')
+                            : (v >= 60 ? (v / 60).toFixed(v % 60 ? 1 : 0) + ' ชั่วโมง' : v + ' นาที') + (v >= max ? '+' : '');
+      const update = (moved) => {
+        if (+lo.value > +hi.value) (moved === lo ? hi : lo).value = moved.value;
+        const a = (lo.value - min) / (max - min) * 100, b = (hi.value - min) / (max - min) * 100;
+        fill.style.left = a + '%'; fill.style.right = (100 - b) + '%';
+        labels.querySelector('[data-label-min]').textContent = fmt(+lo.value);
+        labels.querySelector('[data-label-max]').textContent = fmt(+hi.value);
+      };
+      lo.addEventListener('input', () => update(lo));
+      hi.addEventListener('input', () => update(hi));
+      update(lo);
+    });
+  })();
+</script>

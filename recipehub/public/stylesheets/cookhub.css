@@ -524,7 +524,7 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .empty-state svg { color: var(--primary); }
 
 /* รูปโหลดไม่ได้ → ซ่อนรูป แสดงกรอบไอคอนแทน (views/user/_image.ejs) */
-.cookhub img[hidden], .img-placeholder[hidden] { display: none !important; }
+img[hidden], .img-placeholder[hidden] { display: none !important; }
 .alert-error { margin: 0 8px 10px; padding: 8px 12px; border-radius: 6px; background: #fdecec; color: #c43a2a; font-size: 12px; }
 
 /* ===========================================================
@@ -565,4 +565,137 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .cd-video__link { display: inline-block; margin-top: 6px; font-size: 12px; color: var(--primary); text-decoration: underline; }
 @media (max-width: 900px) {
   .cd-head { grid-template-columns: 1fr; }
+}
+
+/* ป้ายหมวดเพิ่มเติม (ตรงกับตัวกรองในแบบ Figma) */
+.tag--chinese { background: #fde2e2; color: #c0392b; }
+.tag--indian  { background: #fff0d6; color: #b9770e; }
+.tag--drink   { background: #e3f4fb; color: #1f7a99; }
+
+/* ===========================================================
+   14. dropdown ระดับ / ความยาก — views/user/_levelSelect.ejs (แบบ Figma "Difficulty")
+   =========================================================== */
+.level-dd { position: relative; }
+.level-dd summary {
+  list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+  height: 28px; padding: 0 12px 0 14px; border: 1px solid #f6c9a8; border-radius: 999px;
+  background: #fffaf5; font-size: 12px; color: var(--text);
+}
+.level-dd summary::-webkit-details-marker { display: none; }
+.level-dd[open] summary { border-color: var(--primary); }
+.level-dd__menu {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 30; width: 220px; padding: 6px;
+  background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,.12);
+}
+.level-dd__option { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+.level-dd__option:hover { background: #fafafa; }
+.level-dd__option input { position: absolute; opacity: 0; pointer-events: none; }
+.level-dd__text { flex: 1; display: flex; flex-direction: column; }
+.level-dd__text strong { font-size: 13px; font-weight: 600; }
+.level-dd__text small { font-size: 10.5px; color: var(--text-muted); }
+.level-dd__check { color: var(--primary); visibility: hidden; }
+.level-dd__option.is-selected { background: var(--primary-soft); }
+.level-dd__option.is-selected .level-dd__check { visibility: visible; }
+.level-dd__option:focus-within { outline: 2px solid var(--primary); outline-offset: -2px; }
+
+/* ===========================================================
+   15. หน้าต่างเด้งรายละเอียดคอร์ส — views/user/_courseModal.ejs (แบบ Figma buy course / course / pack courses)
+   =========================================================== */
+.course-dialog {
+  width: min(920px, calc(100vw - 32px)); max-height: calc(100vh - 40px); padding: 0; border: 0;
+  border-radius: 22px; background: #fff; overflow: auto; box-shadow: 0 24px 70px rgba(0,0,0,.3);
+}
+.course-dialog::backdrop { background: rgba(0,0,0,.55); }
+:where(.course-dialog *) { margin: 0; padding: 0; box-sizing: border-box; }
+:where(.course-dialog img) { display: block; max-width: 100%; }
+.course-dialog button { font-family: inherit; }
+.cm-loading { min-height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 32px; color: var(--text-muted); font-size: 14px; }
+.cm-spinner { width: 34px; height: 34px; border: 3px solid var(--primary-soft); border-top-color: var(--primary); border-radius: 50%; animation: cm-spin .8s linear infinite; }
+@keyframes cm-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .cm-spinner { animation: none; } }
+
+.cm { padding: 14px; font-size: 14px; color: var(--text); }
+.cm-round {
+  width: 38px; height: 38px; border-radius: 50%; border: 0; background: #fff; color: var(--text);
+  display: grid; place-items: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+.cm-round.fav { position: static; color: #ef4b4b; }
+.cm-round:hover { transform: scale(1.05); }
+
+/* คอร์สเดี่ยว */
+.cm-cover { position: relative; aspect-ratio: 3.2 / 1; border-radius: 14px; overflow: hidden; background: var(--primary-soft); }
+.cm-cover__img { width: 100%; height: 100%; object-fit: cover; }
+.cm-cover__actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 10px; }
+.cm-top { display: grid; grid-template-columns: 1fr 300px; gap: 18px; margin-top: 14px; }
+.cm-tag { position: static; display: inline-block; margin-bottom: 8px; }
+.cm-tags { display: flex; gap: 8px; margin-bottom: 8px; }
+.cm-tags .tag { position: static; }
+.cm-title { font-size: 24px; font-weight: 700; line-height: 1.3; }
+.cm-desc { font-size: 13px; color: #6b6b6b; line-height: 1.65; margin-top: 4px; }
+.cm-meta { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 12px; font-size: 12px; color: #444; }
+.cm-meta span { display: inline-flex; align-items: center; gap: 5px; }
+.cm-meta svg { color: var(--primary); }
+
+.cm-chef { position: relative; border: 1px solid #f6c3ab; border-radius: 14px; padding: 22px 14px 14px; align-self: start; }
+.cm-chef__badge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 11px; padding: 2px 12px; border-radius: 999px; background: #fde0d6; color: #c4502c; }
+.cm-chef__row { display: flex; align-items: center; gap: 10px; }
+.cm-chef__avatar { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid #fde0d6; }
+.cm-chef__avatar.img-placeholder svg { width: 22px; height: 22px; }
+.cm-chef__name { font-size: 15px; font-weight: 600; }
+.cm-chef__sub { font-size: 11px; color: var(--text-muted); }
+.cm-chef__bio { font-size: 12px; color: #666; line-height: 1.6; margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.cm-chef__buy { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.cm-chef__buy .price { font-size: 24px; }
+.cm-cta { height: 38px; padding: 0 16px; font-size: 13px; }
+.cm-cta[disabled] { opacity: .55; cursor: not-allowed; }
+.cm-chef__buy .cm-cta { margin-left: auto; }
+
+.cm-box { border: 1px solid #f6c3ab; border-radius: 14px; padding: 14px; margin-top: 14px; }
+.cm-box__title { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; margin-bottom: 10px; }
+.cm-box__title svg { color: var(--primary); }
+.cm-lesson-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.cm-lesson { display: flex; align-items: center; gap: 12px; padding: 8px; border: 1px solid #eee; border-radius: 10px; }
+.cm-lesson__thumb { width: 96px; aspect-ratio: 16 / 9; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+.cm-lesson__thumb.img-placeholder svg { width: 20px; height: 20px; }
+.cm-lesson__text { flex: 1; min-width: 0; }
+.cm-lesson__title { font-size: 13px; font-weight: 600; }
+.cm-lesson__time { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.cm-lesson__icon { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; }
+.cm-lesson__icon.is-lock { border: 1.5px solid var(--primary); color: var(--primary); }
+.cm-lesson__icon.is-play { background: var(--primary); color: #fff; }
+.cm-learn { list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.cm-learn li { display: flex; gap: 8px; align-items: flex-start; }
+.cm-learn svg { color: #e2541c; margin-top: 3px; }
+
+/* แพ็กคอร์ส */
+.cm--pack { position: relative; display: grid; grid-template-columns: 300px 1fr; gap: 22px; padding: 18px; }
+.cm-pack-close { position: absolute; top: 14px; right: 14px; box-shadow: none; }
+.cm-pack-images { display: flex; flex-direction: column; gap: 14px; }
+.cm-pack-item { position: relative; display: block; aspect-ratio: 4 / 3; border-radius: 14px; overflow: hidden; background: var(--primary-soft); }
+.cm-pack-item__img { width: 100%; height: 100%; object-fit: cover; }
+.cm-pack-item__label {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 14px 12px; color: #fff;
+  background: linear-gradient(transparent, rgba(0,0,0,.65)); display: flex; flex-direction: column;
+}
+.cm-pack-item__label strong { font-size: 18px; }
+.cm-pack-item__label small { font-size: 11px; opacity: .9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cm-pack-info { padding-right: 30px; }
+.cm-pack-chef { margin: 12px 0; }
+.cm-stats { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #eee; border-radius: 12px; padding: 12px; gap: 8px; }
+.cm-stats div { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: center; }
+.cm-stats svg { grid-row: span 2; color: var(--primary); }
+.cm-stats strong { font-size: 13px; }
+.cm-stats small { font-size: 10.5px; color: var(--text-muted); }
+.cm-subtitle { font-size: 16px; font-weight: 600; margin: 16px 0 6px; padding-top: 14px; border-top: 1px solid #eee; }
+.cm-subtitle + .cm-learn { margin-top: 4px; }
+.cm-pack-buy { display: flex; align-items: center; gap: 12px; margin-top: 18px; }
+.cm-pack-buy .price { font-size: 26px; margin-right: auto; }
+
+@media (max-width: 760px) {
+  .cm-top, .cm--pack { grid-template-columns: 1fr; }
+  .cm-cover { aspect-ratio: 2 / 1; }
+  .cm-pack-images { flex-direction: row; overflow-x: auto; }
+  .cm-pack-item { min-width: 220px; }
+  .cm-stats { grid-template-columns: 1fr; }
+  .cm-pack-info { padding-right: 0; }
 }

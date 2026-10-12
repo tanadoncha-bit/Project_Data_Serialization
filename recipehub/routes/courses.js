@@ -36,7 +36,9 @@ async function showDetail(kind, req, res, next) {
   if (!id) return next();                                  // ไม่ใช่ตัวเลข → 404 ของเพื่อน
   const data = await pages.loadCourseDetail(kind, id, req.user && req.user._id);
   if (!data) return next();                                // ไม่มีคอร์สนี้ → 404
-  res.render('user/course-detail', Object.assign(data, { loggedIn: Boolean(req.user) }));
+  // ?fragment=1 → เฉพาะเนื้อหาหน้าต่างเด้ง (เหมือนหน้าสูตรของเพื่อน) / ไม่มี → หน้าเต็มสำหรับดูวิดีโอ
+  const view = req.query.fragment === '1' ? 'user/_courseModal' : 'user/course-detail';
+  res.render(view, Object.assign(data, { loggedIn: Boolean(req.user) }));
 }
 router.get('/pack/:id', databaseReady, asyncRoute((req, res, next) => showDetail('multi', req, res, next)));
 router.get('/:id', databaseReady, asyncRoute((req, res, next) => showDetail('single', req, res, next)));
