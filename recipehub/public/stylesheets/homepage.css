@@ -1,17 +1,18 @@
 /* =========================================
-   1. Base & Variables
+   1. ตั้งค่าพื้นฐานและตัวแปร (Base & Variables)
+   - กำหนดฟอนต์ Prompt, สีหลักแบรนด์ (สีส้ม) และ Reset ค่า Margin/Padding
    ========================================= */
 @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
 
 :root {
-    --primary-color: #F05A28; /* สีส้มตามแบรนด์ */
-    --primary-hover: #D94A1D;
-    --text-main: #333333;
-    --text-gray: #777777;
-    --border-color: #EBEBEB;
-    --bg-light: #FAFAFA;
-    --white: #FFFFFF;
-    --footer-bg: #1A1A1A;
+    --primary-color: #F05A28; /* สีส้มหลักของแบรนด์ */
+    --primary-hover: #D94A1D; /* สีส้มเข้มเมื่อเอาเมาส์ชี้ */
+    --text-main: #333333;     /* สีข้อความหลัก */
+    --text-gray: #777777;     /* สีข้อความเทา/คำอธิบาย */
+    --border-color: #EBEBEB;   /* สีเส้นขอบ */
+    --bg-light: #FAFAFA;       /* สีพื้นหลังสีเทาอ่อน */
+    --white: #FFFFFF;          /* สีขาว */
+    --footer-bg: #1A1A1A;      /* สีพื้นหลัง Footer */
 }
 
 * {
@@ -31,8 +32,10 @@ a {
     text-decoration: none;
 }
 
+
 /* =========================================
-   2. Buttons & Elements
+   2. ปุ่มและโลโก้ (Buttons & Logo)
+   - สไตล์สำหรับโลโก้ ปุ่มแบบมีขอบ (Outline) และปุ่มทึบ (Solid/CTA)
    ========================================= */
 .logo {
     font-size: 24px;
@@ -46,6 +49,7 @@ a {
     color: var(--primary-color);
 }
 
+/* ปุ่มแบบมีขอบโปร่งใส */
 .btn-outline {
     border: 1px solid var(--primary-color);
     color: var(--primary-color);
@@ -59,7 +63,9 @@ a {
     background-color: #FFF0EB;
 }
 
-.btn-solid, .btn-cta {
+/* ปุ่มสีทึบพื้นหลังส้ม */
+.btn-solid, 
+.btn-cta {
     background-color: var(--primary-color);
     color: var(--white);
     padding: 8px 24px;
@@ -69,12 +75,15 @@ a {
     border: 1px solid var(--primary-color);
 }
 
-.btn-solid:hover, .btn-cta:hover {
+.btn-solid:hover, 
+.btn-cta:hover {
     background-color: var(--primary-hover);
 }
 
+
 /* =========================================
-   3. General Section Styles
+   3. สไตล์โครงสร้างทั่วไป (General Section Styles)
+   - ระยะขอบของ Section, หัวข้อประจำส่วน, และลิงก์ "ดูทั้งหมด"
    ========================================= */
 section {
     max-width: 1200px;
@@ -89,7 +98,8 @@ section {
     margin-bottom: 30px;
 }
 
-.section-header h2, .section-header-left h2 {
+.section-header h2, 
+.section-header-left h2 {
     font-size: 24px;
     font-weight: 700;
 }
@@ -110,8 +120,10 @@ section {
     color: var(--primary-color);
 }
 
+
 /* =========================================
-   4. Hero Section
+   4. ส่วนแบนเนอร์หลัก (Hero Section)
+   - ข้อความต้อนรับด้านซ้าย และรูปภาพพาสต้า/อาหารด้านขวา
    ========================================= */
 .hero {
     display: flex;
@@ -149,8 +161,10 @@ section {
     object-fit: cover;
 }
 
+
 /* =========================================
-   5. Features Section
+   5. ส่วนจุดเด่นบริการ (Features Section)
+   - การ์ด 3 ใบแสดงจุดเด่น และสไตล์ของไอคอน Lucide
    ========================================= */
 .features {
     display: grid;
@@ -166,12 +180,6 @@ section {
     background-color: var(--white);
 }
 
-.feature-icon img {
-    width: 40px;
-    height: 40px;
-    margin-bottom: 15px;
-}
-
 .feature-card h3 {
     font-size: 18px;
     margin-bottom: 10px;
@@ -182,8 +190,27 @@ section {
     color: var(--text-gray);
 }
 
+/* สไตล์ไอคอนแบบรูปภาพเดิม */
+.feature-icon img {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 15px;
+}
+
+/* สไตล์ไอคอนแบบ Lucide Icon (SVG / i Tag) */
+.feature-icon svg,
+.feature-icon i {
+    width: 65px;
+    height: 65px;
+    color: var(--primary-color);
+    stroke-width: 0.75px;
+    margin-bottom: 15px;
+}
+
+
 /* =========================================
-   6. Popular Courses
+   6. ส่วนคอร์สเรียนยอดนิยม (Popular Courses)
+   - ตารางการ์ดคอร์ส 3 คอลัมน์, ป้าย Badge หมวดหมู่, และข้อมูลรายละเอียดคอร์ส
    ========================================= */
 .course-grid {
     display: grid;
@@ -269,8 +296,10 @@ section {
     padding-top: 15px;
 }
 
+
 /* =========================================
-   7. Categories Section
+   7. ส่วนหมวดหมู่คอร์สเรียน (Categories Section)
+   - ตารางหมวดหมู่แบบ 6 คอลัมน์
    ========================================= */
 .section-header-left {
     margin-bottom: 30px;
@@ -310,8 +339,10 @@ section {
     color: var(--text-gray);
 }
 
+
 /* =========================================
-   8. 3 Steps Section
+   8. ส่วนขั้นตอนการเรียนรู้ (3 Steps Section)
+   - บล็อกบอกขั้นตอนการใช้งาน 1-2-3
    ========================================= */
 .steps-section {
     background-color: var(--bg-light);
@@ -362,8 +393,10 @@ section {
     color: var(--text-gray);
 }
 
+
 /* =========================================
-   9. CTA Banner Section
+   9. ส่วนแบนเนอร์ชวนสมัครสมาชิก (CTA Banner Section)
+   - กล่องส้มอ่อนเชิญชวนสมัครสมาชิกพร้อมปุ่ม และรูปมะเขือเทศ
    ========================================= */
 .cta-banner {
     background-color: #FFF5F2;
@@ -412,8 +445,10 @@ section {
     object-position: left;
 }
 
+
 /* =========================================
-   10. Footer
+   10. ส่วนท้ายของเว็บ (Footer)
+   - ลิงก์เมนูด้านล่าง, ลิงก์ โซเชียล มีเดีย และ ลิขสิทธิ์
    ========================================= */
 .footer {
     background-color: var(--footer-bg);
@@ -487,15 +522,3 @@ section {
     color: #666;
     font-size: 13px;
 }
-/* =========================================
-   ปรับสีและขนาด Lucide Icons
-   ========================================= */
-.feature-icon svg,
-.feature-icon i {
-    width: 65px;                 /* 1. ปรับขนาดความกว้าง */
-    height: 65px;                /* 2. ปรับขนาดความสูง */
-    color: var(--primary-color);    /* 3. ปรับสีไอคอน (ใช้สีส้มแบรนด์ หรือใส่รหัสสีเช่น #F05A28) */
-    stroke-width: 0.75px;           /* 4. [เสริม] ปรับความหนาของเส้นไอคอน */
-    margin-bottom: 15px;         /* 5. ระยะห่างระหว่างไอคอนกับหัวข้อ */
-}
-
