@@ -99,7 +99,11 @@ function mapPack(pack, singleById, students) {
     ไม่นับการซื้อจำลอง/ทดสอบ (demo, gateway-test) ให้ตรงกับหน้าเชฟ (services/chefSupport.js นับเฉพาะ real) */
 async function countStudents() {
   const rows = await Transaction.aggregate([
-    { $match: { itemType: { $in: ['SingleCourse', 'MultiCourse'] }, paymentMode: { $nin: ['demo', 'gateway-test'] } } },
+    { $match: {
+      itemType: { $in: ['SingleCourse', 'MultiCourse'] },
+      // Match course access: test purchases grant access only outside production.
+      ...(process.env.NODE_ENV === 'production' ? { paymentMode: { $nin: ['demo', 'gateway-test'] } } : {}),
+    } },
     { $group: { _id: { t: '$itemType', id: '$itemId' }, n: { $sum: 1 } } },
   ]);
   return new Map(rows.map(r => [r._id.t + ':' + r._id.id, r.n]));
