@@ -28,7 +28,7 @@ async function loadItems(rows) {
     if (!doc) return null;
     return {
       type: row.itemType,
-      label: itemLabels[row.itemType] + (row.paymentMode === 'demo' ? ' (ซื้อจำลอง)' : row.paymentMode === 'gateway-test' ? ' (ทดสอบ QR)' : ''),
+      label: itemLabels[row.itemType],
       title: doc.title,
       image: doc.image || '',
       price: row.amountPaid ?? doc.price ?? 0,
@@ -39,7 +39,7 @@ async function loadItems(rows) {
   return items.filter(Boolean);
 }
 
-/** ดึงข้อมูลทั้งหมดของหน้าโปรไฟล์ แล้ว render (ใช้ทั้งตอนเปิดหน้าและตอนบันทึกไม่ผ่าน) */
+/** ดึงข้อมูลทั้งหมดของหน้าโปรไฟล์ แล้ว renderใช้ทั้งตอนเปิดหน้าและตอนบันทึกไม่ผ่าน */
 async function renderProfile(req, res, { form, error, saved, status = 200 } = {}) {
   const user = await Client.findById(req.user._id).lean();
   const isChef = user.role === 'chef';
@@ -98,7 +98,6 @@ router.post('/', async (req, res, next) => {
     try {
       await Client.updateOne({ _id: req.user._id }, update);
     } catch (err) {
-      // มีคนบันทึก username/อีเมลเดียวกันพร้อมกันพอดี unique index ของ DB จะโยน 11000
       if (err.code !== 11000) throw err;
       const field = err.keyPattern && err.keyPattern.username ? 'username' : 'อีเมล';
       return renderProfile(req, res, { form, error: `${field}นี้ถูกใช้แล้ว`, status: 409 });
@@ -128,7 +127,7 @@ router.post('/avatar', (req, res, next) => {
   });
 });
 
-/** POST /profile/password → เช็ครหัสเดิม แล้วเปลี่ยนเป็นรหัสใหม่ */
+/** POST /profile/password  เช็ครหัสเดิม แล้วเปลี่ยนเป็นรหัสใหม่ */
 router.post('/password', async (req, res, next) => {
   try {
     const { currentPassword = '', newPassword = '', confirmPassword = '' } = req.body;

@@ -37,7 +37,7 @@
 .auth-form input:focus { outline: 2px solid var(--orange); background: #fff; }
 
 .auth-submit {
-  margin-top: 40px; padding: 10px; border: 0; border-radius: 10px;
+  margin-top: 16px; padding: 10px; border: 0; border-radius: 10px;
   background: var(--orange); color: #fff; font: inherit; font-size: 17px; cursor: pointer;
 }
 .auth-submit:disabled { opacity: 0.6; cursor: wait; }
