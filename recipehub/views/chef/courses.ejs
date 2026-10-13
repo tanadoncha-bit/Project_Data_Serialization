@@ -8,7 +8,6 @@
 
 <body class="chef-site">
   <%- include('../partials/navbar', { active }) %>
-  <% const diffLabel = Object.fromEntries(difficulties.map(d => [d.value, d.label])); %>
 
   <!-- ===== Hero ===== -->
   <section class="chef-hero chef-hero--courses">
@@ -65,7 +64,7 @@
           <p class="chef-muted chef-clamp"><%= c.description || 'ยังไม่มีคำอธิบายคอร์ส' %></p>
           <ul class="chef-course-meta">
             <li><i data-lucide="square-play"></i> <%= c.type === 'package' ? c.menuCount + ' เมนู' : c.lessonCount + ' บทเรียน' %></li>
-            <li><i data-lucide="<%= c.durationText ? 'clock' : 'signal' %>"></i> <%= c.durationText || 'ระดับ' + diffLabel[c.difficulty] %></li>
+            <li><i data-lucide="clock"></i> <%= c.durationText || 'ไม่ระบุเวลา' %></li>
             <li><i data-lucide="users"></i> <%= c.students.toLocaleString('en-US') %> คนเรียน</li>
           </ul>
           <div class="chef-course-foot">
@@ -100,7 +99,7 @@
           <div><strong>เชฟ<%= chef.name %></strong><small><%= chef.institution || '' %></small></div>
         </div>
         <div class="chef-detail-stats">
-          <div><i data-lucide="signal"></i><span><strong id="detail-level"></strong><small>ระดับความยาก</small></span></div>
+          <div><i data-lucide="clock"></i><span><strong id="detail-duration"></strong><small>เวลาเรียนรวม</small></span></div>
           <div><i data-lucide="square-play"></i><span><strong id="detail-lessons"></strong><small>บทเรียนทั้งหมด</small></span></div>
           <div><i data-lucide="users"></i><span><strong id="detail-students"></strong><small>ผู้เรียน</small></span></div>
         </div>
@@ -110,7 +109,6 @@
         <ul class="chef-learn" id="detail-learn"></ul>
         <div class="chef-detail-foot">
           <strong class="chef-detail-price" id="detail-price"></strong>
-          <a class="chef-btn chef-btn-soft chef-btn-sm" id="detail-link" target="_blank" rel="noopener"><i data-lucide="external-link"></i> ดูหน้าคอร์สฝั่งผู้เรียน</a>
         </div>
       </div>
     </div>
@@ -154,7 +152,7 @@
             <li role="option" data-value="<%= r.id %>" data-label="<%= r.title %>" tabindex="-1">
               <span class="chef-recipe-option">
                 <%- include('_thumb', { src: r.image, alt: '' }) %>
-                <span><strong><%= r.title %></strong><small><%= r.category || 'ไม่ระบุหมวดหมู่' %> · <%= diffLabel[r.difficulty] %><%= r.rating != null ? ' · ★ ' + r.rating.toFixed(1) : '' %></small></span>
+                <span><strong><%= r.title %></strong><small><%= r.category || 'ไม่ระบุหมวดหมู่' %><%= r.rating != null ? ' · ★ ' + r.rating.toFixed(1) : '' %></small></span>
               </span>
               <i data-lucide="check"></i>
             </li>
@@ -232,12 +230,34 @@
   <!-- ===== Modal: ยืนยันการลบ ===== -->
   <dialog id="course-delete" class="chef-dialog chef-delete-dialog" aria-labelledby="delete-title">
     <button type="button" class="chef-dialog-close" data-close aria-label="ปิด"><i data-lucide="x"></i></button>
-    <div class="chef-delete-art"><i data-lucide="trash-2"></i><span>!</span></div>
+    <%# ภาพถังขยะแบบในงานออกแบบ: วงกลมพื้นส้มอ่อน + ถังไล่สี + ป้ายตกใจสีแดง + เส้นประกายสองข้าง %>
+    <div class="chef-delete-art" aria-hidden="true">
+      <span class="chef-spark left"><i></i><i></i></span>
+      <svg class="chef-trash" viewBox="0 0 120 130">
+        <defs>
+          <linearGradient id="trashBody" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FF8F62"/><stop offset="1" stop-color="#FFD9C6"/>
+          </linearGradient>
+          <linearGradient id="trashLid" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#F26B2A"/><stop offset="1" stop-color="#FF8F62"/>
+          </linearGradient>
+        </defs>
+        <rect x="44" y="6" width="32" height="12" rx="6" fill="none" stroke="#F26B2A" stroke-width="6"/>
+        <rect x="10" y="16" width="100" height="16" rx="8" fill="url(#trashLid)"/>
+        <path d="M18 38h84l-8 82a10 10 0 0 1-10 9H36a10 10 0 0 1-10-9z" fill="url(#trashBody)"/>
+        <rect x="38" y="52" width="9" height="56" rx="4.5" fill="#F26B2A" opacity=".55"/>
+        <rect x="56" y="52" width="9" height="56" rx="4.5" fill="#F26B2A" opacity=".55"/>
+        <rect x="74" y="52" width="9" height="56" rx="4.5" fill="#F26B2A" opacity=".55"/>
+      </svg>
+      <span class="chef-delete-badge">!</span>
+      <span class="chef-spark right"><i></i><i></i></span>
+    </div>
     <h2 id="delete-title">ลบคอร์สเรียนนี้?</h2>
     <p class="chef-muted">เมื่อทำการลบแล้ว ข้อมูลทั้งหมดของคอร์สนี้<br>จะหายไป และไม่สามารถกู้คืนได้</p>
     <div class="chef-delete-summary">
       <span id="delete-thumb"></span>
-      <div><strong id="delete-name"></strong><p class="chef-muted chef-clamp" id="delete-desc"></p></div>
+      <div class="chef-delete-text"><strong id="delete-name"></strong><p class="chef-muted chef-clamp" id="delete-desc"></p></div>
+      <span class="chef-delete-rating" id="delete-rating"></span>
     </div>
     <p class="chef-alert err" id="delete-warning" hidden></p>
     <div class="chef-delete-actions">

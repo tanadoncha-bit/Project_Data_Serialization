@@ -3,7 +3,6 @@
 (() => {
   const page = JSON.parse(document.getElementById('course-data').textContent);
   const courses = new Map(page.courses.map(c => [`${c.type}:${c.id}`, c]));
-  const levelText = { EASY: 'ง่าย', MEDIUM: 'ปานกลาง', HARD: 'ยาก' };
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const icons = () => window.lucide && window.lucide.createIcons();
@@ -76,9 +75,9 @@
 
     $('#detail-title').textContent = course.title;
     $('#detail-sub').textContent = course.type === 'package'
-      ? `เรียนทำ ${course.menus.length} เมนูในแพ็กเกจเดียว${course.durationText ? ' · ' + course.durationText : ''}`
-      : `อิงสูตร "${course.recipeTitle}" · ${course.lessonCount} บทเรียน${course.durationText ? ' · ' + course.durationText : ''}`;
-    $('#detail-level').textContent = levelText[course.difficulty] || '-';
+      ? `แพ็กเกจรวม ${course.menus.length} คอร์ส: ${course.menus.map(m => m.name).join(', ')}`
+      : `อิงสูตร "${course.recipeTitle}"`;
+    $('#detail-duration').textContent = course.durationText || 'ไม่ระบุ';
     $('#detail-lessons').textContent = `${course.lessonCount} บทเรียน`;
     $('#detail-students').textContent = `${course.students.toLocaleString('en-US')} คน`;
     $('#detail-desc').textContent = course.description || 'ยังไม่มีคำอธิบายคอร์ส';
@@ -92,8 +91,6 @@
     items.forEach(text => { const li = document.createElement('li'); li.textContent = text; learn.append(li); });
 
     $('#detail-price').textContent = course.price ? baht(course.price) : 'ฟรี';
-    // ลิงก์ไปหน้าคอร์สฝั่งผู้เรียน (routes/courses.js ของทีม)
-    $('#detail-link').href = course.type === 'package' ? `/courses/pack/${course.id}` : `/courses/${course.id}`;
     icons();
     openDialog(detail);
   }
@@ -306,6 +303,7 @@
     $('#delete-thumb').replaceChildren(thumb(course.imageUrl, course.title));
     $('#delete-name').textContent = course.title;
     $('#delete-desc').textContent = course.description || '';
+    $('#delete-rating').textContent = course.rating == null ? '' : `★ ${Number(course.rating).toFixed(1)}`;
     // กันลบไว้ 2 กรณี (เซิร์ฟเวอร์ก็เช็คซ้ำ): มีผู้ซื้อแล้ว / คอร์สเดี่ยวที่ยังอยู่ในแพ็กเกจ
     const packs = course.type === 'single'
       ? page.courses.filter(c => c.type === 'package' && c.includedIds.includes(course.id)).map(c => c.title)
