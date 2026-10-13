@@ -1983,3 +1983,12 @@
     line-height: 1.6;
   }
 }
+
+/* Full recipe pages use normal document scrolling. */
+.recipe-single-page { width: min(1136px, 100%); box-sizing: border-box; }
+.recipe-single-page .recipe-back { display: inline-flex; margin-bottom: 24px; }
+.recipe-single-page .recipe-external-media .recipe-image { height: clamp(240px, 32vw, 440px); }
+@media (max-width: 700px) {
+  .recipe-single-page .recipe-external-media .recipe-image { height: 240px; }
+  .recipe-single-page .recipe-back { margin-bottom: 18px; }
+}

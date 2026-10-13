@@ -6,7 +6,8 @@
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
     "test": "node tests/externalRecipes.integration.js && node tests/recipeReviews.integration.js && node tests/recipePurchase.integration.js && node tests/promptpay.integration.js",
-    "test:browser": "node tests/recipeEditor.browser.js"
+    "test:browser": "node tests/recipeEditor.browser.js",
+    "images:cleanup": "node scripts/cleanupRecipeImages.js"
   },
   "dependencies": {
     "axios": "^1.20.0",

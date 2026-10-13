@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <%# head / navbar / footer ใช้ของเพื่อน (views/partials) — ไฟล์นี้เปลี่ยนแค่เนื้อหา %>
+  <%- include('../partials/head', { title: 'หน้าแรก' }) %>
+  <link rel="stylesheet" href="/stylesheets/cookhub.css">
+</head>
+<body data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
+  <%- include('../partials/navbar', { active: 'home', recipePublicNav: true }) %>
+
+  <main class="cookhub">
+
+  <!-- ================= Hero ================= -->
+  <section class="hero hero--home">
+    <div class="hero__content">
+      <h1 class="hero__title">
+        <span class="l1">Learn to Cook</span>
+        <span class="l2">Easy, Fun, Delicious</span>
+      </h1>
+      <p class="hero__desc">
+        ค้นหาคอร์สเรียนและสูตรอาหารหลากหลาย<br>
+        ที่จะช่วยให้การทำอาหารเป็นเรื่องง่าย สนุก และอร่อยในทุกวัน
+      </p>
+      <div class="hero__actions">
+        <a href="/courses" class="btn btn--outline">
+          <i data-lucide="book-open" class="ic-16"></i>
+          คอร์สเรียน
+        </a>
+        <a href="/user/recipes" class="btn btn--outline">
+          <i data-lucide="cooking-pot" class="ic-16"></i>
+          สูตรอาหาร
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+
+    <!-- ================= คอร์สเรียนยอดนิยม ================= -->
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">คอร์สเรียนยอดนิยม</h2>
+          <p class="section-sub">เรียนทำอาหารได้จริง จากเชฟมืออาชีพ</p>
+        </div>
+        <a href="/courses" class="see-all">ดูทั้งหมด →</a>
+      </div>
+
+      <div class="grid-3">
+        <% if (!popularCourses.length) { %><p class="empty">ยังไม่มีคอร์สเรียน</p><% } %>
+        <% popularCourses.forEach(c => { %>
+          <a href="<%= c.url %>" class="card">
+            <div class="card__img">
+              <%- include('_image', { src: c.image, alt: c.title, cls: 'card__photo' }) %>
+              <span class="tag tag--<%= c.tagType %>"><%= c.tag %></span>
+              <button class="fav <%= favoriteKeys.has(c.kind + ':' + c.id) ? 'on' : '' %>" type="button" data-fav-url="/courses/favorites/<%= c.kind %>/<%= c.id %>" aria-label="รายการโปรด">
+                <i data-lucide="heart" class="ic-14"></i>
+              </button>
+            </div>
+            <div class="card__body">
+              <div class="card__row">
+                <h3 class="card__title"><%= c.title %></h3>
+                <span class="card__rating"><%= c.rating == null ? 'ใหม่' : '★ ' + c.rating.toFixed(1) %></span>
+              </div>
+              <p class="card__desc"><%= c.description %></p>
+              <div class="card__meta">
+                <span>
+                  <i data-lucide="circle-play" class="ic-12"></i>
+                  <%= c.lessons %> บทเรียน
+                </span>
+                <span>
+                  <i data-lucide="clock-3" class="ic-12"></i>
+                  <%= c.duration %>
+                </span>
+                <span>
+                  <i data-lucide="users" class="ic-12"></i>
+                  <%= c.students %> คนเรียน
+                </span>
+              </div>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    </section>
+
+    <!-- ================= แบนเนอร์โปรโมชั่น ================= -->
+    <section class="promo" id="promo">
+      <% banners.forEach((b, i) => { %>
+        <a href="<%= b.link %>" class="promo__slide <%= i === 0 ? 'active' : '' %>"><%- include('_image', { src: b.image, alt: b.title || 'โปรโมชั่น', cls: 'promo__photo', icon: 'image' }) %></a>
+      <% }) %>
+      <button class="promo__arrow promo__arrow--prev" type="button" aria-label="ก่อนหน้า">
+        <i data-lucide="chevron-left" class="ic-14"></i>
+      </button>
+      <button class="promo__arrow promo__arrow--next" type="button" aria-label="ถัดไป">
+        <i data-lucide="chevron-right" class="ic-14"></i>
+      </button>
+      <div class="promo__dots">
+        <% banners.forEach((b, i) => { %>
+          <button type="button" class="<%= i === 0 ? 'active' : '' %>" data-i="<%= i %>" aria-label="สไลด์ <%= i + 1 %>"></button>
+        <% }) %>
+      </div>
+    </section>
+
+    <!-- ================= สูตรอาหารแนะนำ ================= -->
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">สูตรอาหารแนะนำสำหรับคุณ</h2>
+          <p class="section-sub">เมนูยอดนิยม ทำตามได้ง่าย</p>
+        </div>
+        <a href="/user/recipes" class="see-all">ดูทั้งหมด →</a>
+      </div>
+
+      <div class="grid-4">
+        <% if (!recommendedRecipes.length) { %><p class="empty">ยังไม่มีสูตรอาหาร</p><% } %>
+        <% recommendedRecipes.forEach(r => { %>
+          <a href="<%= r.url %>" class="card recipe-mini">
+            <div class="card__img">
+              <%- include('_image', { src: r.image, alt: r.title, cls: 'card__photo' }) %>
+              <button class="fav <%= favoriteIds.has(r.id) ? 'on' : '' %>" type="button" data-fav-url="/recipes/favorites/local/<%= r.id %>" aria-label="รายการโปรด">
+                <i data-lucide="heart" class="ic-14"></i>
+              </button>
+            </div>
+            <div class="card__body">
+              <h3 class="card__title"><%= r.title %></h3>
+              <div class="likes">
+                <i data-lucide="heart" class="ic-13 is-filled"></i>
+                <%= r.likes %>
+              </div>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= เชฟยอดนิยม ================= -->
+  <section class="chefs">
+    <!-- ลายตกแต่งพื้นหลัง (เส้นประ ดาว หมวกเชฟ ส้อม) -->
+    
+
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">เชฟยอดนิยม</h2>
+          <p class="section-sub">เชฟที่ได้รับความนิยมสูงสุดจากผู้เรียน</p>
+        </div>
+      </div>
+
+      <div class="chefs__row">
+        <% if (!chefs.length) { %><p class="empty">ยังไม่มีเชฟในระบบ</p><% } %>
+        <% chefs.forEach((chef, i) => { const top = chef.isTop; %>
+          <div class="chef <%= top ? 'chef--top' : 'chef--side' %>">
+            <% if (top) { %>
+              <!-- มงกุฎ + ช่อใบไม้ -->
+              <i data-lucide="crown" class="chef__crown"></i>
+            <% } %>
+            <%- include('_image', { src: chef.avatar, alt: chef.name, cls: 'chef__avatar', icon: 'chef-hat' }) %>
+            <div class="chef__name"><%= chef.name %></div>
+            <div class="chef__role"><%= chef.role %></div>
+            <div class="chef__stars">
+              <% for (let s = 0; s < 5; s++) { %>
+                <i data-lucide="star" class="ic-16 is-filled"></i>
+              <% } %>
+            </div>
+            <div class="chef__followers"><%= chef.followers %> <span>ผู้เรียน &amp; ถูกใจ</span></div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <div class="container">
+    <section class="cta">
+      <div class="cta__text">
+        <h3 class="cta__title">วันนี้อยากลองทำ<span>เมนูอะไรดี?</span></h3>
+        <p class="cta__sub">ค้นพบสูตรอาหารใหม่ ๆ และเรียนรู้เทคนิคจากเชฟที่คุณชื่นชอบ</p>
+        <div class="cta__actions">
+          <a href="/user/recipes" class="btn btn--primary">สำรวจสูตรอาหาร →</a>
+          <a href="/courses" class="btn btn--outline">
+            <i data-lucide="book-open" class="ic-15"></i>
+            ดูคอร์สเรียน
+          </a>
+        </div>
+      </div>
+      <div class="cta__img" aria-hidden="true"></div>
+    </section>
+  </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+
+  <!-- สไลด์แบนเนอร์ -->
+  <script>
+    (function () {
+      const slides = document.querySelectorAll('#promo .promo__slide');
+      const dots = document.querySelectorAll('#promo .promo__dots button');
+      if (!slides.length) return;
+      let cur = 0;
+      function go(n) {
+        slides[cur].classList.remove('active'); dots[cur].classList.remove('active');
+        cur = (n + slides.length) % slides.length;
+        slides[cur].classList.add('active'); dots[cur].classList.add('active');
+      }
+      document.querySelector('.promo__arrow--prev').onclick = () => go(cur - 1);
+      document.querySelector('.promo__arrow--next').onclick = () => go(cur + 1);
+      dots.forEach(d => d.onclick = () => go(+d.dataset.i));
+      setInterval(() => go(cur + 1), 5000);
+    })();
+  </script>
+  <script src="/javascripts/userFavorites.js"></script>
+</body>
+</html>

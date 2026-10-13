@@ -1,6 +1,6 @@
 (() => {
   const dialog = document.getElementById('recipe-content-dialog');
-  const content = document.getElementById('recipe-modal-content');
+  const content = document.getElementById('recipe-modal-content') || document.getElementById('recipe-page-content');
   const filter = document.getElementById('recipe-filter-dialog');
   // Shared dropdown behavior, including forms loaded into a modal.
   document.addEventListener('click',event=>{
