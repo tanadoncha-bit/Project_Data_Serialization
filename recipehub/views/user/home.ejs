@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <%# head / navbar / footer ใช้ของเพื่อน (views/partials) — ไฟล์นี้เปลี่ยนแค่เนื้อหา %>
   <%- include('../partials/head', { title: 'หน้าแรก' }) %>
   <link rel="stylesheet" href="/stylesheets/cookhub.css">
 </head>
@@ -10,7 +9,6 @@
 
   <main class="cookhub">
 
-  <!-- ================= Hero ================= -->
   <section class="hero hero--home">
     <div class="hero__content">
       <h1 class="hero__title">
@@ -36,7 +34,6 @@
 
   <div class="container">
 
-    <!-- ================= คอร์สเรียนยอดนิยม ================= -->
     <section class="section">
       <div class="section-head">
         <div>
@@ -83,7 +80,6 @@
       </div>
     </section>
 
-    <!-- ================= แบนเนอร์โปรโมชั่น ================= -->
     <section class="promo" id="promo">
       <% banners.forEach((b, i) => { %>
         <a href="<%= b.link %>" class="promo__slide <%= i === 0 ? 'active' : '' %>"><%- include('_image', { src: b.image, alt: b.title || 'โปรโมชั่น', cls: 'promo__photo', icon: 'image' }) %></a>
@@ -101,7 +97,6 @@
       </div>
     </section>
 
-    <!-- ================= สูตรอาหารแนะนำ ================= -->
     <section class="section">
       <div class="section-head">
         <div>
@@ -134,9 +129,7 @@
     </section>
   </div>
 
-  <!-- ================= เชฟยอดนิยม ================= -->
   <section class="chefs">
-    <!-- ลายตกแต่งพื้นหลัง (เส้นประ ดาว หมวกเชฟ ส้อม) -->
     
 
     <div class="container">
@@ -166,7 +159,6 @@
     </div>
   </section>
 
-  <!-- ================= CTA ================= -->
   <div class="container">
     <section class="cta">
       <div class="cta__text">
@@ -186,7 +178,6 @@
 
   <%- include('../partials/footer') %>
 
-  <!-- สไลด์แบนเนอร์ -->
   <script>
     (function () {
       const slides = document.querySelectorAll('#promo .promo__slide');

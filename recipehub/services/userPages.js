@@ -1,9 +1,3 @@
-// services/userPages.js — ดึงข้อมูลจาก MongoDB ให้หน้าฝั่งผู้ใช้ของมุกดา (views/user/*)
-//   หน้าแรก  /user          → loadHome()
-//   (หน้าสูตรอาหารใช้ /recipes ของเพื่อน — loadRecipes() ใช้แค่ดึง "สูตรแนะนำ" ในหน้าแรก)
-//   (โปรไฟล์ใช้ /profile ของเพื่อน — /user/profile ส่งต่อไปที่นั่น)
-//   รายละเอียดคอร์ส /courses/:id, /courses/pack/:id → loadCourseDetail()
-// ใช้ model ของทีมทั้งหมด ไม่ได้สร้าง collection ใหม่
 const Recipe = require('../models/Recipe');
 const Client = require('../models/Client');
 const Favorite = require('../models/Favorite');
@@ -12,25 +6,22 @@ const MultiCourse = require('../models/MultiCourse');
 const catalog = require('./courseCatalog');
 const payments = require('./coursePayments');
 
-/* ---------------------------------------------------------- สูตรอาหาร */
-
-/** สูตร 1 อัน (populate publisher แล้ว) → ข้อมูลสำหรับการ์ด */
 function mapRecipe(r) {
   const chef = r.publisher && typeof r.publisher === 'object' ? r.publisher : {};
   return {
     id: r._id,
-    url: '/recipes/' + r._id,                 // หน้ารายละเอียดสูตรของเพื่อน
+    url: '/recipes/' + r._id,
     title: r.title,
     description: r.description || '',
     ...catalog.tagFor(r.category),
     difficulty: (r.difficulty || 'EASY').toLowerCase(),
-    rating: r.rating,                         // null = ยังไม่มีรีวิว
+    rating: r.rating,
     cookMin: r.duration || 0,
     price: r.price || 0,
     image: r.image || '',
     likes: catalog.formatCount(r.favoriteCount || 0),
     favoriteCount: r.favoriteCount || 0,
-    studentCount: r.favoriteCount || 0,       // ใช้เรียง "ยอดนิยม" ใน helpers/list-filters.js
+    studentCount: r.favoriteCount || 0,
     chefId: chef._id,
     chef: chef.name || 'เจ้าของสูตร',
     chefAvatar: chef.avatar || '',
@@ -43,14 +34,11 @@ async function loadRecipes() {
   return rows.map(mapRecipe);
 }
 
-/** สูตรไหนผู้ใช้กดใจไว้ → Set ของ id */
 async function favoriteRecipeIds(clientId) {
   if (!clientId) return new Set();
   const rows = await Favorite.find({ client: clientId, itemType: 'Recipe' }).select('itemId').lean();
   return new Set(rows.map(f => f.itemId));
 }
-
-/* ---------------------------------------------------------- หน้าแรก */
 
 async function loadHome() {
   const [courses, recipes, chefs] = await Promise.all([
@@ -59,10 +47,8 @@ async function loadHome() {
     Client.find({ role: 'chef' }).select('name avatar').lean(),
   ]);
 
-  // คอร์สยอดนิยม 3 อัน (คนเรียนเยอะสุด)
   const popularCourses = courses.slice().sort((a, b) => b.studentCount - a.studentCount).slice(0, 3);
 
-  // สูตรแนะนำ 4 อัน (คนกดใจเยอะสุด แล้วตามคะแนน)
   const recommendedRecipes = recipes.slice()
     .sort((a, b) => b.favoriteCount - a.favoriteCount || (b.rating || 0) - (a.rating || 0))
     .slice(0, 4);
@@ -74,7 +60,6 @@ async function loadHome() {
     title: 'โปรโมชั่น ' + number,
   }));
 
-  // เชฟยอดนิยม 3 คน: นับผู้เรียนจากคอร์ส + ยอดกดใจจากสูตรของเชฟคนนั้น
   const score = new Map();
   const mainCategory = new Map();
   courses.forEach(c => { if (c.chefId) score.set(c.chefId, (score.get(c.chefId) || 0) + c.studentCount); });
@@ -88,33 +73,28 @@ async function loadHome() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 3)
     .map((ch, i) => ({ ...ch, isTop: i === 0, followers: catalog.formatCount(ch.count) }));
-  // หน้าออกแบบไว้ให้อันดับ 1 อยู่ตรงกลาง → เรียงเป็น [อันดับ 2, อันดับ 1, อันดับ 3]
   const topChefs = ranked.length === 3 ? [ranked[1], ranked[0], ranked[2]] : ranked;
 
   return { popularCourses, recommendedRecipes, banners, chefs: topChefs };
 }
-
-/* ---------------------------------------------------------- รายละเอียดคอร์ส */
 
 const youtubeId = url => (String(url || '').match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/) || [])[1] || null;
 
 const levelLabel = { BEGINNER: 'เริ่มต้น', INTERMEDIATE: 'ปานกลาง', ADVANCED: 'ขั้นสูง' };
 const toList = v => (Array.isArray(v) ? v.map(String).map(s => s.trim()).filter(Boolean) : []);
 
-/** ข้อมูลรายละเอียดคอร์ส ใช้ทั้งหน้าต่างเด้ง (?fragment=1) และหน้าเต็ม (ดูวิดีโอ) */
 async function loadCourseDetail(kind, id, clientId) {
   const courses = await catalog.loadCourses();
   const course = courses.find(c => c.kind === kind && c.id === id);
   if (!course) return null;
   const byId = new Map(courses.filter(c => c.kind === 'single').map(c => [c.id, c]));
 
-  // บทเรียน (แพ็ก = รวมบทเรียนของทุกคอร์สในแพ็ก)
   let sections = [];
   let learnPoints = [];
   if (kind === 'single') {
     const doc = await SingleCourse.findById(id).lean();
     sections = [{ id, title: course.title, url: null, image: course.images[0], description: course.description, videos: doc ? doc.videos || [] : [] }];
-    learnPoints = toList(doc && doc.learnPoints);          // ยังไม่มีใน model ของทีม → ถ้ามีในฐานข้อมูลจะแสดงเอง
+    learnPoints = toList(doc && doc.learnPoints);
   } else {
     const pack = await MultiCourse.findById(id).lean();
     const ids = pack ? pack.includedCourses || [] : [];
@@ -133,7 +113,6 @@ async function loadCourseDetail(kind, id, clientId) {
 
   const itemType = kind === 'single' ? 'SingleCourse' : 'MultiCourse';
   const [rights, favorite, chef] = await Promise.all([
-    // สิทธิ์ดูวิดีโอ: ซื้อแล้ว (หรือซื้อแพ็กที่มีคอร์สนี้) / เป็นเชฟเจ้าของ / คอร์สฟรี — services/coursePayments.js
     payments.access(clientId, kind, { _id: id, price: course.price, publisher: course.chefId }),
     clientId ? Favorite.exists({ client: clientId, itemType, itemId: id }) : null,
     course.chefId ? Client.findById(course.chefId).select('name avatar bio institution').lean() : null,

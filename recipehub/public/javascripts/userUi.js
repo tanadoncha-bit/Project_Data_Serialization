@@ -1,7 +1,3 @@
-// userUi.js — ส่วนโต้ตอบของหน้าผู้ใช้ (views/user/*)
-//  1) หน้าต่างเด้งรายละเอียดคอร์ส: ลิงก์ที่มี data-course-modal → โหลด href?fragment=1 ใส่ <dialog id="course-dialog">
-//     (วิธีเดียวกับหน้าต่างสูตรอาหารของเพื่อน public/javascripts/recipeModals.js)
-//  2) dropdown ระดับ / ความยาก (<details class="level-dd">) เลือกแล้วส่งฟอร์มทันที
 (function () {
   const dialog = document.getElementById('course-dialog');
   const content = document.getElementById('course-dialog-content');
@@ -49,7 +45,7 @@
         return;
       }
       if (e.target.closest('[data-close-course]')) { e.preventDefault(); closeCourse(); return; }
-      if (e.target === dialog) closeCourse();             // คลิกพื้นหลังสีดำ → ปิด
+      if (e.target === dialog) closeCourse();
     });
     dialog.addEventListener('close', () => {
       if (request) request.abort();
@@ -59,7 +55,6 @@
     });
   }
 
-  /* ---------- dropdown ระดับ (โครงเดียวกับ .recipe-difficulty-control ของเพื่อน) ---------- */
   document.addEventListener('click', (e) => {
     const current = e.target.closest('.level-dd');
     document.querySelectorAll('.level-dd[open]').forEach((dd) => { if (dd !== current) dd.open = false; });

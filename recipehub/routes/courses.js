@@ -1,10 +1,3 @@
-/* ===========================================================
-   หน้าคอร์สเรียน
-     GET /courses?level=&sort=&page=&type=&rating=&minDur=&maxDur=&minPrice=&maxPrice=
-     PUT /courses/favorites/:kind/:id   (kind = single | multi, body: { favorite: true/false })
-     ซื้อคอร์ส: /courses/checkout/... และ /courses/payments/...  (ดูด้านล่าง)
-   ข้อมูลมาจาก MongoDB: SingleCourse + MultiCourse (+ Recipe, Client, Transaction, Favorite)
-   =========================================================== */
 const express = require('express');
 const router = express.Router();
 
@@ -16,7 +9,6 @@ const { randomBytes } = require('node:crypto');
 const payments = require('../services/coursePayments');
 const gateway = require('../services/omiseGateway');
 
-/* รายการคอร์ส */
 router.get('/', databaseReady, asyncRoute(async (req, res) => {
   const [courses, favorites] = await Promise.all([
     catalog.loadCourses(),
@@ -29,18 +21,13 @@ router.get('/', databaseReady, asyncRoute(async (req, res) => {
     active: 'courses',
     courses: data.list,
     levels: catalog.levelOptions,
+    types: catalog.tagTypes,
     favoriteKeys: favorites,
     loggedIn: Boolean(req.user),
   }));
 }));
 
-/* ===================== ซื้อคอร์ส (ทำตามระบบซื้อสูตรของเพื่อน) =====================
-   GET  /courses/checkout/:kind/:id        ข้อมูลก่อนซื้อ  → { owned } | { gateway:'omise', ... } | { demo:true, ... }
-   POST /courses/checkout/:kind/:id        ยืนยันซื้อจำลอง (ใช้เมื่อไม่มี Omise key และ RECIPE_DEMO_PAYMENTS=true)
-   POST /courses/checkout/:kind/:id/qr     สร้าง QR PromptPay (Omise)
-   GET  /courses/payments/:orderId         ตรวจสถานะการจ่ายเงิน
-   ตอบเป็น JSON ทั้งหมด — หน้าเว็บเรียกจาก public/javascripts/coursePurchase.js */
-const checkout = express.Router();      // ใช้เฉพาะ /courses/checkout/* และ /courses/payments/* (หน้าอื่นไม่โดน)
+const checkout = express.Router();
 checkout.use(databaseReady);
 checkout.use((req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
 checkout.use((req, res, next) => {
@@ -48,7 +35,6 @@ checkout.use((req, res, next) => {
   next();
 });
 
-/** ตรวจ :kind/:id แล้วเก็บคอร์สไว้ใน req.course */
 const loadCourse = asyncRoute(async (req, res, next) => {
   const id = numericId(req.params.id);
   const course = id && ['single', 'multi'].includes(req.params.kind) ? await payments.findCourse(req.params.kind, id) : null;
@@ -86,7 +72,7 @@ checkout.post('/checkout/:kind/:id', loadCourse, asyncRoute(async (req, res) => 
 
 checkout.post('/checkout/:kind/:id/qr', loadCourse, asyncRoute(async (req, res) => {
   if (!sameCsrf(req)) return res.status(403).json({ error: 'ฟอร์มหมดอายุ กรุณาเปิดใหม่' });
-  gateway.config();                                         // ยังไม่ตั้งค่า Omise → 503
+  gateway.config();
   const { kind } = req.params;
   if ((await payments.access(req.user._id, kind, req.course)).canWatch) return res.status(409).json({ error: 'คุณมีสิทธิ์เรียนคอร์สนี้แล้ว' });
   res.json(payments.view(await payments.createOrder(req.user._id, kind, req.course)));
@@ -99,27 +85,23 @@ checkout.get('/payments/:orderId', asyncRoute(async (req, res) => {
   res.json(payments.view(order));
 }));
 
-// error ของการจ่ายเงิน → JSON (เหมือน routes/promptpay.js ของเพื่อน)
 checkout.use((error, req, res, next) => {
   res.status(error.status || 502).json({ error: error.status ? error.message : 'ตรวจสอบการจ่ายเงินไม่สำเร็จ กรุณาลองใหม่' });
 });
 
 router.use((req, res, next) => (/^\/(checkout|payments)\//.test(req.path) ? checkout(req, res, next) : next()));
 
-/* รายละเอียดคอร์ส  GET /courses/:id (คอร์สเดี่ยว)  และ  GET /courses/pack/:id (แพ็กคอร์ส) */
 async function showDetail(kind, req, res, next) {
   const id = numericId(req.params.id);
-  if (!id) return next();                                  // ไม่ใช่ตัวเลข → 404 ของเพื่อน
+  if (!id) return next();
   const data = await pages.loadCourseDetail(kind, id, req.user && req.user._id);
-  if (!data) return next();                                // ไม่มีคอร์สนี้ → 404
-  // ?fragment=1 → เฉพาะเนื้อหาหน้าต่างเด้ง (เหมือนหน้าสูตรของเพื่อน) / ไม่มี → หน้าเต็มสำหรับดูวิดีโอ
+  if (!data) return next();
   const view = req.query.fragment === '1' ? 'user/_courseModal' : 'user/course-detail';
   res.render(view, Object.assign(data, { loggedIn: Boolean(req.user) }));
 }
 router.get('/pack/:id', databaseReady, asyncRoute((req, res, next) => showDetail('multi', req, res, next)));
 router.get('/:id', databaseReady, asyncRoute((req, res, next) => showDetail('single', req, res, next)));
 
-/* กดใจ / เลิกกดใจ (เรียกจาก JavaScript ในหน้า) */
 router.put('/favorites/:kind/:id', databaseReady, asyncRoute(async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'กรุณาเข้าสู่ระบบก่อนเพิ่มรายการโปรด' });
   const id = numericId(req.params.id);

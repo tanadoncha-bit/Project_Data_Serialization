@@ -1,15 +1,7 @@
-// coursePurchase.js — ปุ่ม "ซื้อคอร์สนี้" (data-buy-course data-kind="single|multi" data-id="1")
-// ขั้นตอนเหมือนปุ่มซื้อสูตรของเพื่อน (public/javascripts/recipeModals.js):
-//   GET /courses/checkout/:kind/:id
-//     owned        → ไปหน้าเรียนเลย
-//     gateway omise → หน้าต่างชำระเงิน QR PromptPay (สร้าง QR แล้วตรวจสถานะทุก 5 วินาที)
-//     demo          → หน้าต่างยืนยันซื้อจำลอง
-//   ซื้อสำเร็จ → โหลดหน้าต่างคอร์สใหม่ (ถ้ากดจากหน้าต่างเด้ง) หรือรีเฟรชหน้า
 (function () {
   const icons = () => { if (window.lucide) window.lucide.createIcons(); };
   const baht = n => '฿' + Number(n).toLocaleString('th-TH');
 
-  /* ---------- แจ้งเตือนมุมจอ ---------- */
   let toastTimer;
   function toast(message, isError) {
     let el = document.getElementById('ck-toast');
@@ -19,7 +11,6 @@
       el.className = 'ck-toast';
       el.setAttribute('role', 'status');
     }
-    // หน้าต่างคอร์สเปิดอยู่ (อยู่ชั้นบนสุดของจอ) → ใส่แจ้งเตือนไว้ในหน้าต่างนั้น ไม่งั้นจะถูกบัง
     const host = document.querySelector('#course-dialog[open]') || document.body;
     if (el.parentNode !== host) host.append(el);
     el.textContent = message;
@@ -42,22 +33,21 @@
     return data;
   }
 
-  /** หลังซื้อสำเร็จ: กดจากหน้าต่างเด้ง → โหลดเนื้อหาคอร์สใหม่ / หน้าเต็ม → รีเฟรช */
   async function afterPurchase(button, url, message) {
     const content = button.closest('#course-dialog-content');
     if (content && content.isConnected) {
       try {
         const res = await fetch(url + '?fragment=1', { headers: { Accept: 'text/html' } });
         if (res.ok) { content.innerHTML = await res.text(); icons(); }
-      } catch (_) { /* โหลดไม่ได้ก็ไม่เป็นไร กดเปิดใหม่ได้ */ }
+      } catch (_) {}
       toast(message);
     } else {
       sessionStorageSet('ck-toast', message);
       location.reload();
     }
   }
-  function sessionStorageSet(k, v) { try { sessionStorage.setItem(k, v); } catch (_) { /* ไม่มี storage */ } }
-  try { const m = sessionStorage.getItem('ck-toast'); if (m) { sessionStorage.removeItem('ck-toast'); toast(m); } } catch (_) { /* ไม่มี storage */ }
+  function sessionStorageSet(k, v) { try { sessionStorage.setItem(k, v); } catch (_) {} }
+  try { const m = sessionStorage.getItem('ck-toast'); if (m) { sessionStorage.removeItem('ck-toast'); toast(m); } } catch (_) {}
 
   function makeDialog(className, html) {
     const d = document.createElement('dialog');
@@ -65,11 +55,10 @@
     d.innerHTML = html;
     document.body.append(d);
     d.addEventListener('close', () => d.remove());
-    d.addEventListener('click', e => { if (e.target === d) d.close(); });     // คลิกพื้นหลัง → ปิด
+    d.addEventListener('click', e => { if (e.target === d) d.close(); });
     return d;
   }
 
-  /* ---------- ซื้อจำลอง (ไม่มี Omise key + RECIPE_DEMO_PAYMENTS=true) ---------- */
   function openDemo(info, button) {
     const d = makeDialog('ck-pay--demo',
       '<h2>ซื้อคอร์ส · โหมดสาธิต</h2><p class="ck-pay__title"></p><strong class="ck-pay__price"></strong>'
@@ -94,7 +83,6 @@
     d.showModal();
   }
 
-  /* ---------- QR PromptPay (Omise) — หน้าตาเดียวกับหน้าต่างชำระเงินสูตรของเพื่อน ---------- */
   function openPromptpay(info, button) {
     const d = makeDialog('ck-pay--qr',
       '<button type="button" class="ck-pay__close" aria-label="ปิดการจ่ายเงิน">×</button>'
@@ -173,11 +161,9 @@
     };
 
     d.showModal();
-    // มี QR ที่ยังไม่หมดอายุค้างอยู่ → แสดงต่อเลย
     if (info.activeOrder) { orderId = info.activeOrder.id; create.hidden = true; show(info.activeOrder); check(); }
   }
 
-  /* ---------- ปุ่มซื้อ ---------- */
   document.addEventListener('click', async (e) => {
     const button = e.target.closest('[data-buy-course]');
     if (!button) return;

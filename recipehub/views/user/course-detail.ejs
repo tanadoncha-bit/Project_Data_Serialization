@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <%# รายละเอียดคอร์ส  /courses/:id และ /courses/pack/:id — ข้อมูลจาก services/userPages.js → loadCourseDetail() %>
   <%- include('../partials/head', { title: course.title }) %>
   <link rel="stylesheet" href="/stylesheets/cookhub.css">
 </head>
@@ -14,7 +13,6 @@
 
     <a href="/courses" class="back-link"><i data-lucide="chevron-left" class="ic-14"></i> กลับไปหน้าคอร์สเรียน</a>
 
-    <!-- ================= หัวคอร์ส ================= -->
     <section class="cd-head">
       <div class="cd-cover card__img">
         <% (course.images.length ? course.images : ['']).forEach(img => { %>
@@ -56,7 +54,6 @@
           <% } else if (canWatch) { %>
             <span class="cd-owned"><i data-lucide="gift" class="ic-16"></i> คอร์สฟรี เรียนได้เลย</span>
           <% } else { %>
-            <%# ซื้อคอร์ส — public/javascripts/coursePurchase.js %>
             <button type="button" class="btn btn--primary" data-buy-course data-kind="<%= course.kind %>" data-id="<%= course.id %>"><i data-lucide="shopping-cart" class="ic-16"></i> ซื้อคอร์สนี้</button>
           <% } %>
           <button class="fav cd-fav <%= favorite ? 'on' : '' %>" type="button" data-fav-url="/courses/favorites/<%= course.kind %>/<%= course.id %>" aria-pressed="<%= favorite %>" aria-label="รายการโปรด">
@@ -66,7 +63,6 @@
       </div>
     </section>
 
-    <!-- ================= บทเรียน ================= -->
     <section class="cd-lessons">
       <h2 class="section-title">บทเรียนในคอร์ส</h2>
       <% if (!canWatch) { %><p class="section-sub">ซื้อคอร์สเพื่อดูวิดีโอทั้งหมด</p><% } %>

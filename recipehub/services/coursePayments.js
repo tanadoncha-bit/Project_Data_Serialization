@@ -1,8 +1,3 @@
-// services/coursePayments.js — ซื้อคอร์ส (ทำตามระบบซื้อสูตรของเพื่อน)
-//   มี Omise key (OMISE_SECRET_KEY)          → จ่ายด้วย QR PromptPay  (เหมือน routes/promptpay.js + services/promptpayOrders.js)
-//   ไม่มี key + RECIPE_DEMO_PAYMENTS=true     → ซื้อจำลอง               (เหมือน /recipes/checkout/:id)
-//   ไม่มีทั้งสองอย่าง                           → ยังไม่เปิดระบบซื้อ (503)
-// ใช้ services/omiseGateway.js และ assertCharge() ของเพื่อนตามเดิม (เรียกใช้เท่านั้น ไม่ได้แก้)
 const { randomBytes } = require('node:crypto');
 const gateway = require('./omiseGateway');
 const { assertCharge } = require('./promptpayOrders');
@@ -16,23 +11,19 @@ const watchUrl = (kind, id) => (kind === 'multi' ? '/courses/pack/' : '/courses/
 
 const demoEnabled = () => process.env.RECIPE_DEMO_PAYMENTS === 'true' && process.env.NODE_ENV !== 'production';
 
-// production ไม่นับการซื้อจำลอง/ทดสอบ (กติกาเดียวกับหน้าสูตรของเพื่อน routes/recipes.js)
 const accessFilter = () => (process.env.NODE_ENV === 'production' ? { paymentMode: { $nin: ['demo', 'gateway-test'] } } : {});
 
-/** คอร์สที่จะซื้อ: { _id, title, price, publisher } หรือ null */
 async function findCourse(kind, id) {
   if (kind === 'single') return SingleCourse.findById(id).select('title price publisher').lean();
   if (kind === 'multi') return MultiCourse.findById(id).select('title price publisher').lean();
   return null;
 }
 
-/** มีสิทธิ์ดูคอร์สนี้แล้วหรือยัง  → { purchased, isOwner, canWatch } */
 async function access(buyer, kind, course) {
   const isOwner = Boolean(buyer && course.publisher === buyer);
   let purchased = false;
   if (buyer) {
     purchased = Boolean(await Transaction.exists({ buyer, itemType: ITEM_TYPE[kind], itemId: course._id, ...accessFilter() }));
-    // คอร์สเดี่ยวที่อยู่ในแพ็กที่ซื้อแล้ว → ดูได้ด้วย
     if (!purchased && kind === 'single') {
       const packIds = (await MultiCourse.find({ includedCourses: course._id }).select('_id').lean()).map(p => p._id);
       if (packIds.length) {
@@ -43,7 +34,6 @@ async function access(buyer, kind, course) {
   return { purchased, isOwner, canWatch: purchased || isOwner || Number(course.price) === 0 };
 }
 
-/** ซื้อจำลอง → บันทึก Transaction paymentMode 'demo' */
 async function demoPurchase(buyer, kind, course) {
   const key = { buyer, itemType: ITEM_TYPE[kind], itemId: course._id };
   if (await Transaction.exists(key)) return;
@@ -51,11 +41,8 @@ async function demoPurchase(buyer, kind, course) {
   catch (error) { if (error.code !== 11000) throw error; }
 }
 
-/* ------------------------------------------------ QR PromptPay (Omise) */
-
 const activeKeyFor = (buyer, kind, id, livemode) => [buyer, ITEM_TYPE[kind], id, livemode].join(':');
 
-/** ตรวจสถานะจาก Omise แล้วอัปเดตคำสั่งซื้อ (โครงเดียวกับ reconcile() ใน promptpayOrders.js ของเพื่อน) */
 async function reconcile(order, charge) {
   assertCharge(order, charge);
   if (order.status === 'paid') return order;
@@ -94,7 +81,6 @@ async function reconcile(order, charge) {
   return Order.findById(order._id);
 }
 
-/** คำสั่งซื้อที่ยังรอจ่ายอยู่ (ถ้ามี) — ใช้ตอนเปิดหน้าต่างจ่ายเงินซ้ำ */
 async function activeOrder(buyer, kind, id) {
   const { livemode } = gateway.config();
   let order = await Order.findOne({ activeKey: activeKeyFor(buyer, kind, id, livemode) });
@@ -102,7 +88,6 @@ async function activeOrder(buyer, kind, id) {
   return order && ['creating', 'pending'].includes(order.status) ? order : null;
 }
 
-/** สร้าง QR (ถ้ามีคำสั่งซื้อที่ยังรอจ่ายอยู่ ใช้อันเดิม) */
 async function createOrder(buyer, kind, course) {
   const { livemode } = gateway.config();
   const amount = Math.round(Number(course.price) * 100);
@@ -120,7 +105,6 @@ async function createOrder(buyer, kind, course) {
     return Order.findOne({ activeKey });
   }
   try {
-    // createCharge() ของเพื่อนใช้ field recipeId แค่เขียนคำอธิบายรายการใน Omise
     const charge = await gateway.createCharge({ _id: order._id, amount: order.amount, recipeId: 'course ' + order.itemType + ' ' + order.itemId });
     return await reconcile(order, charge);
   } catch (error) {
@@ -131,7 +115,6 @@ async function createOrder(buyer, kind, course) {
   }
 }
 
-/** ตรวจสถานะคำสั่งซื้อ (หน้าเว็บถามทุก 5 วินาที) */
 async function checkOrder(buyer, orderId) {
   let order = await Order.findOne({ _id: orderId, buyer });
   if (!order) return null;

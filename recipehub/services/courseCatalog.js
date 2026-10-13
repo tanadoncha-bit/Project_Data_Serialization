@@ -1,13 +1,8 @@
-// services/courseCatalog.js — ดึงคอร์สจาก MongoDB แล้วแปลงเป็นข้อมูลที่หน้า /courses ใช้แสดง
-//
-// คอร์สมี 2 แบบ (model ของทีม):
-//   SingleCourse = คอร์สเดี่ยว  → อิงสูตรตั้งต้น baseRecipe (รูป / หมวด / ระดับ / คะแนน มาจากสูตร)
-//   MultiCourse  = แพ็กคอร์ส   → รวมหลาย SingleCourse (includedCourses)
 const SingleCourse = require('../models/SingleCourse');
 const MultiCourse = require('../models/MultiCourse');
 const Transaction = require('../models/Transaction');
 const Favorite = require('../models/Favorite');
-const { localCountry } = require('./recipeCountries');
+const { countryOptions, countryLabel, localCountry } = require('./recipeCountries');
 
 const levelOptions = [
   { value: 'all', label: 'ทั้งหมด', desc: 'แสดงทุกระดับ' },
@@ -17,42 +12,23 @@ const levelOptions = [
 ];
 const levelRank = { BEGINNER: 1, INTERMEDIATE: 2, ADVANCED: 3 };
 
-/** หมวดของสูตร → ป้ายสี (tagType ตรงกับ .tag--xxx ใน cookhub.css และตัวเลือกใน partials/filter-modal.ejs) */
-const tagTypes = [
-  { value: 'thai', label: 'อาหารไทย' },
-  { value: 'inter', label: 'อาหารนานาชาติ' },
-  { value: 'japan', label: 'อาหารญี่ปุ่น' },
-  { value: 'chinese', label: 'อาหารจีน' },
-  { value: 'indian', label: 'อาหารอินเดีย' },
-  { value: 'bakery', label: 'ขนมหวาน & เบเกอรี่' },
-  { value: 'drink', label: 'เครื่องดื่ม' },
-];
+const tagKey = { Thai: 'thai', British: 'british', Chinese: 'chinese', Japanese: 'japan', Korean: 'korean', International: 'inter' };
+const tagTypes = countryOptions.map(country => ({ value: tagKey[country], label: countryLabel(country) }));
 function tagFor(category) {
-  const text = (category || '').toLowerCase();
-  const pick = (tagType, fallback) => ({ tag: category || fallback, tagType });
-  if (/เครื่องดื่ม|drink|beverage|smoothie|coffee|กาแฟ|cocktail|juice/.test(text)) return pick('drink', 'เครื่องดื่ม');
-  if (/เบเกอรี่|ขนม|bakery|dessert|cake|เค้ก|pastry/.test(text)) return pick('bakery', 'ขนมหวาน & เบเกอรี่');
-  if (/อินเดีย|indian|india/.test(text)) return pick('indian', 'อาหารอินเดีย');
   const country = localCountry(category);
-  if (country === 'Thai') return pick('thai', 'อาหารไทย');
-  if (country === 'Japanese') return pick('japan', 'อาหารญี่ปุ่น');
-  if (country === 'Chinese') return pick('chinese', 'อาหารจีน');
-  return pick('inter', 'อาหารนานาชาติ');
+  return { tag: countryLabel(country), tagType: tagKey[country] };
 }
 
-/** นาที → "2 ชม. 30 นาที" */
 function formatDuration(min) {
   if (!min) return 'ไม่ระบุเวลา';
   const h = Math.floor(min / 60), m = Math.round(min % 60);
   return [h ? h + ' ชม.' : '', m ? m + ' นาที' : ''].filter(Boolean).join(' ');
 }
 
-/** 1200 → "1.2K" */
 function formatCount(n) {
   return n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : String(n);
 }
 
-/** คอร์สเดี่ยว 1 อัน → ข้อมูลสำหรับการ์ด */
 function mapSingle(course, students) {
   const recipe = course.baseRecipe || {};
   const chef = course.publisher || {};
@@ -66,7 +42,7 @@ function mapSingle(course, students) {
     ...tagFor(recipe.category),
     isPack: false,
     level: recipe.level || 'BEGINNER',
-    rating: recipe.rating,                         // null = ยังไม่มีรีวิว
+    rating: recipe.rating,
     lessons: (course.videos || []).length,
     durMin,
     duration: formatDuration(durMin),
@@ -81,7 +57,6 @@ function mapSingle(course, students) {
   };
 }
 
-/** แพ็กคอร์ส 1 อัน → ข้อมูลสำหรับการ์ด (รวมค่าจากคอร์สข้างใน) */
 function mapPack(pack, singleById, students) {
   const items = (pack.includedCourses || []).map(id => singleById.get(id)).filter(Boolean);
   const rated = items.filter(c => c.rating != null);
@@ -106,7 +81,7 @@ function mapPack(pack, singleById, students) {
     studentCount: students,
     students: formatCount(students),
     price: pack.price,
-    images: items.slice(0, 2).map(c => c.images[0]),   // รูปแบ่งครึ่งจาก 2 คอร์สแรกในแพ็ก
+    images: items.slice(0, 2).map(c => c.images[0]),
     chefId: chef._id || first.chefId,
     chef: chef.name || first.chef || 'เชฟ',
     chefAvatar: chef.avatar || first.chefAvatar || '',
@@ -114,8 +89,6 @@ function mapPack(pack, singleById, students) {
   };
 }
 
-/** นับจำนวนคนซื้อของแต่ละคอร์ส จาก Transaction → Map('SingleCourse:1' → 12)
-    ไม่นับการซื้อจำลอง/ทดสอบ (demo, gateway-test) ให้ตรงกับหน้าเชฟของเพื่อน (services/chefSupport.js นับเฉพาะ real) */
 async function countStudents() {
   const rows = await Transaction.aggregate([
     { $match: { itemType: { $in: ['SingleCourse', 'MultiCourse'] }, paymentMode: { $nin: ['demo', 'gateway-test'] } } },
@@ -124,7 +97,6 @@ async function countStudents() {
   return new Map(rows.map(r => [r._id.t + ':' + r._id.id, r.n]));
 }
 
-/** ดึงคอร์สทั้งหมด (เดี่ยว + แพ็ก) พร้อมข้อมูลสำหรับแสดงผล */
 async function loadCourses() {
   const [singles, packs, students] = await Promise.all([
     SingleCourse.find()
@@ -141,7 +113,6 @@ async function loadCourses() {
   return singleCards.concat(packCards);
 }
 
-/** คอร์สไหนผู้ใช้กดใจไว้บ้าง → Set('single:1', 'multi:2') */
 async function favoriteKeys(clientId) {
   if (!clientId) return new Set();
   const rows = await Favorite.find({ client: clientId, itemType: { $in: ['SingleCourse', 'MultiCourse'] } })
@@ -149,7 +120,6 @@ async function favoriteKeys(clientId) {
   return new Set(rows.map(f => (f.itemType === 'SingleCourse' ? 'single:' : 'multi:') + f.itemId));
 }
 
-/** กดใจ / เลิกกดใจ คอร์ส */
 async function setFavorite(clientId, kind, id, on) {
   const itemType = { single: 'SingleCourse', multi: 'MultiCourse' }[kind];
   if (!itemType) return null;
@@ -160,10 +130,9 @@ async function setFavorite(clientId, kind, id, on) {
     await Favorite.deleteOne(key);
     return false;
   }
-  // ใช้ create (ไม่ใช่ upsert) เพราะเลข _id ถูกสร้างตอน save โดย plugin autoIncrement ของทีม
   if (!await Favorite.exists(key)) {
     try { await Favorite.create(key); }
-    catch (err) { if (err.code !== 11000) throw err; }   // กดซ้ำเร็ว ๆ → มีอยู่แล้ว ไม่ต้องทำอะไร
+    catch (err) { if (err.code !== 11000) throw err; }
   }
   return true;
 }

@@ -1,20 +1,5 @@
-<%#
-  ป๊อปอัปตัวกรอง ตามแบบ Figma "ตัวกรองคอร์สเรียน / ตัวกรองสูตรอาหาร" — ใช้ร่วมกันหน้าคอร์สและหน้าสูตรของมุกดา
-  สไตล์อยู่ใน cookhub.css ข้อ 10 | เปิดด้วยปุ่ม id="openFilter"
-  ใช้: include('../partials/filter-modal', { filterTitle, filterAction, filters, keep: { sort, level }, durationLabel })
-  filters มาจาก helpers/list-filters.js → readFilters()
-%>
 <%
-  // ตรงกับ tagTypes ใน services/courseCatalog.js
-  const typeOptions = locals.typeOptions || [
-    { value: 'thai', label: 'อาหารไทย' },
-    { value: 'inter', label: 'อาหารนานาชาติ' },
-    { value: 'japan', label: 'อาหารญี่ปุ่น' },
-    { value: 'chinese', label: 'อาหารจีน' },
-    { value: 'indian', label: 'อาหารอินเดีย' },
-    { value: 'bakery', label: 'ขนมหวาน & เบเกอรี่' },
-    { value: 'drink', label: 'เครื่องดื่ม' },
-  ];
+  const typeOptions = locals.typeOptions || [];
   const keepVals = locals.keep || {};
   const durationLabel = locals.durationLabel || 'ระยะเวลาเรียน';
 %>
@@ -31,9 +16,8 @@
       <button type="button" class="filter__close" data-close-filter aria-label="ปิด"><i data-lucide="x" class="ic-18"></i></button>
     </div>
 
-    <!-- ประเภทอาหาร -->
     <div class="filter__section">
-      <h3>ประเภทอาหาร</h3>
+      <h3>ประเทศ</h3>
       <% typeOptions.forEach(t => { %>
         <label class="check">
           <input type="checkbox" name="type" value="<%= t.value %>" <%= filters.types.includes(t.value) ? 'checked' : '' %>>
@@ -42,7 +26,6 @@
       <% }) %>
     </div>
 
-    <!-- ระยะเวลา (นาที) -->
     <div class="filter__section">
       <h3><%= durationLabel %></h3>
       <div class="range" data-range data-min="15" data-max="480">
@@ -53,7 +36,6 @@
       <div class="range__labels"><span data-label-min></span><span data-label-max></span></div>
     </div>
 
-    <!-- ช่วงราคา (บาท) -->
     <div class="filter__section">
       <h3>ช่วงราคา</h3>
       <div class="range" data-range data-min="0" data-max="5000" data-unit="฿">
@@ -64,7 +46,6 @@
       <div class="range__labels"><span data-label-min></span><span data-label-max></span></div>
     </div>
 
-    <!-- คะแนนรีวิว -->
     <div class="filter__section filter__section--last">
       <h3>คะแนนรีวิว</h3>
       <% [5, 4, 3, 2, 1].forEach(n => { %>
@@ -97,7 +78,6 @@
     modal.querySelectorAll('[data-close-filter]').forEach(el => el.addEventListener('click', () => setOpen(false)));
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) setOpen(false); });
 
-    // แถบเลื่อนสองหัว: กันหัวซ้ายเลยหัวขวา + อัปเดตแถบสีและตัวเลข
     modal.querySelectorAll('[data-range]').forEach(range => {
       const [lo, hi] = range.querySelectorAll('input');
       const min = +range.dataset.min, max = +range.dataset.max, unit = range.dataset.unit || '';
