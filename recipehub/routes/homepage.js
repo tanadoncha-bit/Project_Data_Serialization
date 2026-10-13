@@ -15,6 +15,7 @@ const categoryDefinitions = [
 ];
 
 router.get('/', async function(req, res, next) {
+  if (req.user && req.user.role === 'user') return res.redirect('/user');
   try {
       // นับคอร์สทั้งหมดในแต่ละหมวด ไม่จำกัดเฉพาะคอร์สยอดนิยม 6 รายการ
       const categoryCounts = await SingleCourse.aggregate([
