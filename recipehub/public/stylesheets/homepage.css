@@ -670,3 +670,62 @@ body > .categories-section{padding-bottom:28px}
 .steps-section{border-color:#e5e5e5}
 
 @media(min-width:1025px){.cta-section{max-width:1280px;width:calc(100% - 40px);padding-inline:20px;box-sizing:border-box}}
+
+
+/* =========================================
+   การ์ดคอร์สยอดนิยม — หน้าตาเดียวกับหน้า /courses
+   (คัดลอกจาก cookhub.css แบบจำกัดไว้ใต้ .popular-courses
+    เพราะโหลด cookhub.css ทั้งไฟล์จะไปทับ .hero / .see-all ของหน้านี้)
+   ========================================= */
+.popular-courses .course-grid { gap: 26px 34px; }
+.popular-courses .card {
+  display: block; background: #fff; border: 1px solid #ececec; border-radius: 10px;
+  overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.04); transition: box-shadow .2s, transform .2s;
+  color: inherit; text-decoration: none;
+}
+.popular-courses .card:hover { box-shadow: 0 8px 22px rgba(0,0,0,.08); transform: translateY(-2px); }
+.popular-courses .card__img { position: relative; aspect-ratio: 2.55 / 1; overflow: hidden; display: flex; background: var(--orange-soft); }
+.popular-courses .card__img .half { flex: 1; min-width: 0; height: 100%; }
+.popular-courses .card__img .half + .half { border-left: 2px solid #fff; }
+.popular-courses img.half, .popular-courses img.chef-mini__avatar { display: block; object-fit: cover; background: var(--orange-soft); }
+.popular-courses .img-placeholder { display: flex; align-items: center; justify-content: center; background: var(--orange-soft); color: var(--orange); }
+.popular-courses .img-placeholder svg { width: 32px; height: 32px; opacity: .7; }
+/* รูปโหลดได้  ซ่อนกรอบแทนรูป / โหลดไม่ได้  ซ่อนรูป */
+.popular-courses img[hidden], .popular-courses .img-placeholder[hidden] { display: none !important; }
+
+/* ===== ป้ายสัญชาติ สีเดียวกับ cookhub.css ===== */
+.popular-courses .tags { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; }
+.popular-courses .tag { font-size: 10px; font-weight: 500; line-height: 1; padding: 6px 11px; border-radius: 999px; }
+.popular-courses .tag--thai    { background: #f4672f; color: #fff; }
+.popular-courses .tag--inter   { background: #fdf1cf; color: #9a6b12; }
+.popular-courses .tag--japan   { background: #e6f2ff; color: #2b6cb0; }
+.popular-courses .tag--chinese { background: #fde2e2; color: #c0392b; }
+.popular-courses .tag--british { background: #e8ecf8; color: #34495e; }
+.popular-courses .tag--korean  { background: #f3e8fb; color: #7d3c98; }
+.popular-courses .tag--pack    { background: #c9a227; color: #fff; }
+
+.popular-courses .fav {
+  position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 50%;
+  background: #fff; display: grid; place-items: center; color: #ef4b4b; box-shadow: 0 1px 3px rgba(0,0,0,.12);
+}
+.popular-courses .fav svg { fill: none; }
+
+/* ===== เนื้อหาการ์ด ===== */
+.popular-courses .card__body { padding: 12px 14px; }
+.popular-courses .card__row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.popular-courses .card__title { flex: 1; min-width: 0; margin: 0; font-size: 13px; font-weight: 600; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.popular-courses .card__rating { font-size: 12px; font-weight: 500; color: var(--orange); white-space: nowrap; }
+.popular-courses .card__desc { margin: 3px 0 8px; font-size: 10.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.popular-courses .chef-mini { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; font-size: 10px; color: #555; }
+.popular-courses .chef-mini__avatar { width: 18px; height: 18px; border-radius: 50%; border: 1px solid #f2d2c0; flex-shrink: 0; }
+.popular-courses .chef-mini__avatar.img-placeholder svg { width: 11px; height: 11px; }
+.popular-courses .card__meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); }
+.popular-courses .card__meta span { display: flex; align-items: center; gap: 4px; }
+.popular-courses .card__foot { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 8px; }
+.popular-courses .price { font-size: 20px; font-weight: 500; line-height: 1; color: var(--orange); }
+.popular-courses .more { font-size: 10px; color: var(--orange); }
+.popular-courses .card:hover .more { text-decoration: underline; }
+.popular-courses .pack-icon { display: inline-block; vertical-align: -2px; margin-right: 4px; }
+.popular-courses .ic-12 { width: 12px; height: 12px; }
+.popular-courses .ic-13 { width: 13px; height: 13px; }
+.popular-courses .ic-14 { width: 14px; height: 14px; }

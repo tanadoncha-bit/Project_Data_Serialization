@@ -54,7 +54,7 @@
     <div class="course-grid">
       <% courses.forEach(c => { %>
         <% const favOn = favoriteKeys.has(c.kind + ':' + c.id); %>
-        <a href="<%= c.url %>" class="card course-card">
+          <a href="<%= c.url %>" class="card course-card" <%= loggedIn ? '' : 'data-open-login' %>>
           <div class="card__img">
             <% (c.images && c.images.length ? c.images : ['']).forEach(img => { %>
               <%- include('_image', { src: img, alt: c.title, cls: 'half' }) %>

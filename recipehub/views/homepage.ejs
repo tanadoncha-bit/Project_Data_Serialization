@@ -65,25 +65,48 @@
       <% if (courses.length === 0) { %>
         <p>ยังไม่มีคอร์สเรียนในขณะนี้</p>
       <% } %>
-      <% courses.forEach(course => { %>
-      <div class="course-card">
-        <div class="course-image">
-          <img src="<%= course.cover_image_url %>" alt="<%= course.title %>" loading="lazy">
-          <span class="badge"><%= course.category %></span>
+      <% const guest = typeof currentUser === 'undefined' || !currentUser; %>
+      <% courses.forEach(c => { %>
+      <%# ยังไม่ login: กดการ์ดแล้วเปิดหน้าต่าง login แทนการเข้าดูรายละเอียด %>
+      <a href="<%= c.url %>" class="card course-card" <%= guest ? 'data-open-login' : '' %>>
+        <div class="card__img">
+          <% (c.images && c.images.length ? c.images : ['']).forEach(img => { %>
+            <%- include('user/_image', { src: img, alt: c.title, cls: 'half' }) %>
+          <% }) %>
+          <div class="tags">
+            <span class="tag tag--<%= c.tagType %>"><%= c.tag %></span>
+            <% if (c.isPack) { %><span class="tag tag--pack">แพ็กเกจ</span><% } %>
+          </div>
+          <span class="fav" aria-hidden="true"><i data-lucide="heart" class="ic-14"></i></span>
+        </div>
 
-        </div>
-        <div class="course-content">
-          <div class="course-title-row">
-            <h3><%= course.title %></h3>
+        <div class="card__body">
+          <div class="card__row">
+            <h3 class="card__title">
+              <% if (c.isPack) { %><i data-lucide="package" class="ic-13 pack-icon"></i><% } %>
+              <%= c.title %>
+            </h3>
+            <span class="card__rating"><%= c.rating == null ? 'ใหม่' : '★ ' + c.rating.toFixed(1) %></span>
           </div>
-          <p class="course-desc"><%= course.description %></p>
-          <div class="course-meta">
-            <span><i class="far fa-play-circle"></i> <%= course.lesson_count %> บทเรียน</span>
-            <span><i class="far fa-clock"></i> <%= course.duration_text %></span>
-            <span><i class="far fa-user"></i> <%= course.student_count %> ผู้ซื้อ</span>
+          <p class="card__desc"><%= c.description %></p>
+
+          <div class="chef-mini">
+            <%- include('user/_image', { src: c.chefAvatar, alt: '', cls: 'chef-mini__avatar', icon: 'user' }) %>
+            <%= c.chef %>
+          </div>
+
+          <div class="card__meta">
+            <span><i data-lucide="circle-play" class="ic-12"></i> <%= c.lessons %> บทเรียน</span>
+            <span><i data-lucide="clock-3" class="ic-12"></i> <%= c.duration %></span>
+            <span><i data-lucide="users" class="ic-12"></i> <%= c.students %> คนเรียน</span>
+          </div>
+
+          <div class="card__foot">
+            <span class="price">฿<%= c.price.toLocaleString('en-US') %></span>
+            <span class="more">ดูรายละเอียด →</span>
           </div>
         </div>
-      </div>
+      </a>
       <% }) %>
     </div>
   </section>

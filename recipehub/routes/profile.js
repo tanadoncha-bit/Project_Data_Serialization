@@ -33,7 +33,7 @@ async function loadItems(rows) {
       image: doc.image || '',
       price: row.amountPaid ?? doc.price ?? 0,
       date: row.purchasedAt || row.createdAt,
-      url: row.itemType === 'Recipe' ? `/recipes/${doc._id}` : `/courses/${doc._id}`,
+            url: row.itemType === 'Recipe' ? `/recipes/${doc._id}` : row.itemType === 'MultiCourse' ? `/courses/pack/${doc._id}` : `/courses/${doc._id}`,
     };
   }));
   return items.filter(Boolean);
