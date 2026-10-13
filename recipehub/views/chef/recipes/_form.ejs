@@ -1,11 +1,12 @@
 <% const editing = !!recipe._id; const ingredients = recipe.ingredients && recipe.ingredients.length ? recipe.ingredients : [{ name: '', amount: '' }]; const steps = recipe.steps && recipe.steps.length ? recipe.steps : [{ description: '' }]; const categoryOptions = recipeCategories; const selectedCategory = localCountry(recipe.category || 'Thai'); %>
-<div class="recipe-modal-heading"><div><h2><i data-lucide="<%= editing ? 'pencil-line' : 'chef-hat' %>"></i> <%= editing ? 'แก้ไขสูตรอาหาร' : 'สร้างสูตรอาหารของคุณ' %></h2><p>กรอกรายละเอียดสูตรอาหารเพื่อแบ่งปันความอร่อย</p></div><a href="/chef/recipes" class="recipe-modal-close" data-close-recipe aria-label="ปิดฟอร์ม"><i data-lucide="x" aria-hidden="true"></i></a></div>
+<div class="recipe-modal-heading"><div><h2><i data-lucide="<%= editing ? 'pencil-line' : 'chef-hat' %>"></i> <%= editing ? 'แก้ไขสูตรอาหาร' : 'สร้างสูตรอาหารของคุณ' %></h2><p>กรอกรายละเอียดสูตรอาหารเพื่อแบ่งปันความอร่อย</p></div><% if(typeof fullPage === 'undefined' || !fullPage) { %><a href="/chef/recipes" class="recipe-modal-close" data-close-recipe aria-label="ปิดฟอร์ม"><i data-lucide="x" aria-hidden="true"></i></a><% } %></div>
 <% if (errors.length) { %><div class="recipe-alert recipe-error" role="alert"><ul><% errors.forEach(error => { %><li><%= error %></li><% }); %></ul></div><% } %>
 <form method="post" action="/chef/recipes<%= editing ? '/' + recipe._id : '' %>" class="recipe-form" data-recipe-wizard novalidate>
   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
   <nav class="recipe-wizard-nav" aria-label="ขั้นตอนสร้างสูตร"><% ['ข้อมูลเมนู','วัตถุดิบ','วิธีทำและตรวจสอบ'].forEach((label,i)=>{ %><button type="button" data-wizard-goto="<%= i %>" <%= i===0 ? 'aria-current="step"' : '' %>><span><%= i+1 %></span><%= label %></button><% }); %></nav>
   <p class="recipe-wizard-progress" aria-live="polite">ขั้นที่ 1 จาก 3 · ข้อมูลเมนู</p>
   <section data-wizard-panel="0" class="recipe-wizard-panel">
+  <div class="recipe-menu-layout">
   <div class="recipe-form-grid">
     <label>ชื่ออาหาร / เมนู <span class="recipe-required">*</span><input name="title" value="<%= recipe.title || '' %>" maxlength="200" placeholder="เช่น ต้มยำกุ้งน้ำข้นสูตรโบราณ" required></label>
     <div class="recipe-category-field"><span id="recipe-category-label">หมวดหมู่</span><details class="recipe-difficulty-control recipe-form-dropdown"><summary aria-labelledby="recipe-category-label recipe-category-value"><span id="recipe-category-value" data-dropdown-value><%= countryLabel(selectedCategory) %></span><i data-lucide="chevron-down" aria-hidden="true"></i></summary><div class="recipe-difficulty-menu" role="group" aria-labelledby="recipe-category-label"><% categoryOptions.forEach(category=>{ %><label class="recipe-difficulty-option"><input type="radio" name="category" value="<%= category %>" <%= selectedCategory===category ? 'checked' : '' %> required><span><%= countryLabel(category) %></span></label><% }); %></div></details></div>
@@ -14,9 +15,12 @@
     <label class="recipe-wide">คำอธิบายสูตรอาหาร<textarea name="description" rows="3" maxlength="10000" placeholder="เล่าจุดเด่น รสชาติ หรือเรื่องราวของเมนูนี้"><%= recipe.description || '' %></textarea></label>
     <input type="hidden" name="image" value="<%= recipe.image || '' %>">
   </div>
+  <div class="recipe-menu-image">
   <input type="file" data-recipe-image-file accept="image/jpeg,image/png,image/webp" hidden>
   <button type="button" class="recipe-image-preview recipe-image-upload" data-pick-recipe-image><img data-wizard-image alt="รูปเมนูที่เลือก" hidden><span data-image-placeholder><i data-lucide="image-plus" aria-hidden="true"></i><strong>คลิกเพื่อเลือกรูปเมนู</strong><small>JPG, PNG หรือ WebP · ไม่เกิน 5 MB</small></span><span class="recipe-image-replace" hidden>คลิกเพื่อเปลี่ยนรูป</span></button>
   <p data-image-status class="recipe-image-status" role="status" aria-live="polite"></p>
+  </div>
+  </div>
   </section>
   <section data-wizard-panel="1" class="recipe-wizard-panel" hidden>
   <p class="recipe-wizard-hint">แยกวัตถุดิบเป็นรายการ พร้อมปริมาณที่ใช้ต่อสูตร</p>

@@ -1,7 +1,5 @@
 // routes/profile.js — หน้าโปรไฟล์ (ผู้เรียนและเชฟใช้หน้าเดียวกัน เชฟมีช่องสถาบันเพิ่ม)
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
 const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const Client = require('../models/Client');
@@ -16,18 +14,8 @@ const { usernameQuery } = require('./auth');
 const router = express.Router();
 router.use(requireLogin);
 
-const AVATAR_DIR = path.join(__dirname, '..', 'public', 'uploads', 'avatars');
-fs.mkdirSync(AVATAR_DIR, { recursive: true });
-
-/** ตั้งค่า multer: เก็บรูปใน public/uploads/avatars ชื่อไฟล์ = id ผู้ใช้-เวลา.นามสกุล รับเฉพาะรูป ไม่เกิน 2MB */
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: AVATAR_DIR,
-    filename: (req, file, cb) => cb(null, `${req.user._id}-${Date.now()}${path.extname(file.originalname).toLowerCase()}`),
-  }),
-  limits: { fileSize: 2 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => cb(null, /^image\/(jpeg|png|gif|webp)$/.test(file.mimetype)),
-});
+const avatarImages = require('../services/avatarImages');
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024, files: 1 } });
 
 const itemModels = { Recipe, SingleCourse, MultiCourse };
 const itemLabels = { Recipe: 'สูตรอาหาร', SingleCourse: 'คอร์สเรียน', MultiCourse: 'แพ็กคอร์ส' };
@@ -127,19 +115,15 @@ router.post('/', async (req, res, next) => {
 router.post('/avatar', (req, res, next) => {
   upload.single('avatar')(req, res, async (err) => {
     try {
-      if (err) return next(err);
+      if (err) return res.status(400).json({ error: 'รูปต้องมีขนาดไม่เกิน 2 MB และส่งได้ครั้งละหนึ่งรูป' });
       if (!req.file) return res.status(400).json({ error: 'รองรับเฉพาะไฟล์รูป jpg, png, gif, webp' });
 
-      const avatar = `/uploads/avatars/${req.file.filename}`;
-      const old = await Client.findByIdAndUpdate(req.user._id, { avatar }).select('avatar').lean();
-
-  
-      if (old && old.avatar && old.avatar.startsWith('/uploads/avatars/')) {
-        fs.unlink(path.join(AVATAR_DIR, path.basename(old.avatar)), () => {});
-      }
+      const avatar = await avatarImages.store(req.file.buffer, req.user._id);
+      const updated = await Client.updateOne({ _id: req.user._id }, { $set: { avatar } }, { runValidators: true });
+      if (!updated.matchedCount) return res.status(404).json({ error: 'ไม่พบผู้ใช้' });
       res.json({ avatar });
     } catch (e) {
-      next(e);
+      res.status(502).json({ error: 'อัปโหลดรูปโปรไฟล์ไม่สำเร็จ กรุณาใช้ JPG, PNG, GIF หรือ WebP ไม่เกิน 2 MB หรือลองใหม่' });
     }
   });
 });

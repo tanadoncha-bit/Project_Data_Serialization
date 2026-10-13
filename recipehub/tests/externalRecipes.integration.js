@@ -67,7 +67,7 @@ async function main() {
   page = await get('/recipes?minPrice=0&minDuration=0');
   assert(page.html.includes('API meal 0'));
   page = await get('/recipes?difficulty=EASY');
-  assert(page.html.includes('Local recipe') && !page.html.includes('API meal 0'));
+  assert(page.html.includes('API meal 0')); // Legacy difficulty parameters no longer exclude API meals.
   page = await get('/recipes/external/90000?fragment=1');
   assert.equal(page.status, 200);
   assert(page.html.includes('API ingredient') && page.html.includes('&lt;script&gt;'));

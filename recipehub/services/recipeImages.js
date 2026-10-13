@@ -4,7 +4,9 @@ const { createHash, randomBytes } = require('node:crypto');
 const directory = path.join(__dirname, '../public/uploads/recipes');
 const validName = /^[a-f0-9]{32}\.(jpg|png|webp)$/;
 let queue = Promise.resolve();
-function store(buffer, extension) {
+async function store(buffer, extension) {
+  const cloudUrl = await require('./cloudinaryRecipeImages').store(buffer, extension);
+  if (cloudUrl) return cloudUrl;
   const operation = queue.then(async () => {
     await fs.mkdir(directory, { recursive: true });
     const hash = createHash('sha256').update(buffer).digest('hex');

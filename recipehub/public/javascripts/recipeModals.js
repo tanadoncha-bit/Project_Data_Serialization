@@ -304,7 +304,7 @@
   });
   document.addEventListener('submit', async event => {
     const form = event.target;
-    if (!form.matches('.recipe-form') || !dialog || !dialog.contains(form)) return;
+    if (!form.matches('.recipe-form') || !content || !content.contains(form)) return;
     event.preventDefault();
     const button = form.querySelector('button[type=submit]');
     button.disabled = true;
@@ -314,6 +314,7 @@
       const response = await fetch(url, { method: 'POST', body: new URLSearchParams(new FormData(form)) });
       if (response.status === 422) {
         content.innerHTML = await response.text();
+        if (!dialog) content.querySelectorAll('.recipe-modal-close').forEach(button=>button.remove());
         pinPreviewClose();
       initWizard();
         icons();

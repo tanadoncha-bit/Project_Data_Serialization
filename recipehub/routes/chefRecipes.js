@@ -17,7 +17,7 @@ router.use((req, res, next) => {
 });
 
 async function ownRecipes(req) {
-  return (await Recipe.find({ publisher: req.recipeChefId }).select('title category level difficulty price image duration rating reviewCount ingredients.name steps.stepNumber').sort({ createdAt: -1 }).lean()).map(support.recipeView);
+  return (await Recipe.find({ publisher: req.recipeChefId }).select('title category price image duration rating reviewCount ingredients.name steps.stepNumber').sort({ createdAt: -1 }).lean()).map(support.recipeView);
 }
 
 async function renderList(req, res, initialModal = null, status = 200) {
@@ -46,12 +46,12 @@ router.post('/upload-image', (req,res,next)=>{
     const b=req.file.buffer;
     const ext=b.length>3&&b[0]===255&&b[1]===216&&b[2]===255?'jpg':b.length>8&&b.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))?'png':b.length>12&&b.toString('ascii',0,4)==='RIFF'&&b.toString('ascii',8,12)==='WEBP'?'webp':null;
     if(!ext)return res.status(400).json({error:'รองรับเฉพาะรูป JPG, PNG และ WebP'});
-    try { res.json({image:await recipeImages.store(b,ext)}); }catch(error){next(error);}
+    try { res.json({image:await recipeImages.store(b,ext)}); }catch(error){res.status(502).json({error: 'อัปโหลดรูปไม่สำเร็จ กรุณาตรวจการตั้งค่าหรือลองใหม่'});}
   });
 });
 
 router.get('/create', support.asyncRoute(async (req, res) => {
-  await renderModal(req, res, 'form', { price: 0, difficulty: 'EASY', category: 'อาหารไทย', ingredients: [], steps: [] });
+  await renderModal(req, res, 'form', { price: 0, category: 'อาหารไทย', ingredients: [], steps: [] });
 }));
 
 router.post('/', support.asyncRoute(async (req, res) => {
@@ -70,7 +70,11 @@ router.param('id', support.asyncRoute(async (req, res, next) => {
   next();
 }));
 
-router.get('/:id', support.asyncRoute(async (req, res) => renderModal(req, res, 'preview', req.recipe)));
+router.get('/:id', support.asyncRoute(async (req, res) => {
+  const recipe = req.recipe.toObject();
+  recipe.publisher = res.locals.recipeChefInfo;
+  await renderModal(req, res, 'preview', recipe);
+}));
 
 router.get('/:id/edit', support.asyncRoute(async (req, res) => renderModal(req, res, 'form', req.recipe)));
 
