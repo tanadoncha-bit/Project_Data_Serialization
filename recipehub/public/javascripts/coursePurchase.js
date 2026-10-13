@@ -1,6 +1,5 @@
 // coursePurchase.js — ปุ่ม "ซื้อคอร์สนี้" (data-buy-course data-kind="single|multi" data-id="1")
 (function () {
-  const icons = () => { if (window.lucide) window.lucide.createIcons(); };
   const baht = n => '฿' + Number(n).toLocaleString('th-TH');
 
   let toastTimer;
@@ -12,8 +11,7 @@
       el.className = 'ck-toast';
       el.setAttribute('role', 'status');
     }
-    const host = document.querySelector('#course-dialog[open]') || document.body;
-    if (el.parentNode !== host) host.append(el);
+    if (!el.isConnected) document.body.append(el);
     el.textContent = message;
     el.classList.toggle('is-error', Boolean(isError));
     el.classList.add('show');
@@ -34,19 +32,10 @@
     return data;
   }
 
-  /** หลังซื้อสำเร็จ: กดจากหน้าต่างเด้ง → โหลดเนื้อหาคอร์สใหม่ / หน้าเต็ม → รีเฟรช */
-  async function afterPurchase(button, url, message) {
-    const content = button.closest('#course-dialog-content');
-    if (content && content.isConnected) {
-      try {
-        const res = await fetch(url + '?fragment=1', { headers: { Accept: 'text/html' } });
-        if (res.ok) { content.innerHTML = await res.text(); icons(); }
-      } catch (_) {}
-      toast(message);
-    } else {
-      sessionStorageSet('ck-toast', message);
-      location.reload();
-    }
+  /** หลังซื้อสำเร็จ: เปิดหน้าคอร์ส (หน้าเดิมจะรีเฟรช) แล้วแจ้งเตือน */
+  function afterPurchase(button, url, message) {
+    sessionStorageSet('ck-toast', message);
+    if (location.pathname === url) location.reload(); else location.href = url;
   }
   function sessionStorageSet(k, v) { try { sessionStorage.setItem(k, v); } catch (_) {} }
   try { const m = sessionStorage.getItem('ck-toast'); if (m) { sessionStorage.removeItem('ck-toast'); toast(m); } } catch (_) {}
@@ -77,7 +66,7 @@
       try {
         await getJson('/courses/checkout/' + info.kind + '/' + info.id, { method: 'POST', headers: { Accept: 'application/json', 'X-CSRF-Token': info.csrf } });
         d.close();
-        await afterPurchase(button, info.url, 'ซื้อคอร์สจำลองสำเร็จ เริ่มเรียนได้เลย');
+        afterPurchase(button, info.url, 'ซื้อคอร์สจำลองสำเร็จ เริ่มเรียนได้เลย');
       } catch (err) {
         d.querySelector('.ck-pay__status').textContent = err.message;
         confirm.disabled = false;
@@ -127,7 +116,7 @@
         if (!d.open) return;
         if (order.status === 'paid') {
           stop(); d.close();
-          await afterPurchase(button, info.url, info.test ? 'ทดสอบจ่ายเงินสำเร็จ เริ่มเรียนได้เลย' : 'ชำระเงินสำเร็จ เริ่มเรียนได้เลย');
+          afterPurchase(button, info.url, info.test ? 'ทดสอบจ่ายเงินสำเร็จ เริ่มเรียนได้เลย' : 'ชำระเงินสำเร็จ เริ่มเรียนได้เลย');
           return;
         }
         if (order.status === 'failed' || order.status === 'expired') {
@@ -165,7 +154,6 @@
     };
 
     d.showModal();
-    if (info.activeOrder) { orderId = info.activeOrder.id; create.hidden = true; show(info.activeOrder); check(); }
   }
 
   document.addEventListener('click', async (e) => {

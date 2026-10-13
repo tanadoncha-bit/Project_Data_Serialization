@@ -2,9 +2,10 @@
 <html lang="th">
 <head>
   <%- include('../partials/head', { title: 'คอร์สเรียน' }) %>
+  <link rel="stylesheet" href="/stylesheets/recipes.css">
   <link rel="stylesheet" href="/stylesheets/cookhub.css">
 </head>
-<body data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
+<body class="recipe-site public-recipe-site" data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
   <%- include('../partials/navbar', { active: 'courses', recipePublicNav: true }) %>
 
   <main class="cookhub">
@@ -24,35 +25,21 @@
     </div>
   </section>
 
-  <div class="container container--wide course-list">
+  <div class="container container--wide course-list public-recipe-page">
 
-    <!-- ================= แถบเครื่องมือ ================= -->
-    <div class="toolbar">
-      <form class="toolbar__bar" method="get" action="/courses">
-        <% Object.keys(filterQuery).forEach(k => { [].concat(filterQuery[k]).forEach(v => { %>
-          <input type="hidden" name="<%= k %>" value="<%= v %>">
-        <% }) }) %>
-        <input type="hidden" name="sort" value="<%= sort %>">
-        <div class="toolbar__group">
-          <span class="toolbar__label">ระดับ:</span>
-          <%- include('_levelSelect', { levels, level }) %>
-        </div>
+    <!-- ================= แถบเครื่องมือ (แบบเดียวกับหน้าสูตร: views/partials/browse-controls.ejs) ================= -->
+    <form method="get" action="/courses" id="recipe-browse-form">
+      <%- include('../partials/browse-controls', {
+            filters: filters,
+            browseConfig: {
+              sourceLabel: 'ระดับ',
+              sourceOptions: sourceOptions,
+              sortOptions: [['popular', 'ยอดนิยม'], ['rating', 'คะแนนสูงสุด'], ['latest', 'ใหม่ล่าสุด']]
+            }
+          }) %>
+    </form>
 
-        <div class="toolbar__group">
-          <span class="toolbar__label">เรียงตาม:</span>
-          <% sorts.forEach(s => { %>
-            <a href="<%= makeUrl({ sort: s.value, page: 1 }) %>" class="sort-pill <%= sort === s.value ? 'active' : '' %>"><%= s.label %></a>
-          <% }) %>
-        </div>
-      </form>
-
-      <button class="filter-btn" type="button" id="openFilter">
-        <i data-lucide="sliders-horizontal" class="ic-18"></i>
-        ตัวกรอง
-      </button>
-    </div>
-
-    <p class="result-count">ผลลัพธ์ <%= total %> คอร์ส</p>
+    <p class="recipe-results-count">ผลลัพธ์ <strong><%= total %></strong> คอร์ส</p>
 
     <% if (!courses.length) { %>
       <section class="empty-state">
@@ -67,7 +54,7 @@
     <div class="course-grid">
       <% courses.forEach(c => { %>
         <% const favOn = favoriteKeys.has(c.kind + ':' + c.id); %>
-        <a href="<%= c.url %>" class="card course-card" data-course-modal>
+        <a href="<%= c.url %>" class="card course-card">
           <div class="card__img">
             <% (c.images && c.images.length ? c.images : ['']).forEach(img => { %>
               <%- include('_image', { src: img, alt: c.title, cls: 'half' }) %>
@@ -122,33 +109,26 @@
       <% }) %>
     </div>
 
-    <!-- ================= เลขหน้า (‹ 1 / 3 › แบบหน้าสูตร) ================= -->
-    <nav class="pagination" aria-label="เลขหน้า">
-      <% if (page > 1) { %>
-        <a href="<%= makeUrl({ page: page - 1 }) %>" class="arrow" aria-label="หน้าก่อน"><i data-lucide="chevron-left" class="ic-14"></i></a>
-      <% } %>
-      <span class="current" aria-current="page"><%= page %></span>
-      <span class="total">/ <%= totalPages %></span>
-      <% if (page < totalPages) { %>
-        <a href="<%= makeUrl({ page: page + 1 }) %>" class="arrow" aria-label="หน้าถัดไป"><i data-lucide="chevron-right" class="ic-14"></i></a>
-      <% } %>
+    <!-- ================= เลขหน้า (แบบเดียวกับหน้าสูตร) ================= -->
+    <nav class="recipe-pagination" aria-label="หน้ารายการคอร์ส">
+      <% if (page > 1) { %><a href="/courses?<%= pageQuery %>&amp;page=<%= page - 1 %>" aria-label="หน้าก่อนหน้า">‹</a><% } %>
+      <span aria-current="page"><%= page %></span><span class="recipe-pagination-total">/ <%= totalPages %></span>
+      <% if (page < totalPages) { %><a href="/courses?<%= pageQuery %>&amp;page=<%= page + 1 %>" aria-label="หน้าถัดไป">›</a><% } %>
     </nav>
   </div>
   </main>
 
-  <%- include('../partials/filter-modal', {
-        filterTitle: 'ตัวกรองคอร์สเรียน',
-        filterAction: '/courses',
+  <%# ตัวกรองแบบเลื่อนออกจากด้านข้าง (แบบเดียวกับหน้าสูตร: views/partials/browse-filter.ejs) %>
+  <%- include('../partials/browse-filter', {
         filters: filters,
-        typeOptions: types,
-        keep: { sort: sort, level: level }
+        countryOptions: countryOptions,
+        countryLabel: countryLabel,
+        filterConfig: { title: 'ตัวกรองคอร์สเรียน', durationTitle: 'ระยะเวลาเรียน (นาที)' }
       }) %>
 
   <%- include('../partials/footer') %>
 
-  <%- include('_courseDialog') %>
   <script src="/javascripts/userFavorites.js"></script>
-  <script src="/javascripts/userUi.js"></script>
-  <script src="/javascripts/coursePurchase.js"></script>
+  <script src="/javascripts/recipeModals.js" defer></script>
 </body>
 </html>

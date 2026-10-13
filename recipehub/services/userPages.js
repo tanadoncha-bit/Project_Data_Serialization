@@ -93,7 +93,7 @@ const youtubeId = url => (String(url || '').match(/(?:youtu\.be\/|v=|embed\/)([\
 const levelLabel = { BEGINNER: 'เริ่มต้น', INTERMEDIATE: 'ปานกลาง', ADVANCED: 'ขั้นสูง' };
 const toList = v => (Array.isArray(v) ? v.map(String).map(s => s.trim()).filter(Boolean) : []);
 
-/** ข้อมูลรายละเอียดคอร์ส ใช้ทั้งหน้าต่างเด้ง (?fragment=1) และหน้าเต็ม (ดูวิดีโอ) */
+/** ข้อมูลหน้ารายละเอียดคอร์ส (บทเรียน, ผู้สอน, สิทธิ์ดูวิดีโอ) */
 async function loadCourseDetail(kind, id, clientId) {
   const courses = await catalog.loadCourses();
   const course = courses.find(c => c.kind === kind && c.id === id);

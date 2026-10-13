@@ -3,7 +3,7 @@ const SingleCourse = require('../models/SingleCourse');
 const MultiCourse = require('../models/MultiCourse');
 const Transaction = require('../models/Transaction');
 const Favorite = require('../models/Favorite');
-const { countryOptions, countryLabel, localCountry } = require('./recipeCountries');
+const { countryLabel, localCountry } = require('./recipeCountries');
 
 const levelOptions = [
   { value: 'all', label: 'ทั้งหมด', desc: 'แสดงทุกระดับ' },
@@ -15,10 +15,9 @@ const levelRank = { BEGINNER: 1, INTERMEDIATE: 2, ADVANCED: 3 };
 
 /** หมวดของสูตร → ป้ายประเทศ (รายการเดียวกับตัวกรองหน้าสูตร services/recipeCountries.js) */
 const tagKey = { Thai: 'thai', British: 'british', Chinese: 'chinese', Japanese: 'japan', Korean: 'korean', International: 'inter' };
-const tagTypes = countryOptions.map(country => ({ value: tagKey[country], label: countryLabel(country) }));
 function tagFor(category) {
   const country = localCountry(category);
-  return { tag: countryLabel(country), tagType: tagKey[country] };
+  return { tag: countryLabel(country), tagType: tagKey[country], country };
 }
 
 /** นาที → "2 ชม. 30 นาที" */
@@ -78,6 +77,7 @@ function mapPack(pack, singleById, students) {
     description: pack.description || items.map(c => c.title).join(' & '),
     tag: first.tag || 'แพ็กคอร์ส',
     tagType: first.tagType || 'inter',
+    country: first.country || 'International',
     isPack: true,
     level,
     rating: rated.length ? rated.reduce((s, c) => s + c.rating, 0) / rated.length : null,
@@ -148,4 +148,4 @@ async function setFavorite(clientId, kind, id, on) {
   return true;
 }
 
-module.exports = { tagTypes, levelOptions, loadCourses, favoriteKeys, setFavorite, tagFor, formatDuration, formatCount };
+module.exports = { levelOptions, loadCourses, favoriteKeys, setFavorite, tagFor, formatDuration, formatCount };
