@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <%# head / navbar / footer ใช้ของเพื่อน (views/partials) — ไฟล์นี้เปลี่ยนแค่เนื้อหา %>
+  <%- include('../partials/head', { title: 'คอร์สเรียน' }) %>
+  <link rel="stylesheet" href="/stylesheets/cookhub.css">
+</head>
+<body data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
+  <%- include('../partials/navbar', { active: 'courses', recipePublicNav: true }) %>
+
+  <main class="cookhub">
+
+  <!-- ================= Hero ================= -->
+  <section class="hero hero--list hero--courses">
+    <div class="hero__content">
+      <h1 class="hero__title">
+        <span class="l1">Find Your</span>
+        <span class="l2">Perfect Course</span>
+      </h1>
+      <p class="hero__desc">
+        เลือกคอร์สที่ใช่ แล้วเริ่มทำเมนูที่ชอบ<br>
+        เรียนรู้จากเชฟผู้เชี่ยวชาญ ตั้งแต่พื้นฐานจนถึงมืออาชีพ<br>
+        ครบทุกสไตล์อาหาร ทั้งคาว หวาน และอาหารนานาชาติ
+      </p>
+    </div>
+  </section>
+
+  <div class="container container--wide">
+
+    <!-- ================= แถบเครื่องมือ ================= -->
+    <div class="toolbar">
+      <form class="toolbar__bar" method="get" action="/courses">
+        <% Object.keys(filterQuery).forEach(k => { [].concat(filterQuery[k]).forEach(v => { %>
+          <input type="hidden" name="<%= k %>" value="<%= v %>">
+        <% }) }) %>
+        <input type="hidden" name="sort" value="<%= sort %>">
+        <div class="toolbar__group">
+          <span class="toolbar__label">ระดับ:</span>
+          <div class="level-select">
+            <select name="level" onchange="this.form.submit()">
+              <% levels.forEach(l => { %>
+                <option value="<%= l.value %>" <%= level === l.value ? 'selected' : '' %>><%= l.label %></option>
+              <% }) %>
+            </select>
+            <i data-lucide="chevron-down" class="ic-12"></i>
+          </div>
+        </div>
+
+        <div class="toolbar__group">
+          <span class="toolbar__label">เรียงตาม:</span>
+          <% sorts.forEach(s => { %>
+            <a href="<%= makeUrl({ sort: s.value, page: 1 }) %>" class="sort-pill <%= sort === s.value ? 'active' : '' %>"><%= s.label %></a>
+          <% }) %>
+        </div>
+      </form>
+
+      <button class="filter-btn" type="button" id="openFilter">
+        <i data-lucide="sliders-horizontal" class="ic-18"></i>
+        ตัวกรอง
+      </button>
+    </div>
+
+    <p class="result-count">ผลลัพธ์ <%= total %> คอร์ส</p>
+
+    <% if (!courses.length) { %>
+      <section class="empty-state">
+        <i data-lucide="book-open" class="ic-30"></i>
+        <h2>ยังไม่มีคอร์สที่ตรงกับเงื่อนไข</h2>
+        <p>ลองเปลี่ยนระดับหรือตัวกรองดูนะ</p>
+        <a href="/courses" class="btn btn--outline">ล้างตัวกรอง</a>
+      </section>
+    <% } %>
+
+    <!-- ================= รายการคอร์ส (จาก database) ================= -->
+    <div class="course-grid">
+      <% courses.forEach(c => { %>
+        <% const favOn = favoriteKeys.has(c.kind + ':' + c.id); %>
+        <a href="<%= c.url %>" class="card course-card">
+          <div class="card__img">
+            <% (c.images && c.images.length ? c.images : ['']).forEach(img => { %>
+              <%- include('_image', { src: img, alt: c.title, cls: 'half' }) %>
+            <% }) %>
+            <div class="tags">
+              <span class="tag tag--<%= c.tagType %>"><%= c.tag %></span>
+              <% if (c.isPack) { %><span class="tag tag--pack">แพ็กเกจ</span><% } %>
+            </div>
+            <button class="fav <%= favOn ? 'on' : '' %>" type="button" data-fav-url="/courses/favorites/<%= c.kind %>/<%= c.id %>" aria-pressed="<%= favOn %>" aria-label="รายการโปรด">
+              <i data-lucide="heart" class="ic-14"></i>
+            </button>
+          </div>
+
+          <div class="card__body">
+            <div class="card__row">
+              <h3 class="card__title">
+                <% if (c.isPack) { %>
+                  <i data-lucide="package" class="ic-13 pack-icon"></i>
+                <% } %>
+                <%= c.title %>
+              </h3>
+              <span class="card__rating"><%= c.rating == null ? 'ใหม่' : '★ ' + c.rating.toFixed(1) %></span>
+            </div>
+            <p class="card__desc"><%= c.description %></p>
+
+            <div class="chef-mini">
+              <%- include('_image', { src: c.chefAvatar, alt: '', cls: 'chef-mini__avatar', icon: 'user' }) %>
+              <%= c.chef %>
+            </div>
+
+            <div class="card__meta">
+              <span>
+                <i data-lucide="circle-play" class="ic-12"></i>
+                <%= c.lessons %> บทเรียน
+              </span>
+              <span>
+                <i data-lucide="clock-3" class="ic-12"></i>
+                <%= c.duration %>
+              </span>
+              <span>
+                <i data-lucide="users" class="ic-12"></i>
+                <%= c.students %> คนเรียน
+              </span>
+            </div>
+
+            <div class="card__foot">
+              <span class="price">฿<%= c.price.toLocaleString('en-US') %></span>
+              <span class="more">ดูรายละเอียด →</span>
+            </div>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+
+    <!-- ================= เลขหน้า ================= -->
+    <% if (totalPages > 1) { %>
+    <nav class="pagination" aria-label="เลขหน้า">
+      <a href="<%= makeUrl({ page: page - 1 }) %>" class="arrow <%= page <= 1 ? 'disabled' : '' %>" aria-label="หน้าก่อน">
+        <i data-lucide="chevron-left" class="ic-12"></i>
+      </a>
+      <% pageList.forEach(p => { %>
+        <% if (p === '...') { %>
+          <span>···</span>
+        <% } else if (p === page) { %>
+          <span class="current"><%= p %></span>
+        <% } else { %>
+          <a href="<%= makeUrl({ page: p }) %>" class="num"><%= p %></a>
+        <% } %>
+      <% }) %>
+      <a href="<%= makeUrl({ page: page + 1 }) %>" class="arrow <%= page >= totalPages ? 'disabled' : '' %>" aria-label="หน้าถัดไป">
+        <i data-lucide="chevron-right" class="ic-12"></i>
+      </a>
+    </nav>
+    <% } %>
+  </div>
+  </main>
+
+  <%- include('../partials/filter-modal', {
+        filterTitle: 'ตัวกรองคอร์สเรียน',
+        filterAction: '/courses',
+        filters: filters,
+        keep: { sort: sort, level: level }
+      }) %>
+
+  <%- include('../partials/footer') %>
+
+  <script src="/javascripts/userFavorites.js"></script>
+</body>
+</html>
