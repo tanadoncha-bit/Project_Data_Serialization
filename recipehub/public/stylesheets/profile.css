@@ -192,3 +192,27 @@
   .form-group label { font-size: 18px; }
   .btn-primary { width: 100%; margin-left: 0; }
 }
+
+/* ---------- ข้อความ error / สถานะเชฟ ---------- */
+.alert-error {
+  padding: 14px 20px;
+  background: #FDECEC;
+  color: #B42318;
+  border-radius: 12px;
+  margin-bottom: -16px;
+  display: grid;
+  gap: 4px;
+}
+
+.verify-pill {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 500;
+}
+.verify-pill.ok { background: #E7F7EC; color: #1E8E4E; }
+.verify-pill.wait { background: #FFF4DF; color: #A15C00; }
+
+.avatar-note { margin: 10px 0 0; font-size: 15px; color: var(--orange); }

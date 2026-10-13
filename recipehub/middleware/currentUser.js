@@ -7,7 +7,7 @@ module.exports = async function currentUser(req, res, next) {
   const id = req.session && req.session.userId;
   if (!id || mongoose.connection.readyState !== 1) return next();
   try {
-    const user = await Client.findById(id).select('name email role');
+    const user = await Client.findById(id).select('name email role avatarUrl');
     req.user = user;
     res.locals.currentUser = user;
   } catch (err) {

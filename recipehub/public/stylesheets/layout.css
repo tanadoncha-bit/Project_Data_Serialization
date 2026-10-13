@@ -381,3 +381,7 @@ button.nav-avatar { cursor: pointer; padding: 0; font: inherit; }
 
 .profile-item.logout { color: #E5484D; }
 .profile-item.logout:hover { background: #FDECEC; }
+
+/* รูปโปรไฟล์จริงในปุ่ม avatar (ถ้าเชฟอัปโหลดไว้) */
+.nav-avatar { overflow: hidden; }
+.nav-avatar-img { width: 100%; height: 100%; object-fit: cover; }
