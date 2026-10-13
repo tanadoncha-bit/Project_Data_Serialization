@@ -7,8 +7,9 @@
 
 <body class="recipe-site public-recipe-site">
   <%- include('../partials/navbar', { active, recipePublicNav: true }) %>
-  <main class="recipe-page recipe-single-page"><a href="/recipes" class="recipe-back">← สูตรอาหารทั้งหมด</a><%- include('_externalDetail', { meal, videoEmbed }) %></main>
+  <main class="recipe-page recipe-single-page"><a href="/recipes" class="recipe-back">← สูตรอาหารทั้งหมด</a><div id="recipe-page-content"><%- include('_externalDetail', { meal, videoEmbed }) %></div></main>
   <%- include('../partials/footer') %>
+  <script src="/javascripts/recipeModals.js" defer></script>
 </body>
 
 </html>

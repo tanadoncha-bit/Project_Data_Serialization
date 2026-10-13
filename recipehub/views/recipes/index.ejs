@@ -15,29 +15,7 @@
   </section>
   <main class="recipe-page public-recipe-page">
     <form method="get" action="/recipes" id="recipe-browse-form">
-      <div class="recipe-browse-controls">
-        <div class="recipe-browse-toolbar">
-          <div class="recipe-difficulty-select">
-            <span id="recipe-level-label">ประเภทสูตร:</span>
-            <details class="recipe-difficulty-control">
-              <summary aria-labelledby="recipe-level-label recipe-level-value"><span id="recipe-level-value"><%= {all:'ทั้งหมด',chef:'สูตรจากเชฟ',general:'สูตรทั่วไป'}[filters.source] %></span><i data-lucide="chevron-down" aria-hidden="true"></i></summary>
-              <div class="recipe-difficulty-menu" role="group" aria-labelledby="recipe-level-label">
-                <% [['all', 'ทั้งหมด'], ['chef', 'สูตรจากเชฟ'], ['general', 'สูตรทั่วไป']].forEach(([value, label]) => { %>
-                <label class="recipe-difficulty-option"><input type="radio" name="source" value="<%= value %>" data-submit-change <%= filters.source === value ? 'checked' : '' %>><span><%= label %></span></label>
-                <% }); %>
-              </div>
-            </details>
-          </div>
-          <div class="recipe-sort-options" role="group" aria-label="เรียงลำดับสูตรอาหาร"><span>เรียงตาม:</span>
-            <% [['popular', 'ยอดนิยม' ], ['rating', 'คะแนนสูงสุด' ], ['newest', 'ใหม่ล่าสุด' ]].forEach(([value,
-              label])=> { %><button type="button" data-sort="<%= value %>" class="<%= filters.sort === value ? 'active' : '' %>">
-              <%= label %>
-            </button>
-            <% }); %><input type="hidden" name="sort" value="<%= filters.sort %>">
-          </div>
-        </div>
-        <button type="button" class="recipe-btn recipe-filter-button" data-open-filter><i data-lucide="sliders-horizontal"></i> ตัวกรอง</button>
-      </div>
+      <%- include('../partials/browse-controls', { filters }) %>
     </form>
     <p class="recipe-results-count">ผลลัพธ์ <strong>
         <%= total %>
