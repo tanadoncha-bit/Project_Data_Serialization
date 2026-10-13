@@ -6,6 +6,8 @@ const transactionSchema = new Schema({
   buyer:      { type: Number, ref: 'Client', required: true },
   itemType:   { type: String, enum: ['Recipe', 'SingleCourse', 'MultiCourse'], required: true },
   itemId:     { type: Number, refPath: 'itemType', required: true },
+  paymentMode: { type: String, enum: ['real', 'demo', 'gateway-test'], default: 'real' },
+  providerChargeId: { type: String },
   amountPaid: { type: Number, required: true, min: 0 },
 }, { timestamps: { createdAt: 'purchasedAt', updatedAt: false } });
 

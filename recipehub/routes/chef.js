@@ -15,7 +15,7 @@ const { asyncRoute } = support;
 router.use((req, res, next) => { res.set('Cache-Control', 'private, no-store'); next(); });
 router.use(support.csrf);
 
-/** GET /chef → เด้งไปหน้า dashboard */
+/** GET /chef  เด้งไปหน้า dashboard */
 router.get('/', (req, res) => {
   res.redirect('/chef/dashboard');
 });
@@ -39,22 +39,27 @@ router.get('/dashboard', asyncRoute(async (req, res) => {
 
 /** GET /chef/courses → รายการคอร์สเดี่ยว + แพ็กเกจของเชฟ (ข้อมูลส่งให้ modal ผ่าน JSON ในหน้า) */
 router.get('/courses', asyncRoute(async (req, res) => {
-  const [courses, chef] = await Promise.all([
+  const [courses, recipes, chef] = await Promise.all([
     support.loadCourses(req.user._id),
-    Client.findById(req.user._id).select('name institution avatarUrl').lean(),
+    support.loadRecipeOptions(req.user._id),
+    Client.findById(req.user._id).select('name institution avatar').lean(),
   ]);
+  const errorText = {
+    'has-students': 'ลบไม่ได้ เพราะคอร์สนี้มีผู้ซื้อแล้ว (ผู้เรียนจะเข้าเรียนไม่ได้)',
+    'in-package': 'ลบไม่ได้ เพราะคอร์สนี้อยู่ในแพ็กเกจ ให้เอาออกจากแพ็กเกจหรือลบแพ็กเกจก่อน',
+  };
   res.render('chef/courses', {
-    title: 'จัดการคอร์ส', active: 'courses', courses, chef,
-    categories: support.categories, difficulties: support.difficulties,
-    pageData: support.safeJson({ courses, chef, csrfToken: res.locals.csrfToken }),
+    title: 'จัดการคอร์ส', active: 'courses', courses, recipes, chef,
+    difficulties: support.difficulties,
+    pageData: support.safeJson({ courses, recipes, chef, csrfToken: res.locals.csrfToken }),
     notice: { saved: 'บันทึกคอร์สเรียบร้อยแล้ว', deleted: 'ลบคอร์สเรียบร้อยแล้ว' }[req.query.status] || '',
-    error: req.query.error === 'has-students' ? 'ลบไม่ได้ เพราะคอร์สนี้มีผู้ซื้อแล้ว (ผู้เรียนจะเข้าเรียนไม่ได้)' : '',
+    error: errorText[req.query.error] || '',
   });
 }));
 
 /** POST /chef/courses → สร้างคอร์สใหม่ (รับ JSON จาก modal) ตอบ { location } หรือ 422 { errors } */
 router.post('/courses', asyncRoute(async (req, res) => {
-  const { type, data, errors } = support.parseCourse(req.body);
+  const { type, data, errors } = await support.parseCourse(req.body, req.user._id);
   if (errors.length) return res.status(422).json({ errors });
   if (type === 'single') {
     const course = new SingleCourse({ publisher: req.user._id });
@@ -79,7 +84,7 @@ const findOwnCourse = asyncRoute(async (req, res, next) => {
 
 /** POST /chef/courses/:type/:id → บันทึกการแก้ไข (ประเภทคอร์สเปลี่ยนไม่ได้) */
 router.post('/courses/:type/:id', findOwnCourse, asyncRoute(async (req, res) => {
-  const { type, data, errors } = support.parseCourse({ ...req.body, type: req.params.type });
+  const { type, data, errors } = await support.parseCourse({ ...req.body, type: req.params.type }, req.user._id);
   if (errors.length) return res.status(422).json({ errors });
   if (type === 'single') support.applySingle(req.course, data);
   else Object.assign(req.course, data);
@@ -87,72 +92,21 @@ router.post('/courses/:type/:id', findOwnCourse, asyncRoute(async (req, res) => 
   res.json({ location: '/chef/courses?status=saved' });
 }));
 
-/** POST /chef/courses/:type/:id/delete → ลบคอร์ส (กันไว้ถ้ามีคนซื้อแล้ว) */
+/** POST /chef/courses/:type/:id/delete → ลบคอร์ส (กันไว้ถ้ามีคนซื้อแล้ว หรือคอร์สเดี่ยวอยู่ในแพ็กเกจ) */
 router.post('/courses/:type/:id/delete', findOwnCourse, asyncRoute(async (req, res) => {
   const itemType = req.params.type === 'single' ? 'SingleCourse' : 'MultiCourse';
   if (await Transaction.exists({ itemType, itemId: req.course._id })) {
     return res.redirect(303, '/chef/courses?error=has-students');
   }
-  await req.course.deleteOne();
-  // ถ้าลบคอร์สเดี่ยว เอาออกจากแพ็กเกจแบบเดิมที่อ้างถึงด้วย
-  if (itemType === 'SingleCourse') {
-    await MultiCourse.updateMany({ publisher: req.user._id }, { $pull: { includedCourses: req.course._id } });
+  // แพ็กเกจต้องมีคอร์สข้างในเสมอ (validate ของ MultiCourse) จึงห้ามลบคอร์สเดี่ยวที่ยังอยู่ในแพ็ก
+  if (itemType === 'SingleCourse' && await MultiCourse.exists({ includedCourses: req.course._id })) {
+    return res.redirect(303, '/chef/courses?error=in-package');
   }
+  await req.course.deleteOne();
   res.redirect(303, '/chef/courses?status=deleted');
 }));
 
-/* =========================================================
-   โปรไฟล์
-   ========================================================= */
-
-/** แปลง Client ใน DB เป็นค่าที่ฟอร์มโปรไฟล์ใช้ */
-function profileView(client) {
-  return {
-    ...support.splitName(client.name),
-    name: client.name, email: client.email, institution: client.institution || '',
-    bio: client.bio || '', avatar: client.avatarUrl || '', isVerifiedChef: !!client.isVerifiedChef,
-  };
-}
-
-/** GET /chef/profile → แสดงข้อมูลของเชฟที่ login อยู่จาก MongoDB */
-router.get('/profile', asyncRoute(async (req, res) => {
-  const client = await Client.findById(req.user._id).lean();
-  res.render('chef/profile', {
-    title: 'โปรไฟล์', active: '', user: profileView(client), form: profileView(client),
-    saved: req.query.saved === '1', errors: [],
-  });
-}));
-
-/** POST /chef/profile → ตรวจข้อมูล แล้วอัปเดต Client ใน MongoDB */
-router.post('/profile', asyncRoute(async (req, res) => {
-  const { values, update, errors } = support.parseProfile(req.body);
-  const client = await Client.findById(req.user._id).lean();
-
-  if (!errors.length && update.email !== client.email &&
-      await Client.exists({ email: update.email, _id: { $ne: client._id } })) {
-    errors.push('อีเมลนี้มีผู้ใช้อื่นใช้แล้ว');
-  }
-  if (errors.length) {
-    // แสดงค่าที่เพิ่งกรอกกลับไปในฟอร์ม ไม่ให้ผู้ใช้ต้องพิมพ์ใหม่
-    return res.status(422).render('chef/profile', {
-      title: 'โปรไฟล์', active: '', user: profileView(client),
-      form: { ...profileView(client), ...values }, saved: false, errors,
-    });
-  }
-
-  try {
-    await Client.updateOne({ _id: client._id }, { $set: update }, { runValidators: true });
-  } catch (err) {
-    if (err.code === 11000) {
-      return res.status(422).render('chef/profile', {
-        title: 'โปรไฟล์', active: '', user: profileView(client),
-        form: { ...profileView(client), ...values }, saved: false, errors: ['อีเมลนี้มีผู้ใช้อื่นใช้แล้ว'],
-      });
-    }
-    throw err;
-  }
-  // redirect กลับแทนการ render ตรงๆ กันฟอร์มถูกส่งซ้ำตอนกดรีเฟรช
-  res.redirect(303, '/chef/profile?saved=1');
-}));
+/** GET /chef/profile → ใช้หน้า /profile ร่วมกับผู้เรียน (routes/profile.js) */
+router.get('/profile', (req, res) => res.redirect('/profile'));
 
 module.exports = router;

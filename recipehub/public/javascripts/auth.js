@@ -3,36 +3,41 @@
 const modals = {
   login: document.getElementById('loginModal'),
   register: document.getElementById('registerModal'),
+  forgot: document.getElementById('forgotModal'),
 };
 
-
+/** ปิด modal ที่เปิดอยู่ แล้วเปิดตัวที่ต้องการ (ใช้ตอนสลับ login ↔ register) */
 function openModal(name) {
   Object.values(modals).forEach((m) => m && m.open && m.close());
   modals[name].showModal();
 }
 
-
+/** ส่งข้อมูลฟอร์มเป็น JSON ไปที่ url ผ่านแล้วไปหน้าที่เซิร์ฟเวอร์บอก หรือโชว์ข้อความสำเร็จ ไม่ผ่านโชว์ error */
 function handleSubmit(form, url) {
   const errorBox = form.querySelector('.auth-error');
+  const successBox = form.querySelector('.auth-success');
   const submitBtn = form.querySelector('.auth-submit');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     errorBox.hidden = true;
+    if (successBox) successBox.hidden = true;
     submitBtn.disabled = true;
     try {
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(Object.fromEntries(new FormData(form))),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({})); // เซิร์ฟเวอร์ตอบไม่ใช่ JSON ก็ไม่พัง
       if (!res.ok) {
         errorBox.textContent = data.error || 'เกิดข้อผิดพลาด ลองใหม่อีกครั้ง';
         errorBox.hidden = false;
         return;
       }
-      window.location.href = data.redirect;
+      if (data.redirect) return (window.location.href = data.redirect);
+      successBox.textContent = data.message;
+      successBox.hidden = false;
     } catch (err) {
       errorBox.textContent = 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้ง';
       errorBox.hidden = false;
@@ -43,16 +48,16 @@ function handleSubmit(form, url) {
 }
 
 if (modals.login && modals.register) {
-  document.querySelectorAll('[data-open-login], [data-open-register]').forEach((el) => {
+  document.querySelectorAll('[data-open-login], [data-open-register], [data-open-forgot]').forEach((el) => {
     el.addEventListener('click', (e) => {
       e.preventDefault();
-      openModal(el.hasAttribute('data-open-login') ? 'login' : 'register');
+      openModal(el.hasAttribute('data-open-login') ? 'login' : el.hasAttribute('data-open-forgot') ? 'forgot' : 'register');
     });
   });
 
   Object.values(modals).forEach((modal) => {
     modal.querySelector('[data-close-auth]').addEventListener('click', () => modal.close());
-    modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
+    modal.addEventListener('cancel', (e) => e.preventDefault());
   });
 
   const regForm = document.getElementById('registerForm');
@@ -70,7 +75,6 @@ if (modals.login && modals.register) {
 
   handleSubmit(document.getElementById('loginForm'), '/login');
   handleSubmit(regForm, '/register');
-
 
   const params = new URLSearchParams(location.search);
   if (params.get('login') === '1') openModal('login');

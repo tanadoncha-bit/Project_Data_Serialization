@@ -13,6 +13,7 @@
       if (rows.children.length >= 100) return;
       const template = form.parentElement.querySelector('[data-template="' + type + '"]');
       rows.appendChild(template.content.cloneNode(true));
+      if (window.lucide) window.lucide.createIcons();
       rows.lastElementChild.querySelector('input, textarea').focus();
     } else {
       const row = button.closest('.recipe-row');

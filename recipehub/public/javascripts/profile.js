@@ -1,59 +1,56 @@
 // profile.js — การทำงานฝั่งเบราว์เซอร์ของหน้าโปรไฟล์
 
-/* ---------- ตัวนับตัวอักษรของช่องแนะนำตัว ---------- */
 const bio = document.getElementById('bio');
 const bioCount = document.getElementById('bioCount');
 
-/** อัปเดตตัวเลข x/300 ตามจำนวนตัวอักษรที่พิมพ์ */
 function updateBioCount() {
   bioCount.textContent = bio.value.length;
 }
 
 if (bio && bioCount) {
-  updateBioCount(); // นับครั้งแรกตอนเปิดหน้า (กรณีมีข้อความเดิมอยู่แล้ว)
+  updateBioCount(); 
   bio.addEventListener('input', updateBioCount);
 }
 
-/* ---------- รูปโปรไฟล์: ย่อรูปในเบราว์เซอร์ แล้วส่งไปพร้อมฟอร์ม ---------- */
+/* ---------- อัปโหลดรูปโปรไฟล์ ---------- */
 const avatarInput = document.getElementById('avatarInput');
 const avatarPreview = document.getElementById('avatarPreview');
-const avatarData = document.getElementById('avatarData');
-const avatarNote = document.getElementById('avatarNote');
-
-/**
- * ครอปรูปเป็นสี่เหลี่ยมจัตุรัสตรงกลาง ย่อเหลือ 200x200 แล้วแปลงเป็น JPEG (data URL)
- * ทำให้ไฟล์เล็ก (~15KB) เก็บใน MongoDB ได้โดยไม่ต้องมีระบบอัปโหลดไฟล์
- */
-function resizeImage(file, size = 200) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      const side = Math.min(img.width, img.height);
-      const canvas = document.createElement('canvas');
-      canvas.width = canvas.height = size;
-      canvas.getContext('2d').drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
-      URL.revokeObjectURL(img.src);
-      resolve(canvas.toDataURL('image/jpeg', 0.82));
-    };
-    img.onerror = reject;
-    img.src = URL.createObjectURL(file);
-  });
-}
+const avatarStatus = document.getElementById('avatarStatus');
 
 if (avatarInput) {
   avatarInput.addEventListener('change', async () => {
     const file = avatarInput.files[0];
-    if (!file || !file.type.startsWith('image/')) return;
+    if (!file) return;
+
+    avatarStatus.textContent = 'กำลังอัปโหลด...';
+    const body = new FormData();
+    body.append('avatar', file);
     try {
-      const dataUrl = await resizeImage(file);
-      avatarData.value = dataUrl;
-      avatarPreview.src = dataUrl;
+      const res = await fetch('/profile/avatar', { method: 'POST', body, headers: { Accept: 'application/json' } });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'อัปโหลดไม่สำเร็จ ลองใหม่อีกครั้ง');
+
+      avatarPreview.src = data.avatar;
       avatarPreview.hidden = false;
-      // Lucide แปลง <i> เป็น <svg> ไปแล้ว เลยต้องหาด้วย class แทน id
-      document.querySelector('.avatar-placeholder')?.setAttribute('hidden', '');
-      if (avatarNote) avatarNote.hidden = false;
+    
+      document.querySelector('.avatar-placeholder')?.remove();
+      avatarStatus.textContent = '';
     } catch (err) {
-      if (avatarNote) { avatarNote.textContent = 'อ่านไฟล์รูปไม่ได้ ลองเลือกรูปอื่น'; avatarNote.hidden = false; }
+      avatarStatus.textContent = err.message || 'อัปโหลดไม่สำเร็จ ลองใหม่อีกครั้ง';
+    } finally {
+      avatarInput.value = ''; 
     }
   });
 }
+
+/* ---------- แท็บ ข้อมูลส่วนตัว / รายการโปรด / ประวัติการซื้อ ---------- */
+const tabs = document.querySelectorAll('.profile-tab');
+
+tabs.forEach((tab) => {
+  tab.addEventListener('click', () => {
+    tabs.forEach((t) => t.classList.toggle('active', t === tab));
+    document.querySelectorAll('.tab-panel').forEach((panel) => {
+      panel.hidden = panel.dataset.panel !== tab.dataset.tab;
+    });
+  });
+});

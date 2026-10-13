@@ -25,9 +25,7 @@
       <a href="/chef/recipes/create" data-recipe-modal="form" class="recipe-btn recipe-primary">+ สร้างสูตรอาหาร</a>
     </div>
     <% if (saved || deleted) { %>
-    <p class="recipe-alert" role="status">
-      <%= deleted ? 'ลบสูตรอาหารเรียบร้อยแล้ว' : 'บันทึกสูตรอาหารเรียบร้อยแล้ว' %>
-    </p>
+    <span hidden data-recipe-success="<%= deleted ? 'ลบสูตรอาหารเรียบร้อยแล้ว' : 'บันทึกสูตรอาหารเรียบร้อยแล้ว' %>"></span>
     <% } %>
     <% if (!recipes.length) { %>
     <section class="recipe-empty"><i data-lucide="utensils"></i>
@@ -38,7 +36,7 @@
     <div class="recipe-grid">
       <% recipes.forEach(recipe=> { %>
       <article class="recipe-card chef-recipe-card">
-        <div class="recipe-card-photo"><a href="/chef/recipes/<%= recipe._id %>" data-recipe-modal="preview"><%- include('../../recipes/_image', { recipe }) %></a><span class="recipe-tag">
+        <div class="recipe-card-photo"><a href="/chef/recipes/<%= recipe._id %>" data-recipe-modal="preview"><%- include('../../recipes/_image', { recipe }) %></a><span class="recipe-tag recipe-tag-chef">
             <%= categoryLabels[recipe.category] || recipe.category || 'ไม่ระบุหมวดหมู่' %>
           </span></div>
         <div class="recipe-card-body">

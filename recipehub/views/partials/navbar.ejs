@@ -2,7 +2,6 @@
 <% const current = typeof active !== 'undefined' ? active : ''; %>
 <% const loggedIn = typeof currentUser !== 'undefined' && currentUser; %>
 <% const isChef = loggedIn && currentUser.role === 'chef'; %>
-<%# ผู้เรียนเห็นเมนูหน้าเว็บทั่วไปเสมอ ส่วนเชฟเห็นเมนูจัดการ (ยกเว้นหน้าที่ตั้ง recipePublicNav) %>
 <% const publicNav = !isChef || (typeof recipePublicNav !== 'undefined' && recipePublicNav); %>
 <nav class="navbar">
   <a href="#" class="nav-brand">
@@ -10,13 +9,12 @@
     <span><%= typeof brandName !== 'undefined' ? brandName : 'CookHub' %></span>
   </a>
 
-  <ul class="nav-menu">
+  <ul class="nav-menu" id="cookhubNavMenu">
     <% if (!loggedIn) { %>
-    <%# ยังไม่ login: ไม่มีเมนูตรงกลาง (ul ว่างไว้เพื่อคง layout 3 คอลัมน์) %>
     <% } else if (publicNav) { %>
-    <li><a href="/home">หน้าแรก</a></li>
-    <li><a href="/courses">คอร์ส</a></li>
-    <li><a href="/recipes" class="<%= typeof recipePublicNav !== 'undefined' && recipePublicNav ? 'active' : '' %>">สูตรอาหาร</a></li>
+    <li><a href="/home" class="<%= current === 'home' ? 'active' : '' %>">หน้าแรก</a></li>
+    <li><a href="/courses" class="<%= current === 'courses' ? 'active' : '' %>">คอร์ส</a></li>
+    <li><a href="/recipes" class="<%= current === 'recipes' ? 'active' : '' %>">สูตรอาหาร</a></li>
     <% } else { %>
     <li><a href="/chef/dashboard" class="<%= current === 'dashboard' ? 'active' : '' %>">Dashboard</a></li>
     <li><a href="/chef/courses" class="<%= current === 'courses'   ? 'active' : '' %>">จัดการคอร์ส</a></li>
@@ -25,31 +23,32 @@
   </ul>
 
   <div class="nav-actions">
+    <% if(loggedIn) { %><button type="button" class="nav-mobile-toggle" aria-label="เปิดเมนูหลัก" aria-controls="cookhubNavMenu" aria-expanded="false"><i data-lucide="menu" aria-hidden="true"></i></button><% } %>
     <% if (loggedIn) { %>
     <% if (!publicNav) { %><button class="nav-bell" aria-label="การแจ้งเตือน">
       <i data-lucide="bell"></i>
       <span class="badge-dot"></span>
     </button><% } %>
-    <!-- โปรไฟล์ + เมนูป๊อปอัพ -->
     <div class="nav-profile">
       <button class="nav-avatar" id="profileToggle" aria-label="เมนูโปรไฟล์" aria-haspopup="true" aria-expanded="false">
-        <% if (currentUser.avatarUrl) { %><img src="<%= currentUser.avatarUrl %>" alt="" class="nav-avatar-img"><% } else { %><i data-lucide="user"></i><% } %>
+        <% if (currentUser.avatar) { %>
+          <img src="<%= currentUser.avatar %>" alt="" class="nav-avatar-img">
+        <% } else { %>
+          <i data-lucide="user"></i>
+        <% } %>
       </button>
 
       <div class="profile-menu" id="profileMenu" role="menu">
-        <% if (isChef) { %>
-        <a href="/chef/profile" class="profile-item" role="menuitem">
+        <a href="/profile" class="profile-item" role="menuitem">
           <i data-lucide="user"></i> My Profile
         </a>
         <hr class="profile-divider">
-        <% } %>
         <a href="/logout" class="profile-item logout" role="menuitem">
           <i data-lucide="log-out"></i> Log Out
         </a>
       </div>
     </div>
     <% } else { %>
-    <!-- ยังไม่ login: ปุ่มเข้าสู่ระบบ + สมัครสมาชิก -->
     <div class="nav-guest">
       <button type="button" class="nav-btn nav-btn-outline" data-open-login>เข้าสู่ระบบ</button>
       <a href="/register" class="nav-btn nav-btn-fill" data-open-register>สมัครสมาชิก</a>

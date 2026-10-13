@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head><%- include('../partials/head', { title }) %>
+  <link rel="stylesheet" href="/stylesheets/recipes.css">
+</head>
+
+<body class="recipe-site public-recipe-site">
+  <%- include('../partials/navbar', { active, recipePublicNav: true }) %>
+  <main class="recipe-page recipe-single-page"><a href="/recipes" class="recipe-back">← สูตรอาหารทั้งหมด</a><%- include('_externalDetail', { meal, videoEmbed }) %></main>
+  <%- include('../partials/footer') %>
+</body>
+
+</html>
