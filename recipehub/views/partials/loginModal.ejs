@@ -7,6 +7,9 @@
 
   <form id="loginForm" class="auth-form" novalidate>
     <p class="auth-error" role="alert" hidden></p>
+    <p class="auth-success" role="status" hidden></p>
+    <%# โชว์ตอน login แล้วบัญชียังไม่ได้ยืนยันอีเมล %>
+    <button type="button" class="auth-resend" data-resend-verify hidden>ส่งลิงก์ยืนยันอีเมลอีกครั้ง</button>
 
     <label for="loginId">Username หรือ Email</label>
     <input type="text" id="loginId" name="login" placeholder="enter your username or email" autocomplete="username" required>
@@ -27,9 +30,15 @@
 
   <div class="auth-logo"><i data-lucide="key-round"></i></div>
   <h2 id="forgotTitle">ลืมรหัสผ่าน?</h2>
-  <p class="auth-sub">ระบบยังไม่รองรับการรีเซ็ตรหัสผ่านด้วยตัวเอง</p>
+  <p class="auth-sub">กรอกอีเมลที่ใช้สมัคร เราจะส่งลิงก์ตั้งรหัสผ่านใหม่ไปให้</p>
 
-  <p class="auth-success">กรุณาติดต่อผู้ดูแลระบบเพื่อรีเซ็ตรหัสผ่านของคุณ</p>
+  <form id="forgotForm" class="auth-form" novalidate>
+    <p class="auth-error" role="alert" hidden></p>
+    <p class="auth-success" role="status" hidden></p>
+    <label for="forgotEmail">Email</label>
+    <input type="email" id="forgotEmail" name="email" placeholder="enter your email" autocomplete="email" required>
+    <button type="submit" class="auth-submit">ส่งลิงก์</button>
+  </form>
 
   <p class="auth-switch">นึกออกแล้ว? <a href="#" data-open-login>กลับไปเข้าสู่ระบบ</a></p>
 </dialog>

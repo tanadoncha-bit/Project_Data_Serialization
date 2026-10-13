@@ -13,6 +13,13 @@ const clientSchema = new Schema({
   bio:            { type: String, trim: true, maxlength: 300, default: '' }, 
   avatar:         { type: String, default: '' }, 
   institution:    { type: String, trim: true, default: null }, 
+  emailVerified:  { type: Boolean, default: false },
+  pendingEmail:   { type: String, lowercase: true, trim: true, default: null },
+  verifyToken:    { type: String, default: null },
+  verifyExpires:  { type: Date, default: null },
+  resetToken:     { type: String, default: null },
+  resetExpires:   { type: Date, default: null },
+  mailSentAt:     { type: Date, default: null },
 }, { timestamps: true });
 
 clientSchema.plugin(autoIncrement, { name: 'client' });
