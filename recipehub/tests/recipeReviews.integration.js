@@ -4,7 +4,7 @@ let db,server;
 (async()=>{
  db=await MongoMemoryServer.create();await mongoose.connect(db.getUri());
  await require('../models/Client').collection.insertMany([{_id:1,email:'one@example.test',name:'Reviewer'},{_id:2,email:'two@example.test',name:'Other'}]);
- await require('../models/Recipe').collection.insertOne({_id:7,title:'Test',price:0});
+ await require('../models/Recipe').collection.insertOne({_id:7,title:'Test',price:0,publisher:2});
  api.lookup=async()=>({id:'7',title:'API'});
  const app=express();app.set('views',require('path').resolve('views'));app.set('view engine','ejs');app.use(express.json());
  const sessions={1:{},2:{}};app.use((req,res,next)=>{const id=Number(req.get('X-Test-User')||1);req.session=sessions[id]||{};req.user=id?{_id:id}:null;next()});
@@ -21,5 +21,7 @@ let db,server;
  assert.equal((await fetch(base+'/local/7',{...opts,body:JSON.stringify({rating:6,comment:''})})).status,400);
  await fetch(base+'/local/7',{method:'DELETE',headers:opts.headers});assert.equal(await Review.countDocuments(),1);
  assert.equal((await require('../models/Recipe').findById(7)).reviewCount,0);
+ const owner=await fetch(base+'/local/7',{headers:{'X-Test-User':'2'}});const ownerHtml=await owner.text();assert.equal(owner.status,200);assert(!ownerHtml.includes('class="recipe-review-form"'));assert(ownerHtml.includes('recipe-review-list'));
+ const ownerWrite=await fetch(base+'/local/7',{...opts,headers:{...opts.headers,'X-Test-User':'2','X-CSRF-Token':sessions[2].reviewCsrf}});assert.equal(ownerWrite.status,403);assert.equal(await Review.countDocuments({client:2,recipeType:'Recipe',recipeId:7}),0);
  console.log('PASS: review persistence, edit, duplicate prevention, ID isolation, escaping, CSRF, auth, rating synchronization and delete');
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(async()=>{api.lookup=original;if(server)await new Promise(r=>server.close(r));await mongoose.disconnect();if(db)await db.stop()});
