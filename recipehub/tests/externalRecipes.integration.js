@@ -119,6 +119,13 @@ async function main() {
       await p.route('https://unpkg.com/**', route => route.fulfill({ contentType: 'application/javascript', body: 'window.lucide={createIcons(){}};' }));
       mealApi.lookup = async id => meals.find(meal => meal.id === id) || null;
       await p.goto(base + '/recipes');
+      await p.evaluate(()=>window.recipeAjaxMarker='alive');
+      await p.locator('[data-sort="rating"]').click();await p.waitForFunction(()=>location.search.includes('sort=rating')&&!document.querySelector('#recipe-browse-results').hasAttribute('aria-busy'));
+      assert.equal(await p.evaluate(()=>window.recipeAjaxMarker),'alive');
+      await p.locator('.recipe-difficulty-control summary').click();await p.locator('input[name="source"][value="general"]').check();await p.waitForFunction(()=>location.search.includes('source=general')&&!document.querySelector('#recipe-browse-results').hasAttribute('aria-busy'));assert.equal(await p.evaluate(()=>window.recipeAjaxMarker),'alive');assert.equal(await p.locator('.recipe-local-card').count(),0);
+      await p.locator('.recipe-difficulty-control summary').click();await p.locator('input[name="source"][value="all"]').check();await p.waitForFunction(()=>location.search.includes('source=all')&&!document.querySelector('#recipe-browse-results').hasAttribute('aria-busy'));
+      await p.locator('[data-sort="popular"]').click();await p.waitForFunction(()=>location.search.includes('sort=popular')&&!document.querySelector('#recipe-browse-results').hasAttribute('aria-busy'));
+
       const cards = await p.locator('.public-recipe-card').evaluateAll(es => es.map(e => ({ height: e.getBoundingClientRect().height, footer: e.querySelector('.recipe-card-bottom').getBoundingClientRect().top })));
       assert(cards.every(card => Math.abs(card.height - cards[0].height) < 1));
       assert(cards.slice(0,3).every(card => Math.abs(card.footer - cards[0].footer) < 1));

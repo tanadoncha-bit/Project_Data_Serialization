@@ -17,6 +17,7 @@
     <form method="get" action="/recipes" id="recipe-browse-form">
       <%- include('../../partials/browse-controls', { filters }) %>
     </form>
+    <div id="recipe-browse-results" aria-live="polite">
     <p class="recipe-results-count">ผลลัพธ์ <strong>
         <%= total %>
       </strong> สูตร</p>
@@ -41,6 +42,7 @@
       <% if (page < pages) { %><a href="/recipes?<%= pageQuery %>&amp;page=<%= page + 1 %>" aria-label="หน้าถัดไป">›</a>
       <% } %>
     </nav>
+    </div>
   </main>
   <%- include('_filterDialog') %>
   <dialog id="recipe-content-dialog" class="recipe-dialog recipe-content-dialog recipe-preview-dialog" aria-label="รายละเอียดสูตรอาหาร"><button class="recipe-modal-close recipe-preview-close" type="button" data-close-recipe aria-label="ปิดสูตรอาหาร">×</button>
@@ -48,6 +50,7 @@
   </dialog>
   <%- include('../../partials/footer') %>
   <script src="/javascripts/recipeModals.js" defer></script>
+  <script src="/javascripts/recipeBrowse.js" defer></script>
 </body>
 
 </html>

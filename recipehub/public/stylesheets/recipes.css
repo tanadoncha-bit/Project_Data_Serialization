@@ -2039,3 +2039,5 @@ body.recipe-site:has(.recipe-single-page) .navbar{background:#fff}
 @media(max-width:700px){
  .recipe-single-page,.recipe-single-page:not(.recipe-chef-full-page),.recipe-chef-full-page{width:calc(100% - 24px);margin-top:16px;margin-bottom:24px;padding:20px 14px 28px;border-radius:12px}
 }
+
+#recipe-browse-results[aria-busy="true"]{opacity:.55;transition:opacity .15s}
