@@ -46,7 +46,7 @@ router.post('/upload-image', (req,res,next)=>{
     const b=req.file.buffer;
     const ext=b.length>3&&b[0]===255&&b[1]===216&&b[2]===255?'jpg':b.length>8&&b.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))?'png':b.length>12&&b.toString('ascii',0,4)==='RIFF'&&b.toString('ascii',8,12)==='WEBP'?'webp':null;
     if(!ext)return res.status(400).json({error:'รองรับเฉพาะรูป JPG, PNG และ WebP'});
-    try { res.json({image:await recipeImages.store(b,ext)}); }catch(error){next(error);}
+    try { res.json({image:await recipeImages.store(b,ext)}); }catch(error){res.status(502).json({error: 'อัปโหลดรูปไม่สำเร็จ กรุณาตรวจการตั้งค่าหรือลองใหม่'});}
   });
 });
 
