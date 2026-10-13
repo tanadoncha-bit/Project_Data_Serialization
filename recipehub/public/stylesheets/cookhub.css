@@ -37,6 +37,8 @@ main.cookhub { width: 100%; max-width: none; margin: 0; padding: 0; line-height:
   background: var(--primary-soft); color: var(--primary);
 }
 .img-placeholder svg { width: 32px; height: 32px; opacity: .7; }
+/* รูปโหลดได้ → ซ่อนกรอบแทนรูป / โหลดไม่ได้ → ซ่อนรูป (ต้องชนะ display:flex ด้านบน) */
+img[hidden], .img-placeholder[hidden] { display: none !important; }
 img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__avatar, img.order__img, img.avatar__img {
   object-fit: cover; background: var(--primary-soft);
 }
