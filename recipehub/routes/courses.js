@@ -16,7 +16,7 @@ const { asyncRoute, databaseReady, numericId } = require('../services/recipeSupp
 const { randomBytes } = require('node:crypto');
 const payments = require('../services/coursePayments');
 const gateway = require('../services/omiseGateway');
-
+const { requireLogin } = require('../middleware/requireRole');
 /* รายการคอร์ส */
 router.get('/', databaseReady, asyncRoute(async (req, res) => {
   const [courses, favorites] = await Promise.all([
@@ -117,9 +117,8 @@ async function showDetail(kind, req, res, next) {
   if (!data) return next();
   res.render('user/course-detail', Object.assign(data, { loggedIn: Boolean(req.user) }));
 }
-router.get('/pack/:id', databaseReady, asyncRoute((req, res, next) => showDetail('multi', req, res, next)));
-router.get('/:id', databaseReady, asyncRoute((req, res, next) => showDetail('single', req, res, next)));
-
+router.get('/pack/:id', requireLogin, databaseReady, asyncRoute((req, res, next) => showDetail('multi', req, res, next)));
+router.get('/:id', requireLogin, databaseReady, asyncRoute((req, res, next) => showDetail('single', req, res, next)));
 /* กดใจ / เลิกกดใจ (เรียกจาก JavaScript ในหน้า) */
 router.put('/favorites/:kind/:id', databaseReady, asyncRoute(async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'กรุณาเข้าสู่ระบบก่อนเพิ่มรายการโปรด' });

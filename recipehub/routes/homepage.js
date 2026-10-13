@@ -2,8 +2,8 @@ var express = require('express');
 var router = express.Router();
 
 const SingleCourse = require('../models/SingleCourse');
-const Transaction = require('../models/Transaction');
 const Recipe = require('../models/Recipe');
+const catalog = require('../services/courseCatalog');
 
 const categoryDefinitions = [
     { name: 'อาหารไทย', icon: 'soup', values: ['อาหารไทย', 'Thai'] },
@@ -28,46 +28,13 @@ router.get('/', async function(req, res, next) {
           icon: category.icon,
           count: categoryCounts.reduce((total, row) => total + (category.values.includes(row._id) ? row.count : 0), 0)
       }));
-      // นับผู้ซื้อจริงที่ไม่ซ้ำกันต่อคอร์ส ไม่รวมการซื้อจำลอง/ทดสอบ
-      const rankedCourses = await SingleCourse.aggregate([
-          { $lookup: {
-              from: Transaction.collection.name,
-              let: { courseId: '$_id' },
-              pipeline: [
-                  { $match: { itemType: 'SingleCourse', paymentMode: 'real',
-                      $expr: { $eq: ['$itemId', '$$courseId'] } } },
-                  { $group: { _id: '$buyer' } },
-                  { $count: 'count' }
-              ],
-              as: 'purchaseStats'
-          } },
-          { $addFields: { studentCount: { $ifNull: [{ $arrayElemAt: ['$purchaseStats.count', 0] }, 0] } } },
-          { $sort: { studentCount: -1, createdAt: -1, _id: -1 } },
-          { $limit: 6 },
-          { $project: { purchaseStats: 0 } }
-      ]);
-      const rawCourses = await SingleCourse.populate(rankedCourses, { path: 'baseRecipe' });
-
-      // แปลงข้อมูลและต้องมีคำว่า return เสมอ
-      const formattedCourses = rawCourses.map(course => {
-          const totalMinutes = course.videos ? course.videos.reduce((sum, v) => sum + (v.duration || 0), 0) : 0;
-          const hours = Math.floor(totalMinutes / 60);
-          const mins = totalMinutes % 60;
-          const durationText = hours > 0 ? `${hours} ชม. ${mins} นาที` : `${mins} นาที`;
-
-          return {
-              title: course.title || 'ไม่มีชื่อคอร์ส',
-              category: course.baseRecipe?.category || 'ทั่วไป',
-              cover_image_url: course.baseRecipe?.image || 'https://images.unsplash.com/photo-1559314809-0d155014e29e?auto=format&fit=crop&w=600&q=80',
-              lesson_count: course.videos ? course.videos.length : 0,
-              duration_text: durationText,
-              student_count: course.studentCount,
-              description: course.detailedInstruction || ''
-          };
-      });
+      // คอร์สยอดนิยม 6 อันดับ ใช้ข้อมูลชุดเดียวกับหน้า /courses การ์ดจะได้เหมือนกัน
+      const courses = (await catalog.loadCourses())
+          .sort((a, b) => b.studentCount - a.studentCount || new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 6);
 
       res.render('homepage', { 
-          courses: formattedCourses,
+          courses,
           categories
       });
 
