@@ -23,13 +23,13 @@
     <!-- ===== การ์ดเชฟ ===== -->
     <section class="chef-card chef-identity">
       <div class="chef-identity-avatar">
-        <% if (chef.avatarUrl) { %><img src="<%= chef.avatarUrl %>" alt="รูปโปรไฟล์">
+        <% if (chef.avatar) { %><img src="<%= chef.avatar %>" alt="รูปโปรไฟล์">
         <% } else { %><i data-lucide="user"></i><% } %>
       </div>
       <div class="chef-identity-text">
         <h2>เชฟ<%= chef.name %> <span class="chef-badge">Chef Instructor</span></h2>
         <p><%= chef.bio || chef.institution || 'ยังไม่ได้กรอกข้อมูลแนะนำตัว' %>
-          <a href="/chef/profile" class="chef-link-small">แก้ไขโปรไฟล์</a></p>
+          <a href="/profile" class="chef-link-small">แก้ไขโปรไฟล์</a></p>
       </div>
       <div class="chef-status">
         <span>สถานะบัญชีเชฟ</span>

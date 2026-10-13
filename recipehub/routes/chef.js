@@ -64,9 +64,9 @@ router.post('/courses', asyncRoute(async (req, res) => {
   if (type === 'single') {
     const course = new SingleCourse({ publisher: req.user._id });
     support.applySingle(course, data);
-    await course.save();
+    await support.saveNew(course, 'singleCourse');
   } else {
-    await MultiCourse.create({ ...data, publisher: req.user._id });
+    await support.saveNew(new MultiCourse({ ...data, publisher: req.user._id }), 'multiCourse');
   }
   res.status(201).json({ location: '/chef/courses?status=saved' });
 }));

@@ -8,7 +8,7 @@
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const icons = () => window.lucide && window.lucide.createIcons();
   const baht = n => '฿' + Number(n || 0).toLocaleString('en-US');
-  const isImage = src => /^(https?:\/\/|data:image\/)/i.test(src || '');
+  const isImage = src => /^(https?:\/\/|data:image\/|\/uploads\/)/i.test(src || '');
 
   /* ---------- เปิด/ปิด dialog ---------- */
 
@@ -76,8 +76,8 @@
 
     $('#detail-title').textContent = course.title;
     $('#detail-sub').textContent = course.type === 'package'
-      ? `เรียนทำ ${course.menus.length} เมนูในแพ็กเกจเดียว`
-      : `คอร์สเดี่ยว ${course.lessonCount} บทเรียน${course.durationText ? ' · ' + course.durationText : ''}`;
+      ? `เรียนทำ ${course.menus.length} เมนูในแพ็กเกจเดียว${course.durationText ? ' · ' + course.durationText : ''}`
+      : `อิงสูตร "${course.recipeTitle}" · ${course.lessonCount} บทเรียน${course.durationText ? ' · ' + course.durationText : ''}`;
     $('#detail-level').textContent = levelText[course.difficulty] || '-';
     $('#detail-lessons').textContent = `${course.lessonCount} บทเรียน`;
     $('#detail-students').textContent = `${course.students.toLocaleString('en-US')} คน`;
@@ -92,9 +92,8 @@
     items.forEach(text => { const li = document.createElement('li'); li.textContent = text; learn.append(li); });
 
     $('#detail-price').textContent = course.price ? baht(course.price) : 'ฟรี';
-    const video = $('#detail-video');
-    video.hidden = !/^https?:\/\//i.test(course.videoUrl);
-    if (!video.hidden) video.href = course.videoUrl;
+    // ลิงก์ไปหน้าคอร์สฝั่งผู้เรียน (routes/courses.js ของทีม)
+    $('#detail-link').href = course.type === 'package' ? `/courses/pack/${course.id}` : `/courses/${course.id}`;
     icons();
     openDialog(detail);
   }
@@ -103,55 +102,50 @@
   const formDialog = $('#course-form-dialog');
   const form = $('#course-form');
   const errorsBox = $('#course-form-errors');
-  const lessonsSingle = $('[data-panel="single"] [data-lessons]', form);
-  const menusBox = $('[data-menus]', form);
+  const lessonsBox = $('[data-panel="single"] [data-lessons]', form);
   let mode = { type: 'single', editing: null };
 
-  /** เพิ่มแถวบทเรียน 1 แถวลงในกล่อง */
-  function addLesson(box, value = '') {
+  /** เพิ่มแถวบทเรียน 1 แถว (ชื่อ / ลิงก์วิดีโอ / นาที) */
+  function addLesson(video = { title: '', videoUrl: '', duration: '' }) {
     const row = $('#tpl-lesson').content.firstElementChild.cloneNode(true);
-    $('input', row).value = value;
-    box.append(row);
+    $('[data-video-title]', row).value = video.title || '';
+    $('[data-video-url]', row).value = video.videoUrl || '';
+    $('[data-video-duration]', row).value = video.duration ?? '';
+    lessonsBox.append(row);
     renumber();
     return row;
   }
 
-  /** เพิ่มเมนูย่อย 1 เมนูในแพ็กเกจ */
-  function addMenu(menu = { name: '', imageUrl: '', lessons: [''] }) {
-    const block = $('#tpl-menu').content.firstElementChild.cloneNode(true);
-    $('[data-menu-name]', block).value = menu.name;
-    $('[data-menu-image]', block).value = menu.imageUrl;
-    const box = $('[data-lessons]', block);
-    (menu.lessons.length ? menu.lessons : ['']).forEach(l => addLesson(box, l));
-    menusBox.append(block);
-    renumber();
-    return block;
-  }
-
-  /** เรียงเลขบทเรียน/เมนูใหม่ และซ่อนปุ่มลบเมื่อเหลืออันเดียว */
+  /** เรียงเลขบทเรียนใหม่ และซ่อนปุ่มลบเมื่อเหลือบทเดียว */
   function renumber() {
-    $$('[data-lessons]', form).forEach(box => {
-      const rows = $$('.chef-lesson', box);
-      rows.forEach((row, i) => {
-        $('.chef-lesson-no', row).textContent = i + 1;
-        $('[data-remove-lesson]', row).hidden = rows.length === 1;
-      });
-    });
-    const menus = $$('.chef-menu', menusBox);
-    menus.forEach((m, i) => {
-      $('.chef-menu-no', m).textContent = `เมนูที่ ${i + 1}`;
-      $('[data-remove-menu]', m).hidden = menus.length === 1;
+    const rows = $$('.chef-lesson', lessonsBox);
+    rows.forEach((row, i) => {
+      $('.chef-lesson-no', row).textContent = i + 1;
+      $('[data-remove-lesson]', row).hidden = rows.length === 1;
     });
   }
 
-  /** สลับแท็บคอร์สเดี่ยว/แพ็กเกจ และเปิด-ปิด required ของช่องที่ซ่อนอยู่ */
+  /** อัปเดตจำนวนคอร์สที่เลือก + ราคารวม เพื่อช่วยตั้งราคาแพ็กเกจ */
+  function updatePackSummary() {
+    const picked = $$('[name=includedCourses]:checked', form);
+    const count = $('#pack-count');
+    if (count) count.textContent = `เลือกแล้ว ${picked.length} คอร์ส`;
+    const sum = $('#pack-sum');
+    if (sum) {
+      const total = picked.reduce((s, c) => s + Number(c.dataset.price || 0), 0);
+      sum.textContent = picked.length ? `ราคารวมถ้าซื้อแยก ${baht(total)} — ตั้งราคาแพ็กเกจให้ต่ำกว่านี้เพื่อจูงใจผู้เรียน` : '';
+    }
+  }
+  form.addEventListener('change', e => { if (e.target.name === 'includedCourses') updatePackSummary(); });
+
+  /** สลับแท็บคอร์สเดี่ยว/แพ็กเกจ และปิดช่องของแท็บที่ซ่อน (ไม่ให้ติด required) */
   function setType(type) {
     mode.type = type;
     $$('[data-tab]', form).forEach(tab => tab.setAttribute('aria-selected', String(tab.dataset.tab === type)));
     $$('[data-panel]', form).forEach(panel => {
       const on = panel.dataset.panel === type;
       panel.hidden = !on;
-      $$('input', panel).forEach(input => { input.disabled = !on; });
+      $$('input, button', panel).forEach(el => { el.disabled = !on; });
     });
     const editing = !!mode.editing;
     $('#course-form-title').textContent = editing ? 'แก้ไขคอร์สเรียน' : type === 'package' ? 'สร้างคอร์สแพ็กเกจ' : 'สร้างคอร์สเรียนใหม่';
@@ -162,21 +156,19 @@
     mode = { type, editing: course };
     form.reset();
     errorsBox.hidden = true;
-    lessonsSingle.replaceChildren();
-    menusBox.replaceChildren();
+    lessonsBox.replaceChildren();
 
     const f = form.elements;
     f.title.value = course ? course.title : '';
-    setCategory(course ? course.category : '');
     f.price.value = course ? course.price : '';
-    f.videoUrl.value = course ? course.videoUrl : '';
-    f.imageUrl.value = course ? course.imageUrl : '';
     f.description.value = course ? course.description : '';
-    setDifficulty(course ? course.difficulty : 'EASY');
+    setRecipe(course && course.type === 'single' ? course.recipeId : '');
 
-    (course && course.type === 'single' && course.lessons.length ? course.lessons : ['']).forEach(l => addLesson(lessonsSingle, l));
-    const menus = course && course.type === 'package' && course.menus.length ? course.menus : [{ name: '', imageUrl: '', lessons: [''] }];
-    menus.forEach(m => addMenu(m));
+    (course && course.type === 'single' && course.videos.length ? course.videos : [undefined]).forEach(v => addLesson(v));
+
+    const picked = new Set(course && course.type === 'package' ? course.includedIds.map(String) : []);
+    $$('[name=includedCourses]', form).forEach(c => { c.checked = picked.has(c.value); });
+    updatePackSummary();
 
     // ตอนแก้ไขเปลี่ยนประเภทคอร์สไม่ได้ จึงซ่อนแท็บอีกฝั่ง
     $$('[data-tab]', form).forEach(tab => { tab.hidden = !!course && tab.dataset.tab !== type; });
@@ -194,18 +186,8 @@
   form.addEventListener('click', e => {
     const tab = e.target.closest('[data-tab]');
     if (tab && !mode.editing) setType(tab.dataset.tab);
-    const addBtn = e.target.closest('[data-add-lesson]');
-    if (addBtn) {
-      const box = $('[data-lessons]', addBtn.closest('.chef-menu') || addBtn.closest('[data-panel]'));
-      $('input', addLesson(box)).focus();
-    }
+    if (e.target.closest('[data-add-lesson]')) $('[data-video-title]', addLesson()).focus();
     if (e.target.closest('[data-remove-lesson]')) { e.target.closest('.chef-lesson').remove(); renumber(); }
-    if (e.target.closest('[data-add-menu]')) {
-      const block = addMenu();
-      block.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      $('[data-menu-name]', block).focus({ preventScroll: true });
-    }
-    if (e.target.closest('[data-remove-menu]')) { e.target.closest('.chef-menu').remove(); renumber(); }
   });
 
   /* ---------- dropdown แบบกำหนดเอง (หมวดหมู่ / ระดับความยาก) ให้หน้าตาเหมือนกันทุกเบราว์เซอร์ ---------- */
@@ -214,13 +196,21 @@
   /** ตั้งค่าที่เลือกของ dropdown: เก็บใน hidden input + ติ๊กถูก + แสดงชื่อบนปุ่ม */
   function setSelect(box, value) {
     const items = $$('li', box);
-    const item = items.find(li => li.dataset.value === value) || items[0];
+    const item = items.find(li => li.dataset.value === String(value)) || items[0];
     $('input', box).value = item.dataset.value;
     items.forEach(li => li.classList.toggle('selected', li === item));
     $('.chef-select-btn > span', box).textContent = item.dataset.label;
   }
-  const setDifficulty = value => setSelect($('#difficulty-select'), value);
-  const setCategory = value => setSelect($('#category-select'), value);
+  /** เลือกสูตรตั้งต้น ('' = ยังไม่เลือก) */
+  function setRecipe(value) {
+    const box = $('#recipe-select');
+    if (!box) return;
+    if (value === '' || value == null) {
+      $('input', box).value = '';
+      $$('li', box).forEach(li => li.classList.remove('selected'));
+      $('.chef-select-btn > span', box).textContent = 'เลือกสูตรอาหาร';
+    } else setSelect(box, String(value));
+  }
 
   /** เปิด/ปิดรายการตัวเลือก (เปิดอันหนึ่งจะปิดอันอื่นให้) */
   function toggleSelect(box, open) {
@@ -259,16 +249,18 @@
   /** รวมค่าจากฟอร์มเป็น JSON ตามที่ routes/chef.js ต้องการ */
   function collect() {
     const f = form.elements;
-    const lessonsOf = box => $$('.chef-lesson input', box).map(i => i.value.trim()).filter(Boolean);
-    return {
-      _csrf: page.csrfToken, type: mode.type,
-      title: f.title.value, category: f.category.value, difficulty: f.difficulty.value,
-      price: f.price.value, videoUrl: f.videoUrl.value, imageUrl: f.imageUrl.value, description: f.description.value,
-      lessons: mode.type === 'single' ? lessonsOf(lessonsSingle) : [],
-      menus: mode.type === 'package' ? $$('.chef-menu', menusBox).map(m => ({
-        name: $('[data-menu-name]', m).value, imageUrl: $('[data-menu-image]', m).value, lessons: lessonsOf(m),
-      })) : [],
-    };
+    const data = { _csrf: page.csrfToken, type: mode.type, title: f.title.value, price: f.price.value, description: f.description.value };
+    if (mode.type === 'single') {
+      data.baseRecipe = f.baseRecipe ? f.baseRecipe.value : '';
+      data.videos = $$('.chef-lesson', lessonsBox).map(row => ({
+        title: $('[data-video-title]', row).value,
+        videoUrl: $('[data-video-url]', row).value,
+        duration: $('[data-video-duration]', row).value,
+      }));
+    } else {
+      data.includedCourses = $$('[name=includedCourses]:checked', form).map(c => c.value);
+    }
+    return data;
   }
 
   /** แสดงข้อความ error จากเซิร์ฟเวอร์ด้านบนฟอร์ม */
@@ -289,7 +281,11 @@
         body: JSON.stringify(collect()),
       });
       if (res.status === 422) { showErrors((await res.json()).errors); submit.disabled = false; return; }
-      if (!res.ok) throw new Error(res.status === 403 ? 'ฟอร์มหมดอายุ กรุณารีเฟรชหน้าแล้วลองใหม่' : 'บันทึกไม่สำเร็จ กรุณาลองใหม่');
+      if (!res.ok) {
+        // แสดงสาเหตุจาก server (errorHandler ตอบ { error }) ถ้าไม่มีค่อยใช้ข้อความกลาง
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || (res.status === 403 ? 'ฟอร์มหมดอายุ กรุณารีเฟรชหน้าแล้วลองใหม่' : `บันทึกไม่สำเร็จ (รหัส ${res.status}) กรุณาลองใหม่`));
+      }
       window.location.assign((await res.json()).location);
     } catch (err) {
       showErrors([err.message]);
@@ -310,10 +306,16 @@
     $('#delete-thumb').replaceChildren(thumb(course.imageUrl, course.title));
     $('#delete-name').textContent = course.title;
     $('#delete-desc').textContent = course.description || '';
+    // กันลบไว้ 2 กรณี (เซิร์ฟเวอร์ก็เช็คซ้ำ): มีผู้ซื้อแล้ว / คอร์สเดี่ยวที่ยังอยู่ในแพ็กเกจ
+    const packs = course.type === 'single'
+      ? page.courses.filter(c => c.type === 'package' && c.includedIds.includes(course.id)).map(c => c.title)
+      : [];
+    const reason = course.students ? `คอร์สนี้มีผู้ซื้อแล้ว ${course.students} คน จึงลบไม่ได้`
+      : packs.length ? `คอร์สนี้อยู่ในแพ็กเกจ "${packs.join('", "')}" ให้เอาออกจากแพ็กเกจก่อน` : '';
     const warn = $('#delete-warning');
-    warn.hidden = !course.students;
-    warn.textContent = course.students ? `คอร์สนี้มีผู้ซื้อแล้ว ${course.students} คน จึงลบไม่ได้` : '';
-    $('#delete-confirm').disabled = !!course.students;
+    warn.hidden = !reason;
+    warn.textContent = reason;
+    $('#delete-confirm').disabled = !!reason;
     icons();
     openDialog(del);
     $('[data-close]', $('.chef-delete-actions')).focus();

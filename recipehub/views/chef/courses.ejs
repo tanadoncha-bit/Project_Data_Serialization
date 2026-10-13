@@ -58,7 +58,10 @@
           <span class="chef-tag <%= c.type === 'package' ? 'chef-tag-pack' : '' %>"><%= c.type === 'package' ? 'แพ็กคอร์ส · ' : '' %><%= c.category %></span>
         </button>
         <div class="chef-course-body">
-          <h2><%= c.title %></h2>
+          <div class="chef-course-title">
+            <h2><%= c.title %></h2>
+            <span class="chef-course-rating"><%= c.rating == null ? 'ยังไม่มีรีวิว' : '★ ' + c.rating.toFixed(1) %></span>
+          </div>
           <p class="chef-muted chef-clamp"><%= c.description || 'ยังไม่มีคำอธิบายคอร์ส' %></p>
           <ul class="chef-course-meta">
             <li><i data-lucide="square-play"></i> <%= c.type === 'package' ? c.menuCount + ' เมนู' : c.lessonCount + ' บทเรียน' %></li>
@@ -93,7 +96,7 @@
         <h2 id="detail-title"></h2>
         <p class="chef-muted" id="detail-sub"></p>
         <div class="chef-detail-chef">
-          <span class="chef-detail-avatar"><% if (chef.avatarUrl) { %><img src="<%= chef.avatarUrl %>" alt=""><% } else { %><i data-lucide="user"></i><% } %></span>
+          <span class="chef-detail-avatar"><% if (chef.avatar) { %><img src="<%= chef.avatar %>" alt=""><% } else { %><i data-lucide="user"></i><% } %></span>
           <div><strong>เชฟ<%= chef.name %></strong><small><%= chef.institution || '' %></small></div>
         </div>
         <div class="chef-detail-stats">
@@ -107,7 +110,7 @@
         <ul class="chef-learn" id="detail-learn"></ul>
         <div class="chef-detail-foot">
           <strong class="chef-detail-price" id="detail-price"></strong>
-          <a class="chef-btn chef-btn-soft chef-btn-sm" id="detail-video" target="_blank" rel="noopener noreferrer"><i data-lucide="play"></i> ดูวิดีโอคอร์ส</a>
+          <a class="chef-btn chef-btn-soft chef-btn-sm" id="detail-link" target="_blank" rel="noopener"><i data-lucide="external-link"></i> ดูหน้าคอร์สฝั่งผู้เรียน</a>
         </div>
       </div>
     </div>
@@ -132,63 +135,81 @@
 
       <div class="chef-alert err" id="course-form-errors" role="alert" hidden></div>
 
-      <div class="chef-form-row4">
+      <div class="chef-form-row-title">
         <label><span>ชื่อคอร์สเรียน <b>*</b></span>
           <input name="title" maxlength="200" placeholder="เช่น Masterclass การทำซอสและพาสต้าอิตาเลียน" required></label>
-        <div class="chef-field">
-          <span class="chef-label">หมวดหมู่</span>
-          <div class="chef-select" id="category-select">
-            <input type="hidden" name="category" value="<%= categories[0] %>">
-            <button type="button" class="chef-select-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="หมวดหมู่"><span></span><i data-lucide="chevron-down"></i></button>
-            <ul class="chef-select-list" role="listbox" hidden>
-              <% categories.forEach(cat => { %>
-              <li role="option" data-value="<%= cat %>" data-label="<%= cat %>" tabindex="-1"><span><strong><%= cat %></strong></span><i data-lucide="check"></i></li>
-              <% }) %>
-            </ul>
-          </div>
-        </div>
-        <div class="chef-field">
-          <span class="chef-label">ระดับความยาก</span>
-          <div class="chef-select" id="difficulty-select">
-            <input type="hidden" name="difficulty" value="EASY">
-            <button type="button" class="chef-select-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="ระดับความยาก"><span></span><i data-lucide="chevron-down"></i></button>
-            <ul class="chef-select-list" role="listbox" hidden>
-              <% difficulties.forEach(d => { %>
-              <li role="option" data-value="<%= d.value %>" data-label="<%= d.label %>" tabindex="-1"><span><strong><%= d.label %></strong><small><%= d.hint %></small></span><i data-lucide="check"></i></li>
-              <% }) %>
-            </ul>
-          </div>
-        </div>
-        <label><span>ราคา (บาท)</span>
+        <label><span>ราคา (บาท) <b>*</b></span>
           <input name="price" type="number" min="0" step="1" placeholder="890" required></label>
       </div>
 
-      <label><span>วิดีโอคอร์ส (URL ลิงก์วิดีโอ) <b>*</b></span>
-        <input name="videoUrl" type="url" maxlength="2000" placeholder="https://www.youtube.com/watch?v=..." required></label>
-      <label><span>URL รูปภาพเมนู <b>*</b></span>
-        <input name="imageUrl" type="url" maxlength="2000" placeholder="https://images..." required></label>
+      <!-- คอร์สเดี่ยว: เลือกสูตรอาหารตั้งต้น (รูป หมวดหมู่ ระดับ คะแนน มาจากสูตรนี้) -->
+      <div class="chef-field" data-panel="single">
+        <span class="chef-label">สูตรอาหารตั้งต้นของคอร์ส <b>*</b></span>
+        <% if (recipes.length) { %>
+        <div class="chef-select chef-recipe-select" id="recipe-select">
+          <input type="hidden" name="baseRecipe" value="">
+          <button type="button" class="chef-select-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="สูตรอาหารตั้งต้น"><span>เลือกสูตรอาหาร</span><i data-lucide="chevron-down"></i></button>
+          <ul class="chef-select-list" role="listbox" hidden>
+            <% recipes.forEach(r => { %>
+            <li role="option" data-value="<%= r.id %>" data-label="<%= r.title %>" tabindex="-1">
+              <span class="chef-recipe-option">
+                <%- include('_thumb', { src: r.image, alt: '' }) %>
+                <span><strong><%= r.title %></strong><small><%= r.category || 'ไม่ระบุหมวดหมู่' %> · <%= diffLabel[r.difficulty] %><%= r.rating != null ? ' · ★ ' + r.rating.toFixed(1) : '' %></small></span>
+              </span>
+              <i data-lucide="check"></i>
+            </li>
+            <% }) %>
+          </ul>
+        </div>
+        <small class="chef-muted">รูปภาพ หมวดหมู่ ระดับความยาก และคะแนนรีวิวของคอร์ส จะดึงมาจากสูตรนี้อัตโนมัติ</small>
+        <% } else { %>
+        <p class="chef-alert warn">ยังไม่มีสูตรอาหาร ต้องสร้างสูตรก่อนจึงจะสร้างคอร์สเดี่ยวได้ — <a href="/chef/recipes">ไปหน้าจัดการสูตรอาหาร</a></p>
+        <% } %>
+      </div>
+
       <label><span>คำอธิบายคอร์ส</span>
         <textarea name="description" rows="4" maxlength="5000" placeholder="เขียนคำอธิบายสั้น ๆ เกี่ยวกับคอร์ส สิ่งที่ผู้เรียนจะได้เรียนรู้ และจุดเด่นของคอร์ส"></textarea></label>
 
-      <!-- คอร์สเดี่ยว: บทเรียน -->
+      <!-- คอร์สเดี่ยว: บทเรียน + ลิงก์วิดีโอแต่ละบท -->
       <section class="chef-form-section" data-panel="single">
         <div class="chef-form-section-head">
-          <h3>จัดการบทเรียนในคอร์ส</h3>
+          <div>
+            <h3>จัดการบทเรียนในคอร์ส</h3>
+            <small class="chef-muted">แต่ละบทใส่ชื่อ ลิงก์วิดีโอ (YouTube ได้) และความยาวเป็นนาที (ไม่บังคับ)</small>
+          </div>
           <button type="button" class="chef-add" data-add-lesson>+ เพิ่มบทเรียน</button>
         </div>
         <div class="chef-lessons" data-lessons></div>
       </section>
 
-      <!-- คอร์สแพ็กเกจ: เมนูย่อย -->
+      <!-- คอร์สแพ็กเกจ: เลือกคอร์สเดี่ยวมารวมกัน -->
       <section class="chef-form-section chef-pack-box" data-panel="package">
         <div class="chef-form-section-head">
           <div>
             <h3><i data-lucide="gift"></i> เมนูอาหารย่อยในแพ็กเกจนี้</h3>
-            <small class="chef-muted">ระบุเมนูย่อย พร้อมบทเรียนภายในแต่ละเมนู</small>
+            <small class="chef-muted">เลือกคอร์สเดี่ยวของคุณอย่างน้อย 2 คอร์สมารวมเป็นแพ็กเกจ</small>
           </div>
-          <button type="button" class="chef-btn chef-btn-primary chef-btn-xs" data-add-menu>+ เพิ่มเมนูย่อย</button>
+          <span class="chef-pack-count" id="pack-count">เลือกแล้ว 0 คอร์ส</span>
         </div>
-        <div class="chef-menus" data-menus></div>
+        <% const singles = courses.filter(c => c.type === 'single'); %>
+        <% if (singles.length < 2) { %>
+        <p class="chef-alert warn">ต้องมีคอร์สเดี่ยวอย่างน้อย 2 คอร์สก่อน จึงจะรวมเป็นแพ็กเกจได้ (ตอนนี้มี <%= singles.length %> คอร์ส)</p>
+        <% } else { %>
+        <div class="chef-pick-grid">
+          <% singles.forEach(c => { %>
+          <label class="chef-pick">
+            <input type="checkbox" name="includedCourses" value="<%= c.id %>" data-price="<%= c.price %>">
+            <%- include('_thumb', { src: c.imageUrl, alt: '' }) %>
+            <span class="chef-pick-text">
+              <strong><%= c.title %></strong>
+              <small><%= c.lessonCount %> บทเรียน · ฿<%= c.price.toLocaleString('en-US') %></small>
+            </span>
+            <i data-lucide="circle-check" class="chef-pick-check"></i>
+          </label>
+          <% }) %>
+        </div>
+        <p class="chef-muted chef-pack-sum" id="pack-sum"></p>
+        <% } %>
       </section>
 
       <div class="chef-form-foot">
@@ -200,22 +221,10 @@
     <template id="tpl-lesson">
       <div class="chef-lesson">
         <span class="chef-lesson-no"></span>
-        <input placeholder="ชื่อบทเรียน..." maxlength="200" aria-label="ชื่อบทเรียน" required>
+        <input data-video-title placeholder="ชื่อบทเรียน เช่น เตรียมวัตถุดิบ" maxlength="200" aria-label="ชื่อบทเรียน" required>
+        <input data-video-url type="url" placeholder="https://www.youtube.com/watch?v=..." maxlength="2000" aria-label="ลิงก์วิดีโอ" required>
+        <input data-video-duration type="number" min="0" max="1440" step="1" placeholder="นาที" aria-label="ความยาว (นาที)">
         <button type="button" class="chef-lesson-remove" data-remove-lesson aria-label="ลบบทเรียน">×</button>
-      </div>
-    </template>
-    <template id="tpl-menu">
-      <div class="chef-menu">
-        <div class="chef-menu-head"><strong class="chef-menu-no"></strong><button type="button" class="chef-link-danger" data-remove-menu>ลบเมนูนี้</button></div>
-        <div class="chef-form-row2">
-          <label><span>ชื่อเมนู <b>*</b></span><input data-menu-name maxlength="200" placeholder="เช่น ต้มยำกุ้งแม่น้ำน้ำข้นโบราณ" required></label>
-          <label><span>URL รูปภาพเมนู <b>*</b></span><input data-menu-image type="url" maxlength="2000" placeholder="https://" required></label>
-        </div>
-        <div class="chef-form-section-head sm">
-          <span class="chef-label">บทเรียนย่อยของเมนูนี้</span>
-          <button type="button" class="chef-add" data-add-lesson>+ เพิ่มบทเรียน</button>
-        </div>
-        <div class="chef-lessons" data-lessons></div>
       </div>
     </template>
   </dialog>

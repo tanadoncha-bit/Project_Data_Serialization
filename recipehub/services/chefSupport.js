@@ -1,4 +1,4 @@
-// services/chefSupport.js — ฟังก์ชันช่วยของหน้าฝั่งเชฟ (Dashboard / จัดการคอร์ส / โปรไฟล์)
+// services/chefSupport.js — ฟังก์ชันช่วยของหน้าฝั่งเชฟ (Dashboard / จัดการคอร์ส)
 const { randomBytes } = require('crypto');
 const createError = require('http-errors');
 const Client = require('../models/Client');
@@ -8,7 +8,6 @@ const MultiCourse = require('../models/MultiCourse');
 const Transaction = require('../models/Transaction');
 
 const TZ = 'Asia/Bangkok';
-const categories = ['อาหารไทย', 'อาหารนานาชาติ', 'เบเกอรี่ & ขนมหวาน', 'อาหารสุขภาพ'];
 const difficulties = [
   { value: 'EASY', label: 'ง่าย', hint: 'เหมาะสำหรับผู้เริ่มต้น' },
   { value: 'MEDIUM', label: 'ปานกลาง', hint: 'ต้องมีพื้นฐานเบื้องต้น' },
@@ -72,77 +71,70 @@ function csrf(req, res, next) {
   next();
 }
 
-/* ---------- โปรไฟล์ ---------- */
+/* ---------- คอร์ส (ใช้ model ของทีม: SingleCourse อิง baseRecipe, MultiCourse รวม includedCourses) ---------- */
 
-/** แยกชื่อเต็มใน DB (ช่องเดียว) ออกเป็นชื่อ/นามสกุล ตามช่องว่างแรก */
-function splitName(name) {
-  const parts = String(name || '').trim().split(/\s+/);
-  return { firstName: parts[0] || '', lastName: parts.slice(1).join(' ') };
+const levelToDifficulty = { BEGINNER: 'EASY', INTERMEDIATE: 'MEDIUM', ADVANCED: 'HARD' };
+
+/** ระดับความยากของสูตร (สูตรเก่าอาจมีแค่ level) */
+function recipeDifficulty(recipe) {
+  return (recipe && (recipe.difficulty || levelToDifficulty[recipe.level])) || 'EASY';
 }
 
-/** ตรวจข้อมูลฟอร์มโปรไฟล์ คืนค่า { values, update, errors } */
-function parseProfile(body) {
-  const values = {
-    firstName: text(body.firstName), lastName: text(body.lastName),
-    email: text(body.email).toLowerCase(), institution: text(body.institution),
-    bio: text(body.bio).slice(0, 300),
-  };
-  const errors = [];
-  if (!values.firstName) errors.push('กรุณากรอกชื่อ');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) errors.push('รูปแบบอีเมลไม่ถูกต้อง');
-  if (values.firstName.length + values.lastName.length > 150) errors.push('ชื่อยาวเกินไป');
-  if (values.institution.length > 200) errors.push('ชื่อสถาบันยาวเกิน 200 ตัวอักษร');
-
-  const update = {
-    name: `${values.firstName} ${values.lastName}`.trim(),
-    email: values.email, institution: values.institution || null, bio: values.bio,
-  };
-  // รูปโปรไฟล์: เบราว์เซอร์ย่อรูปเป็น JPEG เล็กๆ แล้วส่งมาเป็น data URL
-  const avatar = text(body.avatarData);
-  if (avatar === 'remove') update.avatarUrl = '';
-  else if (avatar) {
-    if (!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(avatar) || avatar.length > 90000) {
-      errors.push('รูปโปรไฟล์ไม่ถูกต้องหรือใหญ่เกินไป');
-    } else update.avatarUrl = avatar;
-  }
-  return { values, update, errors };
+/** สูตรอาหารของเชฟ ให้เลือกเป็นสูตรตั้งต้นของคอร์สเดี่ยว */
+async function loadRecipeOptions(chefId) {
+  const recipes = await Recipe.find({ publisher: chefId }).select('title category difficulty level image rating').sort({ createdAt: -1 }).lean();
+  return recipes.map(r => ({
+    id: r._id, title: r.title, category: r.category || '', difficulty: recipeDifficulty(r),
+    image: r.image || '', rating: r.rating ?? null,
+  }));
 }
-
-/* ---------- คอร์ส ---------- */
 
 /** รวมคอร์สเดี่ยว + แพ็กเกจของเชฟ พร้อมจำนวนผู้เรียน แปลงเป็นรูปแบบเดียวกันให้หน้าเว็บใช้ */
 async function loadCourses(chefId) {
   const [singles, multis] = await Promise.all([
-    SingleCourse.find({ publisher: chefId }).sort({ createdAt: -1 }).lean(),
+    SingleCourse.find({ publisher: chefId }).populate('baseRecipe', 'title category difficulty level image rating').sort({ createdAt: -1 }).lean(),
     MultiCourse.find({ publisher: chefId }).sort({ createdAt: -1 }).lean(),
   ]);
   const students = await studentCounts(singles.map(c => c._id), multis.map(c => c._id));
 
-  const list = [
-    ...singles.map(c => {
-      const minutes = c.videos.reduce((sum, v) => sum + (v.duration || 0), 0);
-      return {
-        id: c._id, type: 'single', title: c.title, category: c.category || 'อาหารไทย',
-        difficulty: c.difficulty || 'EASY', price: c.price, videoUrl: c.videoUrl || '',
-        imageUrl: c.imageUrl || '', description: c.detailedInstruction || '',
-        lessons: c.videos.map(v => v.title), menus: [],
-        lessonCount: c.videos.length, durationText: durationText(minutes),
-        students: students[`SingleCourse:${c._id}`] || 0, createdAt: c.createdAt,
-      };
-    }),
-    ...multis.map(c => {
-      const menus = (c.menus || []).map(m => ({ name: m.name, imageUrl: m.imageUrl || '', lessons: m.lessons.map(l => l.title) }));
-      return {
-        id: c._id, type: 'package', title: c.title, category: c.category || 'อาหารไทย',
-        difficulty: c.difficulty || 'EASY', price: c.price, videoUrl: c.videoUrl || '',
-        imageUrl: c.imageUrl || (menus[0] && menus[0].imageUrl) || '', description: c.description || '',
-        lessons: [], menus, menuCount: menus.length || (c.includedCourses || []).length,
-        lessonCount: menus.reduce((sum, m) => sum + m.lessons.length, 0), durationText: '',
-        students: students[`MultiCourse:${c._id}`] || 0, createdAt: c.createdAt,
-      };
-    }),
-  ];
-  return list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const singleViews = singles.map(c => {
+    const recipe = c.baseRecipe || {};
+    const minutes = (c.videos || []).reduce((sum, v) => sum + (v.duration || 0), 0);
+    return {
+      id: c._id, type: 'single', title: c.title,
+      recipeId: recipe._id || null, recipeTitle: recipe.title || 'สูตรถูกลบไปแล้ว',
+      category: recipe.category || 'ไม่ระบุหมวดหมู่', difficulty: recipeDifficulty(recipe),
+      imageUrl: recipe.image || '', rating: recipe.rating ?? null,
+      price: c.price, description: c.detailedInstruction || '',
+      videos: (c.videos || []).map(v => ({ title: v.title, videoUrl: v.videoUrl || '', duration: v.duration ?? '' })),
+      lessons: (c.videos || []).map(v => v.title), menus: [], includedIds: [],
+      lessonCount: (c.videos || []).length, durationText: durationText(minutes), minutes,
+      students: students[`SingleCourse:${c._id}`] || 0, createdAt: c.createdAt,
+    };
+  });
+  const byId = new Map(singleViews.map(c => [c.id, c]));
+
+  const packViews = multis.map(c => {
+    const items = (c.includedCourses || []).map(id => byId.get(id)).filter(Boolean);
+    const rated = items.filter(i => i.rating != null);
+    const minutes = items.reduce((sum, i) => sum + i.minutes, 0);
+    const rank = { EASY: 1, MEDIUM: 2, HARD: 3 };
+    return {
+      id: c._id, type: 'package', title: c.title,
+      category: (items[0] && items[0].category) || 'แพ็กคอร์ส',
+      difficulty: items.reduce((max, i) => (rank[i.difficulty] > rank[max] ? i.difficulty : max), 'EASY'),
+      imageUrl: (items[0] && items[0].imageUrl) || '',
+      rating: rated.length ? rated.reduce((s, i) => s + i.rating, 0) / rated.length : null,
+      price: c.price, description: c.description || '',
+      videos: [], lessons: [], includedIds: items.map(i => i.id),
+      menus: items.map(i => ({ id: i.id, name: i.title, imageUrl: i.imageUrl, lessons: i.lessons })),
+      menuCount: items.length, lessonCount: items.reduce((sum, i) => sum + i.lessonCount, 0),
+      durationText: durationText(minutes), minutes,
+      students: students[`MultiCourse:${c._id}`] || 0, createdAt: c.createdAt,
+    };
+  });
+
+  return [...singleViews, ...packViews].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
 /** นับผู้ซื้อแยกตามคอร์ส คืน { 'SingleCourse:3': 12, ... } */
@@ -158,60 +150,77 @@ async function studentCounts(singleIds, multiIds) {
   return Object.fromEntries(rows.map(r => [`${r._id.t}:${r._id.i}`, r.n]));
 }
 
-/** ตรวจข้อมูลคอร์สที่ส่งมาจากฟอร์ม (JSON) คืน { type, data, errors } พร้อมบันทึกลง model ได้ทันที */
-function parseCourse(body) {
+/**
+ * ตรวจข้อมูลคอร์สจากฟอร์ม (JSON) และเช็คว่าสูตร/คอร์สที่อ้างถึงเป็นของเชฟคนนี้จริง
+ * คืน { type, data, errors } — data บันทึกลง model ของทีมได้ทันที
+ */
+async function parseCourse(body, chefId, editingId = null) {
   const type = body.type === 'package' ? 'package' : 'single';
   const errors = [];
   const title = text(body.title);
-  const category = text(body.category);
-  const difficulty = text(body.difficulty);
   const price = Number(body.price);
-  const videoUrl = text(body.videoUrl);
-  const imageUrl = text(body.imageUrl);
   const description = text(body.description);
 
   if (!title || title.length > 200) errors.push('กรุณากรอกชื่อคอร์สเรียน (ไม่เกิน 200 ตัวอักษร)');
-  if (!categories.includes(category)) errors.push('กรุณาเลือกหมวดหมู่');
-  if (!difficulties.some(d => d.value === difficulty)) errors.push('กรุณาเลือกระดับความยาก');
   if (text(String(body.price ?? '')) === '' || !Number.isFinite(price) || price < 0) errors.push('ราคาต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป');
-  if (!isHttpUrl(videoUrl)) errors.push('กรุณาใส่ลิงก์วิดีโอคอร์สที่ขึ้นต้นด้วย http:// หรือ https://');
-  if (!isHttpUrl(imageUrl)) errors.push('กรุณาใส่ URL รูปภาพเมนูที่ขึ้นต้นด้วย http:// หรือ https://');
   if (description.length > 5000) errors.push('คำอธิบายคอร์สยาวเกิน 5000 ตัวอักษร');
 
-  const cleanLessons = value => (Array.isArray(value) ? value : []).map(text).filter(Boolean).slice(0, 50);
-  const base = { title, category, difficulty, price, videoUrl, imageUrl };
-
   if (type === 'single') {
-    const lessons = cleanLessons(body.lessons);
-    if (!lessons.length) errors.push('กรุณาเพิ่มบทเรียนอย่างน้อย 1 บท');
-    if (lessons.some(l => l.length > 200)) errors.push('ชื่อบทเรียนยาวเกิน 200 ตัวอักษร');
-    return { type, errors, data: { ...base, detailedInstruction: description || null, lessons } };
+    const baseRecipe = Number(body.baseRecipe);
+    if (!Number.isSafeInteger(baseRecipe) || !(await Recipe.exists({ _id: baseRecipe, publisher: chefId }))) {
+      errors.push('กรุณาเลือกสูตรอาหารตั้งต้นของคอร์ส');
+    }
+    const videos = (Array.isArray(body.videos) ? body.videos : []).slice(0, 50).map(v => ({
+      title: text(v && v.title), videoUrl: text(v && v.videoUrl),
+      duration: text(String((v && v.duration) ?? '')) === '' ? null : Number(v.duration),
+    })).filter(v => v.title || v.videoUrl);
+    if (!videos.length) errors.push('กรุณาเพิ่มบทเรียนอย่างน้อย 1 บท');
+    videos.forEach((v, i) => {
+      if (!v.title || v.title.length > 200) errors.push(`บทที่ ${i + 1}: กรุณากรอกชื่อบทเรียน`);
+      if (!isHttpUrl(v.videoUrl)) errors.push(`บทที่ ${i + 1}: กรุณาใส่ลิงก์วิดีโอที่ขึ้นต้นด้วย http:// หรือ https://`);
+      if (v.duration !== null && (!Number.isFinite(v.duration) || v.duration < 0 || v.duration > 1440)) errors.push(`บทที่ ${i + 1}: ความยาวต้องเป็นนาที (0–1440)`);
+    });
+    return { type, errors, data: { title, baseRecipe, price, detailedInstruction: description || null, videos } };
   }
 
-  const menus = (Array.isArray(body.menus) ? body.menus : []).slice(0, 20).map(m => ({
-    name: text(m && m.name), imageUrl: text(m && m.imageUrl), lessons: cleanLessons(m && m.lessons),
-  })).filter(m => m.name || m.imageUrl || m.lessons.length);
-  if (!menus.length) errors.push('คอร์สแพ็กเกจต้องมีเมนูย่อยอย่างน้อย 1 เมนู');
-  menus.forEach((m, i) => {
-    if (!m.name || m.name.length > 200) errors.push(`เมนูที่ ${i + 1}: กรุณากรอกชื่อเมนู`);
-    if (!isHttpUrl(m.imageUrl)) errors.push(`เมนูที่ ${i + 1}: กรุณาใส่ URL รูปภาพเมนู (http/https)`);
-    if (!m.lessons.length) errors.push(`เมนูที่ ${i + 1}: กรุณาเพิ่มบทเรียนอย่างน้อย 1 บท`);
-  });
-  return {
-    type, errors,
-    data: { ...base, description: description || null, menus: menus.map(m => ({ ...m, lessons: m.lessons.map(title => ({ title })) })) },
-  };
+  const ids = [...new Set((Array.isArray(body.includedCourses) ? body.includedCourses : []).map(Number))]
+    .filter(id => Number.isSafeInteger(id) && id !== editingId);
+  if (ids.length < 2) errors.push('แพ็กเกจต้องเลือกคอร์สเดี่ยวอย่างน้อย 2 คอร์ส');
+  else if ((await SingleCourse.countDocuments({ _id: { $in: ids }, publisher: chefId })) !== ids.length) {
+    errors.push('คอร์สที่เลือกบางคอร์สไม่พบ หรือไม่ใช่คอร์สของคุณ');
+  }
+  return { type, errors, data: { title, price, description: description || null, includedCourses: ids } };
 }
 
-/** นำข้อมูลที่ตรวจแล้วใส่ลง document คอร์สเดี่ยว (เก็บ videoId/duration ของบทเรียนเดิมไว้ตามลำดับ) */
+/** ใส่ข้อมูลที่ตรวจแล้วลงคอร์สเดี่ยว (บทเดิมลำดับเดียวกันเก็บ videoId ไว้) */
 function applySingle(doc, data) {
-  const { lessons, ...rest } = data;
+  const { videos, ...rest } = data;
   Object.assign(doc, rest);
   const old = doc.videos || [];
-  doc.videos = lessons.map((title, i) => {
-    const prev = old[i];
-    return prev ? { videoId: prev.videoId, title, videoUrl: prev.videoUrl || '', duration: prev.duration } : { title, videoUrl: '' };
-  });
+  doc.videos = videos.map((v, i) => ({
+    ...(old[i] && old[i].videoId != null ? { videoId: old[i].videoId } : {}),
+    title: v.title, videoUrl: v.videoUrl, ...(v.duration !== null ? { duration: v.duration } : {}),
+  }));
+}
+
+/**
+ * บันทึกคอร์สใหม่ ถ้าเลข _id ชนกับของเดิม (counters ใน DB ตามไม่ทัน เช่นเคยเพิ่มข้อมูลด้วยมือ)
+ * จะเลื่อนตัวนับไปเท่าเลขสูงสุดที่มีอยู่ แล้วบันทึกใหม่อีกครั้ง
+ */
+async function saveNew(doc, counterName) {
+  try {
+    return await doc.save();
+  } catch (err) {
+    // คอร์สไม่มี unique index อื่นนอกจาก _id จึงถือว่า 11000 คือเลข _id ชน (บาง driver ไม่ส่ง keyPattern มา)
+    if (err.code !== 11000 || (err.keyPattern && !err.keyPattern._id)) throw err;
+    const Model = doc.constructor;
+    const Counter = Model.db.model('Counter');
+    const last = await Model.findOne().sort({ _id: -1 }).select('_id').lean();
+    await Counter.updateOne({ _id: counterName }, { $max: { seq: last ? last._id : 0 } }, { upsert: true });
+    doc._id = undefined;
+    doc.isNew = true;
+    return doc.save();
+  }
 }
 
 /* ---------- Dashboard ---------- */
@@ -233,7 +242,7 @@ async function dashboardData(chef, { range = 7, allOrders = false } = {}) {
     recipeIds.length && { itemType: 'Recipe', itemId: { $in: recipeIds } },
   ].filter(Boolean);
   const txs = ors.length
-    ? await Transaction.find({ $or: ors }).sort({ purchasedAt: -1 }).populate('buyer', 'name email avatarUrl').lean()
+    ? await Transaction.find({ $or: ors }).sort({ purchasedAt: -1 }).populate('buyer', 'name email avatar').lean()
     : [];
   const courseTxs = txs.filter(t => t.itemType !== 'Recipe');
 
@@ -294,7 +303,7 @@ async function dashboardData(chef, { range = 7, allOrders = false } = {}) {
   const orders = courseTxs.slice(0, allOrders ? 100 : 5).map(t => ({
     buyerName: t.buyer ? t.buyer.name : 'ผู้ใช้ที่ถูกลบ',
     buyerEmail: t.buyer ? t.buyer.email : '',
-    buyerAvatar: t.buyer ? t.buyer.avatarUrl || '' : '',
+    buyerAvatar: t.buyer ? t.buyer.avatar || '' : '',
     course: titles[`${t.itemType}:${t.itemId}`] || '-',
     date: thaiDate(t.purchasedAt),
     amount: money(t.amountPaid),
@@ -319,6 +328,6 @@ function shortMoney(n) {
 }
 
 module.exports = {
-  categories, difficulties, asyncRoute, csrf, splitName, parseProfile,
-  loadCourses, parseCourse, applySingle, dashboardData, safeJson, money, Client,
+  difficulties, asyncRoute, csrf,
+  loadCourses, loadRecipeOptions, parseCourse, applySingle, saveNew, dashboardData, safeJson, money, Client,
 };
