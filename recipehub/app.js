@@ -54,6 +54,7 @@ app.use(session({
   cookie: { httpOnly: true, sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 },
 }));
 app.use(currentUser);
+app.use(require('./middleware/chefPageBoundary'));
 
 app.use('/', authRouter);
 app.use('/profile', profileRouter);
@@ -64,6 +65,7 @@ app.use('/chef', requireChef);
 app.use('/chef/recipes', chefRecipesRouter);
 app.use('/recipes', recipesRouter);
 app.use('/payments/promptpay',require('./routes/promptpay'));
+app.use('/api/assistant', require('./routes/assistant'));
 app.use('/api/meals', mealsRouter);
 app.use('/chef', chefRouter);
 app.use('/courses', require('./routes/courses'));
