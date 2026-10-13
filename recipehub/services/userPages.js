@@ -1,6 +1,6 @@
 // services/userPages.js — ดึงข้อมูลจาก MongoDB ให้หน้าฝั่งผู้ใช้ของมุกดา (views/user/*)
 //   หน้าแรก  /user          → loadHome()
-//   สูตรอาหาร /user/recipes  → loadRecipes()
+//   (หน้าสูตรอาหารใช้ /recipes ของเพื่อน — loadRecipes() ใช้แค่ดึง "สูตรแนะนำ" ในหน้าแรก)
 //   โปรไฟล์   /user/profile  → loadProfile() / saveProfile()
 //   รายละเอียดคอร์ส /courses/:id, /courses/pack/:id → loadCourseDetail()
 // ใช้ model ของทีมทั้งหมด ไม่ได้สร้าง collection ใหม่
@@ -13,12 +13,6 @@ const MultiCourse = require('../models/MultiCourse');
 const catalog = require('./courseCatalog');
 
 const difficultyLabel = { easy: 'ง่าย', medium: 'ปานกลาง', hard: 'ยาก' };
-const recipeLevels = [
-  { value: 'all', label: 'ทั้งหมด', desc: 'แสดงทุกระดับ' },
-  { value: 'easy', label: 'ง่าย', desc: 'เหมาะสำหรับผู้เริ่มต้น' },
-  { value: 'medium', label: 'ปานกลาง', desc: 'มีพื้นฐานการทำอาหารมาบ้าง' },
-  { value: 'hard', label: 'ยาก', desc: 'สำหรับผู้ที่มีประสบการณ์' },
-];
 
 /** วันที่ภาษาไทย เช่น "12 กันยายน 2026" */
 function thaiDate(value) {
@@ -239,4 +233,4 @@ async function loadCourseDetail(kind, id, clientId) {
   };
 }
 
-module.exports = { difficultyLabel, recipeLevels, loadRecipes, favoriteRecipeIds, loadHome, loadProfile, saveProfile, loadCourseDetail };
+module.exports = { difficultyLabel, loadRecipes, favoriteRecipeIds, loadHome, loadProfile, saveProfile, loadCourseDetail };

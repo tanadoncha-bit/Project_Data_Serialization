@@ -402,7 +402,7 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .filter__actions .btn--primary:hover { background: var(--primary-dark); }
 
 /* ===========================================================
-   11. การ์ดสูตรอาหาร  — views/user/recipes.ejs, profile.ejs
+   11. การ์ดสูตรอาหาร  — views/user/profile.ejs (แท็บรายการโปรด)
    =========================================================== */
 .recipe-card .card__img { aspect-ratio: 2.55 / 1; }
 .recipe-card .card__body { padding: 10px 14px 0; }
