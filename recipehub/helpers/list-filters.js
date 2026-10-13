@@ -1,5 +1,5 @@
 /* ===========================================================
-   ฟังก์ชันช่วยของหน้ารายการ (ใช้ร่วมกันระหว่างหน้าคอร์สและหน้าสูตรอาหาร)
+   ฟังก์ชันช่วยของหน้ารายการ (หน้าคอร์ส)
    - sortOptions     ตัวเลือก "เรียงตาม"
    - readFilters     อ่านค่าตัวกรองจาก URL
    - applyFilters    กรอง + เรียงรายการ
@@ -22,7 +22,7 @@ function buildPageList(page, totalPages) {
   return [1, '...', page, '...', totalPages];
 }
 
-// อ่านค่าตัวกรองจาก URL (ใช้ร่วมกับหน้าสูตรอาหาร)
+// อ่านค่าตัวกรองจาก URL
 function readFilters(q) {
   return {
     types: [].concat(q.type || []),
@@ -70,7 +70,7 @@ function applyFilters(items, { level, sort, filters }, fields) {
     (!filters.types.length || filters.types.includes(it.tagType)) &&
     (filters.minDur <= 15 || it[fields.minutes] >= filters.minDur) && (filters.maxDur >= 480 || it[fields.minutes] <= filters.maxDur) &&
     it.price >= filters.minPrice && (filters.maxPrice >= 5000 || it.price <= filters.maxPrice) &&
-    (it.rating || 0) >= minRating                 // ยังไม่มีรีวิว (null) นับเป็น 0
+    (it.rating || 0) >= minRating
   );
   if (sort === 'popular') list = list.slice().sort((a, b) => (b.studentCount || 0) - (a.studentCount || 0));
   if (sort === 'rating') list = list.slice().sort((a, b) => (b.rating || 0) - (a.rating || 0));
@@ -78,7 +78,6 @@ function applyFilters(items, { level, sort, filters }, fields) {
   return list;
 }
 
-// อ่าน level / sort / page / ตัวกรอง แล้วเตรียมค่าที่หน้ารายการต้องใช้ทั้งหมด
 const PER_PAGE = 15;
 
 function buildListPage(req, items, base, fields) {
@@ -87,7 +86,6 @@ function buildListPage(req, items, base, fields) {
   const filters = readFilters(req.query);
   const all = applyFilters(items, { level, sort, filters }, fields);
 
-  // แบ่งหน้า หน้าละ 15 รายการ
   const totalPages = Math.max(1, Math.ceil(all.length / PER_PAGE));
   const page = Math.min(totalPages, Math.max(1, parseInt(req.query.page) || 1));
   const list = all.slice((page - 1) * PER_PAGE, page * PER_PAGE);

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <%# head / navbar / footer ใช้ของเพื่อน (views/partials) — ไฟล์นี้เปลี่ยนแค่เนื้อหา %>
   <%- include('../partials/head', { title: 'หน้าแรก' }) %>
   <link rel="stylesheet" href="/stylesheets/cookhub.css">
 </head>
@@ -49,7 +48,7 @@
       <div class="grid-3">
         <% if (!popularCourses.length) { %><p class="empty">ยังไม่มีคอร์สเรียน</p><% } %>
         <% popularCourses.forEach(c => { %>
-          <a href="<%= c.url %>" class="card">
+          <a href="<%= c.url %>" class="card" data-course-modal>
             <div class="card__img">
               <%- include('_image', { src: (c.images || []).find(Boolean), alt: c.title, cls: 'card__photo' }) %>
               <span class="tag tag--<%= c.tagType %>"><%= c.tag %></span>
@@ -136,7 +135,6 @@
 
   <!-- ================= เชฟยอดนิยม ================= -->
   <section class="chefs">
-    <!-- ลายตกแต่งพื้นหลัง (เส้นประ ดาว หมวกเชฟ ส้อม) -->
     
 
     <div class="container">
@@ -186,7 +184,6 @@
 
   <%- include('../partials/footer') %>
 
-  <!-- สไลด์แบนเนอร์ -->
   <script>
     (function () {
       const slides = document.querySelectorAll('#promo .promo__slide');
@@ -204,6 +201,9 @@
       setInterval(() => go(cur + 1), 5000);
     })();
   </script>
+  <%- include('_courseDialog') %>
   <script src="/javascripts/userFavorites.js"></script>
+  <script src="/javascripts/userUi.js"></script>
+  <script src="/javascripts/coursePurchase.js"></script>
 </body>
 </html>

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <%# รายละเอียดคอร์ส  /courses/:id และ /courses/pack/:id — ข้อมูลจาก services/userPages.js → loadCourseDetail() %>
   <%- include('../partials/head', { title: course.title }) %>
   <link rel="stylesheet" href="/stylesheets/cookhub.css">
 </head>
@@ -48,14 +47,15 @@
         </div>
 
         <div class="cd-buy">
-          <span class="price">฿<%= course.price.toLocaleString('en-US') %></span>
+          <span class="price <%= course.price ? '' : 'free' %>"><%= course.price ? '฿' + course.price.toLocaleString('en-US') : 'ฟรี' %></span>
           <% if (purchased) { %>
             <span class="cd-owned"><i data-lucide="circle-check" class="ic-16"></i> คุณซื้อคอร์สนี้แล้ว</span>
-          <% } else if (canWatch) { %>
+          <% } else if (isOwner) { %>
             <span class="cd-owned"><i data-lucide="chef-hat" class="ic-16"></i> คอร์สของคุณ</span>
+          <% } else if (canWatch) { %>
+            <span class="cd-owned"><i data-lucide="gift" class="ic-16"></i> คอร์สฟรี เรียนได้เลย</span>
           <% } else { %>
-            <%# ระบบชำระเงินของทีมตอนนี้รองรับเฉพาะสูตรอาหาร (PromptPay) — ยังไม่มีสำหรับคอร์ส %>
-            <button type="button" class="btn btn--primary" disabled title="ระบบชำระเงินสำหรับคอร์สยังไม่เปิดให้บริการ">ซื้อคอร์ส (เร็ว ๆ นี้)</button>
+            <button type="button" class="btn btn--primary" data-buy-course data-kind="<%= course.kind %>" data-id="<%= course.id %>"><i data-lucide="shopping-cart" class="ic-16"></i> ซื้อคอร์สนี้</button>
           <% } %>
           <button class="fav cd-fav <%= favorite ? 'on' : '' %>" type="button" data-fav-url="/courses/favorites/<%= course.kind %>/<%= course.id %>" aria-pressed="<%= favorite %>" aria-label="รายการโปรด">
             <i data-lucide="heart" class="ic-16"></i>
@@ -102,5 +102,6 @@
 
   <%- include('../partials/footer') %>
   <script src="/javascripts/userFavorites.js"></script>
+  <script src="/javascripts/coursePurchase.js"></script>
 </body>
 </html>

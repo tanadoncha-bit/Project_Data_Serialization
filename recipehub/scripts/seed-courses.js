@@ -1,11 +1,4 @@
 // scripts/seed-courses.js — ใส่คอร์สตัวอย่างลง MongoDB (ใช้สูตรอาหารที่มีอยู่แล้วเป็น baseRecipe)
-//
-// รัน:   node scripts/seed-courses.js
-// ลบ:    node scripts/seed-courses.js --remove
-//
-// - ใส่เฉพาะตอนที่ยังไม่มีคอร์สใน database (กันใส่ซ้ำ)
-// - คอร์สตัวอย่างทุกอันมีคำว่า [ตัวอย่าง] ในชื่อ เพื่อให้ลบทีหลังได้ง่าย
-// - ต้องมีสูตรอาหาร (Recipe) อย่างน้อย 2 สูตรใน database ก่อน
 require('dotenv').config();
 const mongoose = require('mongoose');
 const Recipe = require('../models/Recipe');

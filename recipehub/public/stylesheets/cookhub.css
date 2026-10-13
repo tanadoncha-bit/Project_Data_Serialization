@@ -1,37 +1,18 @@
 /* ===========================================================
-   CookHub — สไตล์ทั้งเว็บ (ไฟล์เดียว ทุกหน้าใช้ร่วมกัน)
-   โหลดผ่าน views/partials/head.ejs
-
-   ส่วนกลาง
-     1. ตัวแปร + พื้นฐาน     2. Navbar        3. ปุ่ม
-     4. หัวข้อ section        5. การ์ด         6. หน้าแรก
-     7. Footer               8. มือถือ (ส่วนกลาง)
-   เฉพาะหน้า
-     9.  หน้ารายการ (คอร์ส / สูตรอาหาร)
-     10. ป๊อปอัปตัวกรอง
-     11. การ์ดสูตรอาหาร
-     12. หน้าโปรไฟล์
-   =========================================================== */
-
-/* ===========================================================
-   CookHub — สไตล์เนื้อหาหน้าฝั่งผู้ใช้ (หน้าแรก / คอร์ส / สูตร / โปรไฟล์)
-   โหลดต่อจาก partials/head ของเพื่อน:  <link rel="stylesheet" href="/stylesheets/cookhub.css">
-
-   ** Navbar + Footer + ฟอนต์ ใช้ของเพื่อน (layout.css) ไฟล์นี้ไม่ยุ่ง **
-   ทุกอย่างในไฟล์นี้อยู่ใต้ <main class="cookhub"> จึงไม่ชนกับ CSS ของเพื่อน
+   CookHub — สไตล์หน้าฝั่งผู้ใช้ (หน้าแรก / คอร์ส)
+   Navbar + Footer + ฟอนต์ ใช้ layout.css ไฟล์นี้ไม่ยุ่ง
+   ทุกอย่างในไฟล์นี้อยู่ใต้ <main class="cookhub"> จึงไม่ชนกับ CSS หน้าอื่น
 
      1. ตัวแปร + พื้นฐาน     2. รูปภาพ + ไอคอน   3. ปุ่ม
      4. หัวข้อ section        5. การ์ด            6. หน้าแรก
      8. มือถือ (ส่วนกลาง)
    เฉพาะหน้า
-     9.  หน้ารายการ (คอร์ส / สูตรอาหาร)
-     10. ป๊อปอัปตัวกรอง
-     11. การ์ดสูตรอาหาร
-     12. หน้าโปรไฟล์
+     9.  หน้ารายการคอร์ส       10. ป๊อปอัปตัวกรอง
+     13. รายละเอียดคอร์ส       14. dropdown ระดับ
+     15. หน้าต่างเด้งคอร์ส      16. หน้าต่างซื้อคอร์ส
    =========================================================== */
 
 /* ========== 1. ตัวแปร + พื้นฐาน ========== */
-/* สีหลักอิงจาก layout.css ของเพื่อน (--orange, --orange-soft) */
 :root {
   --primary: var(--orange, #F26B2A);
   --primary-dark: #D9541A;
@@ -41,11 +22,10 @@
   --star: #f7a21b;
   --radius: 10px;
   --container: 1064px;
-  --font-th: 'Prompt', sans-serif;   /* ฟอนต์เดียวกับเพื่อน (โหลดใน partials/head) */
+  --font-th: 'Prompt', sans-serif;
   --font-en: 'Prompt', sans-serif;
 }
 
-/* style.css ของเพื่อนกำหนด main { max-width; padding } ไว้ — หน้าเราต้องการเต็มจอ */
 main.cookhub { width: 100%; max-width: none; margin: 0; padding: 0; line-height: 1.5; }
 .cookhub *, .modal * { margin: 0; padding: 0; }
 .cookhub img { display: block; max-width: 100%; }
@@ -53,8 +33,6 @@ main.cookhub { width: 100%; max-width: none; margin: 0; padding: 0; line-height:
 .cookhub .container { width: 100%; max-width: var(--container); margin: 0 auto; padding: 0 24px; }
 
 /* ========== 2. รูปภาพ + ไอคอน ========== */
-/* รูปมาจาก database ผ่าน views/user/_image.ejs (วิธีเดียวกับ views/recipes/_image.ejs ของเพื่อน)
-   ไม่มีรูป → กรอบสีส้มอ่อน + ไอคอน */
 .img-placeholder {
   display: flex; align-items: center; justify-content: center;
   background: var(--primary-soft); color: var(--primary);
@@ -64,7 +42,6 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
   object-fit: cover; background: var(--primary-soft);
 }
 
-/* ไอคอน Lucide (layout.css ของเพื่อนตั้งค่าเริ่มต้นไว้ 24px) — ปรับขนาดตามคลาส */
 .ic-11 { width: 11px; height: 11px; }  .ic-12 { width: 12px; height: 12px; }
 .ic-13 { width: 13px; height: 13px; }  .ic-14 { width: 14px; height: 14px; }
 .ic-15 { width: 15px; height: 15px; }  .ic-16 { width: 16px; height: 16px; }
@@ -110,18 +87,14 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .card__img { position: relative; aspect-ratio: 2.6 / 1; overflow: hidden; background: var(--primary-soft); }
 .card__photo { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-/* ป้ายหมวดหมู่ (มุมซ้ายบน) — สีตามหมวด */
 .tag {
   position: absolute; top: 10px; left: 10px;
   font-size: 10px; font-weight: 500; line-height: 1; padding: 6px 11px; border-radius: 999px;
 }
 .tag--thai      { background: #f4672f; color: #fff; }
 .tag--inter     { background: #fdf1cf; color: #9a6b12; }
-.tag--bakery    { background: #fde3e1; color: #b8433a; }
 .tag--japan     { background: #e6f2ff; color: #2b6cb0; }
-.tag--healthy   { background: #e5f6e8; color: #2f855a; }
 
-/* ปุ่มหัวใจ (มุมขวาบน) */
 .fav {
   position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 50%;
   background: #fff; border: none; cursor: pointer; display: grid; place-items: center;
@@ -141,7 +114,6 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .card__meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); }
 .card__meta span { display: flex; align-items: center; gap: 4px; }
 
-/* การ์ดสูตร (หน้าแรก) */
 .recipe-mini .card__img { aspect-ratio: 1.75 / 1; }
 .recipe-mini .card__body { padding: 12px 12px 10px; }
 .recipe-mini .card__title { font-family: var(--font-en); font-size: 12px; font-weight: 600; }
@@ -149,12 +121,10 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 
 /* ========== 6. หน้าแรก  — views/user/home.ejs ========== */
 
-/* Hero */
 .hero {
   position: relative; height: 380px; display: flex; align-items: center;
   background: #f3ece5 center / cover no-repeat;
 }
-/* รูป hero = ไฟล์ asset ในโปรเจคเพื่อน (public/images/recipes) ไม่ใส่ใน HTML */
 .hero--home, .hero--recipes { background-image: url('/images/recipes/recipe-hero.png'); }
 .hero--courses { background-image: url('/images/recipes/chef-hero.png'); }
 .hero::before {
@@ -169,7 +139,6 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .hero__actions { display: flex; gap: 14px; }
 .hero__actions .btn { height: 38px; padding: 0 26px; font-size: 13px; }
 
-/* แบนเนอร์โปรโมชั่น */
 .promo { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 4.5 / 1; margin: 8px 0; }
 .promo__slide { position: absolute; inset: 0; opacity: 0; transition: opacity .5s; }
 .promo__slide.active { opacity: 1; }
@@ -185,7 +154,6 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .promo__dots button { width: 8px; height: 8px; border-radius: 50%; border: none; cursor: pointer; background: #fff; opacity: .9; }
 .promo__dots button.active { background: var(--primary); opacity: 1; }
 
-/* เชฟยอดนิยม */
 .chefs {
   position: relative; overflow: hidden; padding: 56px 0 36px;
   background: #fff url('/images/homepage/Popular.png') center 52px / min(100%, 1304px) auto no-repeat;
@@ -217,7 +185,6 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .chef__followers { font-size: 14px; font-weight: 600; }
 .chef__followers span { font-weight: 400; }
 
-/* CTA ด้านล่าง */
 .cta {
   position: relative; display: flex; aspect-ratio: 1520 / 300; border-radius: 16px; overflow: hidden;
   background: #fde7d8 url('/images/homepage/Bottom.png') center / 100% 100% no-repeat;
@@ -256,18 +223,16 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
   .promo { aspect-ratio: 2.4 / 1; }
 }
 /* ===========================================================
-   9. หน้ารายการ (คอร์ส / สูตรอาหาร)  — views/user/courses.ejs, recipes.ejs
+   9. หน้ารายการคอร์ส  — views/user/courses.ejs
    =========================================================== */
 .container--wide { max-width: 1128px; }
 
-/* Hero หน้ารายการ (ไม่มีปุ่ม) */
 .hero--list { height: 410px; }
 .hero--list .hero__content { padding-left: 13%; }
 .hero--list .hero__title .l1 { font-size: 44px; }
 .hero--list .hero__title .l2 { font-size: 44px; }
 .hero--list .hero__desc { margin-bottom: 0; }
 
-/* แถบเครื่องมือ: ระดับ / เรียงตาม / ตัวกรอง */
 .toolbar { display: flex; gap: 18px; margin-top: 30px; }
 .toolbar__bar {
   flex: 1; display: flex; align-items: center; justify-content: space-between;
@@ -297,7 +262,6 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .filter-btn:hover { border-color: var(--primary); }
 .result-count { font-size: 12px; color: #333; margin: 14px 0 18px 14px; }
 
-/* การ์ดคอร์ส (มีเชฟ + ราคา) */
 .course-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px 34px; }
 .course-card .card__img { aspect-ratio: 2.55 / 1; display: flex; }
 .course-card .card__img .half { flex: 1; min-width: 0; height: 100%; }
@@ -318,17 +282,15 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .more { font-size: 10px; color: var(--primary); }
 .course-card:hover .more { text-decoration: underline; }
 
-/* เลขหน้า */
-.pagination { display: flex; justify-content: center; align-items: center; gap: 14px; margin: 34px 0 10px; }
-.pagination a, .pagination span {
-  width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
-  font-size: 12px; color: #333;
+.pagination { display: flex; justify-content: center; align-items: center; gap: 20px; margin: 48px 0 0; font-size: 13px; }
+.pagination a, .pagination .current {
+  width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  border: 1px solid #ddd; color: #333;
 }
-.pagination .arrow { border: 1px solid #d6d6d6; }
-.pagination .arrow:hover { border-color: var(--primary); color: var(--primary); }
-.pagination .current { background: #ff8a2f; color: #fff; }
-.pagination a.num:hover { color: var(--primary); }
-.pagination .disabled { opacity: .4; pointer-events: none; }
+.pagination a:hover { border-color: var(--primary); color: var(--primary); }
+.pagination .current { background: var(--primary); border-color: var(--primary); color: #fff; }
+.pagination .total { color: #999; }
+.cookhub .course-list { padding-bottom: 72px; }
 
 @media (max-width: 900px) {
   .toolbar { flex-direction: column; }
@@ -365,7 +327,6 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .filter__section--last { border-bottom: none; padding-bottom: 6px; }
 .filter__section h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
 
-/* checkbox */
 .check { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8a8a8a; padding: 3px 0 3px 10px; cursor: pointer; }
 .check input { position: absolute; opacity: 0; pointer-events: none; }
 .check__box {
@@ -385,7 +346,6 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .stars svg.on { fill: var(--star); }
 .check--stars small { font-size: 9px; color: #333; margin-left: 6px; }
 
-/* แถบเลื่อนสองหัว */
 .range { position: relative; height: 22px; margin: 6px 10px 0; }
 .range__track { position: absolute; left: 0; right: 0; top: 50%; height: 3px; transform: translateY(-50%); background: #f3d2bf; border-radius: 2px; }
 .range__fill { position: absolute; top: 0; bottom: 0; background: var(--primary); border-radius: 2px; }
@@ -404,137 +364,17 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .range input::-moz-range-track { background: none; }
 .range__labels { display: flex; justify-content: space-between; font-size: 10px; color: #555; margin: 4px 0 0; }
 
-/* ปุ่มด้านล่าง */
 .filter__actions { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 14px; }
 .filter__btn { width: 160px; height: 34px; font-size: 13px; }
 .filter__actions .btn--outline { border-color: var(--primary); color: var(--text); background: #fff; }
 .filter__actions .btn--primary { background: #ff7a2f; }
 .filter__actions .btn--primary:hover { background: var(--primary-dark); }
 
-/* ===========================================================
-   11. การ์ดสูตรอาหาร  — views/user/recipes.ejs, profile.ejs
-   =========================================================== */
-.recipe-card .card__img { aspect-ratio: 2.55 / 1; }
-.recipe-card .card__body { padding: 10px 14px 0; }
-.recipe-card .card__title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.recipe-card .card__desc { margin-bottom: 8px; }
-.recipe-card .chef-mini { margin-bottom: 12px; }
-.recipe-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-.cook-time { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); }
-.level { font-size: 9px; font-weight: 500; line-height: 1; padding: 4px 9px; border-radius: 5px; }
-.level--easy   { background: #d9f2d9; color: #2f8a3f; }
-.level--medium { background: #f8dfb3; color: #a0661a; }
-.level--hard   { background: #ffd0c9; color: #c43a2a; }
-.recipe-card .card__foot {
-  margin: 0 -14px; padding: 10px 14px 12px; border-top: 1px solid #efefef;
-}
-
-/* ===========================================================
-   12. หน้าโปรไฟล์  — views/user/profile.ejs
-   =========================================================== */
-.profile-wrap { max-width: 1018px; margin: 0 auto; padding: 18px 24px 40px; }
-.panel { background: #fff; border: 1px solid #e3e3e3; border-radius: 12px; }
-
-/* หัวโปรไฟล์ */
-.profile-head { display: flex; align-items: center; gap: 52px; padding: 30px 34px; min-height: 222px; }
-.avatar { position: relative; width: 143px; height: 143px; flex-shrink: 0; }
-.avatar__img { width: 100%; height: 100%; border-radius: 50%; border: 3px solid #f6a98a; }
-.avatar__img.img-placeholder svg { width: 60px; height: 60px; }
-.avatar__img[hidden] { display: none; }
-.avatar-status { font-size: 12px; color: var(--primary); margin-top: 4px; }
-.avatar__cam {
-  position: absolute; right: 2px; bottom: 8px; width: 28px; height: 28px; border-radius: 50%;
-  background: var(--primary); color: #fff; display: grid; place-items: center; cursor: pointer;
-  border: 2px solid #fff;
-}
-.avatar__cam input { display: none; }
-.profile-head__name { font-size: 26px; font-weight: 600; }
-.profile-head__email { display: inline-block; font-size: 15px; color: #666; text-decoration: underline; margin: 2px 0 6px; }
-.profile-head__bio { font-size: 14px; color: #555; line-height: 1.6; max-width: 440px; }
-
-/* แท็บ */
-.tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 5px; margin: 22px 0 20px; }
-.tab {
-  display: flex; align-items: center; justify-content: center; gap: 8px; height: 50px;
-  border-radius: 10px; font-size: 21px; color: var(--text);
-}
-.tab svg { flex-shrink: 0; }
-.tab:hover { color: var(--primary); }
-.tab.active { background: #ff7a2f; color: #fff; }
-.tab .tab-ic--fav { color: #ef5a6f; }
-.tab .tab-ic--history { color: #ef5a3a; }
-.tab.active svg { color: #fff; }
-
-/* ข้อมูลส่วนตัว */
-.info { padding: 16px 24px 22px; }
-.info h2 { font-size: 26px; font-weight: 600; margin-bottom: 6px; }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 28px; padding: 0 10px; }
-.field label { display: block; font-size: 14px; margin-bottom: 4px; }
-.field input, .field textarea {
-  width: 100%; height: 30px; padding: 0 10px; border: 1px solid #dcdcdc; border-radius: 5px;
-  font-family: inherit; font-size: 14px; color: var(--text); background: #fff;
-}
-.field textarea { height: 84px; padding: 6px 10px; resize: vertical; }
-.field input:focus, .field textarea:focus { outline: none; border-color: var(--primary); }
-.field--full { grid-column: 1 / -1; }
-.field__count { text-align: right; font-size: 11px; color: #999; margin-top: 2px; }
-.save-btn {
-  height: 32px; padding: 0 16px; margin: 6px 0 0 10px; border: none; border-radius: 5px;
-  background: #ff7a2f; color: #fff; font-family: inherit; font-size: 14px; cursor: pointer;
-}
-.save-btn:hover { background: var(--primary-dark); }
-.alert-ok { margin: 0 8px 10px; padding: 8px 12px; border-radius: 6px; background: #e8f7ec; color: #2f8a3f; font-size: 12px; }
-
-/* หัวข้อในแท็บ */
-.tab-title { display: flex; align-items: center; gap: 8px; font-size: 26px; font-weight: 600; margin-left: 4px; }
-.tab-sub { font-size: 13px; color: #888; margin: 0 0 16px 44px; }
-
-/* รายการโปรด */
-.fav-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.fav-grid .course-card .card__foot,
-.fav-grid .recipe-card .card__foot { margin: 10px -14px 0; padding: 10px 14px 12px; border-top: 1px solid #efefef; }
-.fav-grid .course-card .card__body { padding-bottom: 0; }
-.empty { text-align: center; color: #999; font-size: 13px; padding: 40px 0; }
-
-/* ประวัติการซื้อ */
-.order { display: flex; align-items: center; gap: 14px; padding: 6px; margin-bottom: 8px; border: 1px solid #e6e6e6; border-radius: 8px; }
-.order__img { width: 146px; aspect-ratio: 1.95 / 1; border-radius: 4px; flex-shrink: 0; }
-.order__main { flex: 1; min-width: 0; padding: 2px 0; }
-.order__type { display: inline-block; font-size: 9px; padding: 2px 8px; border-radius: 3px; }
-.order__type--course { background: #fde0d6; color: #c4502c; }
-.order__type--recipe { background: #fcd98a; color: #8a5a00; }
-.order__title { font-size: 15px; font-weight: 600; margin: 3px 0 1px; }
-.order__desc { font-size: 10px; color: #888; }
-.order__meta { display: flex; gap: 70px; font-size: 10px; color: #888; margin-top: 8px; }
-.order__meta span { display: flex; align-items: center; gap: 3px; }
-.order__side {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  width: 290px; padding: 4px 14px 4px 12px; border-left: 1px solid #ddd; align-self: stretch;
-}
-.order__paid { display: flex; align-items: center; gap: 4px; font-size: 9px; color: #2f9e57; }
-.order__date { font-size: 11px; color: #555; margin: 6px 0 2px; }
-.order__price { font-family: var(--font-en); font-size: 20px; font-weight: 500; color: var(--primary); }
-.order__btn {
-  width: 72px; height: 26px; border-radius: 3px; background: #ff7a2f; color: #fff;
-  font-size: 10px; display: grid; place-items: center;
-}
-.order__btn:hover { background: var(--primary-dark); }
-
-@media (max-width: 760px) {
-  .profile-head { flex-direction: column; text-align: center; gap: 16px; }
-  .tabs { grid-template-columns: 1fr; }
-  .form-grid { grid-template-columns: 1fr; }
-  .fav-grid { grid-template-columns: 1fr; }
-  .order { flex-wrap: wrap; }
-  .order__side { width: 100%; border-left: none; border-top: 1px solid #ddd; padding-top: 8px; }
-}
-/* ไม่มีผลลัพธ์ (หน้ารายการ) */
 .empty-state { text-align: center; padding: 56px 16px; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .empty-state h2 { font-size: 18px; color: var(--text); }
 .empty-state svg { color: var(--primary); }
 
-/* รูปโหลดไม่ได้ → ซ่อนรูป แสดงกรอบไอคอนแทน (views/user/_image.ejs) */
-.cookhub img[hidden], .img-placeholder[hidden] { display: none !important; }
+img[hidden], .img-placeholder[hidden] { display: none !important; }
 .alert-error { margin: 0 8px 10px; padding: 8px 12px; border-radius: 6px; background: #fdecec; color: #c43a2a; font-size: 12px; }
 
 /* ===========================================================
@@ -575,4 +415,205 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .cd-video__link { display: inline-block; margin-top: 6px; font-size: 12px; color: var(--primary); text-decoration: underline; }
 @media (max-width: 900px) {
   .cd-head { grid-template-columns: 1fr; }
+}
+
+.tag--chinese { background: #fde2e2; color: #c0392b; }
+.tag--british { background: #e8ecf8; color: #34495e; }
+.tag--korean  { background: #f3e8fb; color: #7d3c98; }
+
+/* ===========================================================
+   14. dropdown ระดับ / ความยาก — views/user/_levelSelect.ejs (แบบ Figma "Difficulty")
+   =========================================================== */
+.level-dd { position: relative; }
+.level-dd summary {
+  list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+  height: 28px; padding: 0 12px 0 14px; border: 1px solid #f6c9a8; border-radius: 999px;
+  background: #fffaf5; font-size: 12px; color: var(--text);
+}
+.level-dd summary::-webkit-details-marker { display: none; }
+.level-dd[open] summary { border-color: var(--primary); }
+.level-dd__menu {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 30; width: 220px; padding: 6px;
+  background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,.12);
+}
+.level-dd__option { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+.level-dd__option:hover { background: #fafafa; }
+.level-dd__option input { position: absolute; opacity: 0; pointer-events: none; }
+.level-dd__text { flex: 1; display: flex; flex-direction: column; }
+.level-dd__text strong { font-size: 13px; font-weight: 600; }
+.level-dd__text small { font-size: 10.5px; color: var(--text-muted); }
+.level-dd__check { color: var(--primary); visibility: hidden; }
+.level-dd__option.is-selected { background: var(--primary-soft); }
+.level-dd__option.is-selected .level-dd__check { visibility: visible; }
+.level-dd__option:focus-within { outline: 2px solid var(--primary); outline-offset: -2px; }
+
+/* ===========================================================
+   15. หน้าต่างเด้งรายละเอียดคอร์ส — views/user/_courseModal.ejs (แบบ Figma buy course / course / pack courses)
+   =========================================================== */
+.course-dialog {
+  width: min(920px, calc(100vw - 32px)); max-height: calc(100vh - 40px); padding: 0; border: 0;
+  border-radius: 22px; background: #fff; overflow: auto; box-shadow: 0 24px 70px rgba(0,0,0,.3);
+}
+.course-dialog::backdrop { background: rgba(0,0,0,.55); }
+:where(.course-dialog *) { margin: 0; padding: 0; box-sizing: border-box; }
+:where(.course-dialog img) { display: block; max-width: 100%; }
+.course-dialog button { font-family: inherit; }
+.cm-loading { min-height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 32px; color: var(--text-muted); font-size: 14px; }
+.cm-spinner { width: 34px; height: 34px; border: 3px solid var(--primary-soft); border-top-color: var(--primary); border-radius: 50%; animation: cm-spin .8s linear infinite; }
+@keyframes cm-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .cm-spinner { animation: none; } }
+
+.cm { padding: 14px; font-size: 14px; color: var(--text); }
+.cm-round {
+  width: 38px; height: 38px; border-radius: 50%; border: 0; background: #fff; color: var(--text);
+  display: grid; place-items: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+.cm-round.fav { position: static; color: #ef4b4b; }
+.cm-round:hover { transform: scale(1.05); }
+
+.cm-cover { position: relative; aspect-ratio: 3.2 / 1; border-radius: 14px; overflow: hidden; background: var(--primary-soft); }
+.cm-cover__img { width: 100%; height: 100%; object-fit: cover; }
+.cm-cover__actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 10px; }
+.cm-top { display: grid; grid-template-columns: 1fr 300px; gap: 18px; margin-top: 14px; }
+.cm-tag { position: static; display: inline-block; margin-bottom: 8px; }
+.cm-tags { display: flex; gap: 8px; margin-bottom: 8px; }
+.cm-tags .tag { position: static; }
+.cm-title { font-size: 24px; font-weight: 700; line-height: 1.3; }
+.cm-desc { font-size: 13px; color: #6b6b6b; line-height: 1.65; margin-top: 4px; }
+.cm-meta { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 12px; font-size: 12px; color: #444; }
+.cm-meta span { display: inline-flex; align-items: center; gap: 5px; }
+.cm-meta svg { color: var(--primary); }
+
+.cm-chef { position: relative; border: 1px solid #f6c3ab; border-radius: 14px; padding: 22px 14px 14px; align-self: start; }
+.cm-chef__badge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 11px; padding: 2px 12px; border-radius: 999px; background: #fde0d6; color: #c4502c; }
+.cm-chef__row { display: flex; align-items: center; gap: 10px; }
+.cm-chef__avatar { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid #fde0d6; }
+.cm-chef__avatar.img-placeholder svg { width: 22px; height: 22px; }
+.cm-chef__name { font-size: 15px; font-weight: 600; }
+.cm-chef__sub { font-size: 11px; color: var(--text-muted); }
+.cm-chef__bio { font-size: 12px; color: #666; line-height: 1.6; margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.cm-chef__buy { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.cm-chef__buy .price { font-size: 24px; }
+.cm-cta { height: 38px; padding: 0 16px; font-size: 13px; }
+.cm-cta[disabled] { opacity: .55; cursor: not-allowed; }
+.cm-chef__buy .cm-cta { margin-left: auto; }
+
+.cm-box { border: 1px solid #f6c3ab; border-radius: 14px; padding: 14px; margin-top: 14px; }
+.cm-box__title { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; margin-bottom: 10px; }
+.cm-box__title svg { color: var(--primary); }
+.cm-lesson-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.cm-lesson { display: flex; align-items: center; gap: 12px; padding: 8px; border: 1px solid #eee; border-radius: 10px; }
+.cm-lesson__thumb { width: 96px; aspect-ratio: 16 / 9; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+.cm-lesson__thumb.img-placeholder svg { width: 20px; height: 20px; }
+.cm-lesson__text { flex: 1; min-width: 0; }
+.cm-lesson__title { font-size: 13px; font-weight: 600; }
+.cm-lesson__time { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.cm-lesson__icon { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; }
+.cm-lesson__icon.is-lock { border: 1.5px solid var(--primary); color: var(--primary); }
+.cm-lesson__icon.is-play { background: var(--primary); color: #fff; }
+.cm-learn { list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.cm-learn li { display: flex; gap: 8px; align-items: flex-start; }
+.cm-learn svg { color: #e2541c; margin-top: 3px; }
+
+.cm--pack { position: relative; display: grid; grid-template-columns: 300px 1fr; gap: 22px; padding: 18px; }
+.cm-pack-close { position: absolute; top: 14px; right: 14px; box-shadow: none; }
+.cm-pack-images { display: flex; flex-direction: column; gap: 14px; }
+.cm-pack-item { position: relative; display: block; aspect-ratio: 4 / 3; border-radius: 14px; overflow: hidden; background: var(--primary-soft); }
+.cm-pack-item__img { width: 100%; height: 100%; object-fit: cover; }
+.cm-pack-item__label {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 14px 12px; color: #fff;
+  background: linear-gradient(transparent, rgba(0,0,0,.65)); display: flex; flex-direction: column;
+}
+.cm-pack-item__label strong { font-size: 18px; }
+.cm-pack-item__label small { font-size: 11px; opacity: .9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cm-pack-info { padding-right: 30px; }
+.cm-pack-chef { margin: 12px 0; }
+.cm-stats { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #eee; border-radius: 12px; padding: 12px; gap: 8px; }
+.cm-stats div { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: center; }
+.cm-stats svg { grid-row: span 2; color: var(--primary); }
+.cm-stats strong { font-size: 13px; }
+.cm-stats small { font-size: 10.5px; color: var(--text-muted); }
+.cm-subtitle { font-size: 16px; font-weight: 600; margin: 16px 0 6px; padding-top: 14px; border-top: 1px solid #eee; }
+.cm-subtitle + .cm-learn { margin-top: 4px; }
+.cm-pack-buy { display: flex; align-items: center; gap: 12px; margin-top: 18px; }
+.cm-pack-buy .price { font-size: 26px; margin-right: auto; }
+
+@media (max-width: 760px) {
+  .cm-top, .cm--pack { grid-template-columns: 1fr; }
+  .cm-cover { aspect-ratio: 2 / 1; }
+  .cm-pack-images { flex-direction: row; overflow-x: auto; }
+  .cm-pack-item { min-width: 220px; }
+  .cm-stats { grid-template-columns: 1fr; }
+  .cm-pack-info { padding-right: 0; }
+}
+
+/* ===========================================================
+   16. หน้าต่างซื้อคอร์ส — public/javascripts/coursePurchase.js
+   หน้าตาเดียวกับหน้าต่างชำระเงินสูตร (recipes.css .recipe-promptpay-checkout / .recipe-demo-checkout)
+   ใช้คลาส ck-pay แยก จะได้ไม่ชนกับ recipes.css
+   =========================================================== */
+.ck-pay {
+  position: fixed; border: 0; padding: 28px; border-radius: 20px; color: #222;
+  font-family: 'Prompt', sans-serif; width: 440px; max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 48px); overflow-y: auto; box-sizing: border-box;
+}
+.ck-pay::backdrop { background: rgba(0, 0, 0, .56); }
+.ck-pay [hidden] { display: none !important; }
+.ck-pay h2 { margin: 0 0 8px; font-size: 21px; font-weight: 600; }
+.ck-pay p { margin: 0; }
+.ck-pay .btn { font-family: inherit; }
+.ck-pay__close {
+  position: absolute; right: 12px; top: 10px; width: 32px; height: 32px;
+  border: 0; background: transparent; color: #888; font-size: 24px; cursor: pointer;
+}
+.ck-pay__brand { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: 15px; font-weight: 600; color: #f66a29; }
+.ck-pay__brand span { font-size: 10px; font-weight: 400; letter-spacing: 1.2px; color: #999; }
+.ck-pay__summary { background: #faf9f7; border: 1px solid #eeece8; border-radius: 12px; padding: 16px; margin-top: 12px; }
+.ck-pay__label { font-size: 11px; color: #999; }
+.ck-pay__title { font-size: 14px; line-height: 1.6; color: #333; }
+.ck-pay__summary .ck-pay__title { margin: 5px 0 16px; }
+.ck-pay__total {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  border-top: 1px solid #e9e7e3; padding-top: 14px; font-size: 12px; color: #777;
+}
+.ck-pay__total .ck-pay__price { font-size: 24px; font-weight: 600; color: #222; }
+.ck-pay__method { display: flex; align-items: center; gap: 10px; margin: 20px 0 14px; }
+.ck-pay__mark {
+  display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px;
+  border: 1px solid #e5e5e5; font-size: 12px; font-weight: 600; color: #555;
+}
+.ck-pay__method > div { display: flex; flex-direction: column; gap: 3px; }
+.ck-pay__method strong { font-size: 13px; font-weight: 500; }
+.ck-pay__method small { font-size: 11px; color: #999; }
+.ck-pay__qr { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 12px 0; }
+.ck-pay__qr img { width: 230px; max-width: 100%; background: #fff; padding: 12px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; }
+.ck-pay__countdown { font-size: 12px; color: #777; font-variant-numeric: tabular-nums; }
+.ck-pay__status { min-height: 20px; margin: 16px 0 !important; text-align: center; font-size: 13px; line-height: 1.7; color: #777; }
+.ck-pay[data-payment-state="pending"] .ck-pay__status::before {
+  content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: #e5a441;
+}
+.ck-pay[data-payment-state="failed"] .ck-pay__status,
+.ck-pay[data-payment-state="expired"] .ck-pay__status { color: #b75a37; }
+.ck-pay__create { width: 100%; height: 44px; border-radius: 10px; }
+.ck-pay__footer { margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee; text-align: center; font-size: 11px; color: #999; }
+
+.ck-pay--demo { width: 420px; padding: 24px; }
+.ck-pay--demo h2 { font-size: 18px; margin-bottom: 16px; }
+.ck-pay--demo .ck-pay__price { display: block; margin: 12px 0; font-size: 22px; color: #f56a28; }
+.ck-pay__muted { font-size: 13px; line-height: 1.7; color: #777; }
+.ck-pay--demo .ck-pay__status { text-align: left; margin: 8px 0 0 !important; color: #b75a37; }
+.ck-pay__actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+.ck-toast {
+  position: fixed; left: 50%; bottom: 28px; z-index: 2000; transform: translate(-50%, 20px);
+  padding: 12px 20px; border-radius: 12px; background: #222; color: #fff;
+  font-family: 'Prompt', sans-serif; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+}
+.ck-toast.show { opacity: 1; transform: translate(-50%, 0); }
+.ck-toast.is-error { background: #b75a37; }
+
+@media (max-width: 480px) {
+  .ck-pay { padding: 22px; }
+  .ck-pay__brand { margin-bottom: 16px; }
 }

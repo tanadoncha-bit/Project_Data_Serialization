@@ -1,30 +1,11 @@
-// services/userPages.js — ดึงข้อมูลจาก MongoDB ให้หน้าฝั่งผู้ใช้ของมุกดา (views/user/*)
-//   หน้าแรก  /user          → loadHome()
-//   สูตรอาหาร /user/recipes  → loadRecipes()
-//   โปรไฟล์   /user/profile  → loadProfile() / saveProfile()
-//   รายละเอียดคอร์ส /courses/:id, /courses/pack/:id → loadCourseDetail()
-// ใช้ model ของทีมทั้งหมด ไม่ได้สร้าง collection ใหม่
+// services/userPages.js — ดึงข้อมูลจาก MongoDB ให้หน้าฝั่งผู้ใช้ (views/user/*)
 const Recipe = require('../models/Recipe');
 const Client = require('../models/Client');
 const Favorite = require('../models/Favorite');
-const Transaction = require('../models/Transaction');
 const SingleCourse = require('../models/SingleCourse');
 const MultiCourse = require('../models/MultiCourse');
 const catalog = require('./courseCatalog');
-
-const difficultyLabel = { easy: 'ง่าย', medium: 'ปานกลาง', hard: 'ยาก' };
-const recipeLevels = [
-  { value: 'all', label: 'ทั้งหมด' },
-  { value: 'easy', label: 'ง่าย' },
-  { value: 'medium', label: 'ปานกลาง' },
-  { value: 'hard', label: 'ยาก' },
-];
-
-/** วันที่ภาษาไทย เช่น "12 กันยายน 2026" */
-function thaiDate(value) {
-  if (!value) return '';
-  return new Date(value).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric', calendar: 'gregory' });
-}
+const payments = require('./coursePayments');
 
 /* ---------------------------------------------------------- สูตรอาหาร */
 
@@ -33,18 +14,18 @@ function mapRecipe(r) {
   const chef = r.publisher && typeof r.publisher === 'object' ? r.publisher : {};
   return {
     id: r._id,
-    url: '/recipes/' + r._id,                 // หน้ารายละเอียดสูตรของเพื่อน
+    url: '/recipes/' + r._id,
     title: r.title,
     description: r.description || '',
     ...catalog.tagFor(r.category),
     difficulty: (r.difficulty || 'EASY').toLowerCase(),
-    rating: r.rating,                         // null = ยังไม่มีรีวิว
+    rating: r.rating,
     cookMin: r.duration || 0,
     price: r.price || 0,
     image: r.image || '',
     likes: catalog.formatCount(r.favoriteCount || 0),
     favoriteCount: r.favoriteCount || 0,
-    studentCount: r.favoriteCount || 0,       // ใช้เรียง "ยอดนิยม" ใน helpers/list-filters.js
+    studentCount: r.favoriteCount || 0,
     chefId: chef._id,
     chef: chef.name || 'เจ้าของสูตร',
     chefAvatar: chef.avatar || '',
@@ -73,10 +54,8 @@ async function loadHome() {
     Client.find({ role: 'chef' }).select('name avatar').lean(),
   ]);
 
-  // คอร์สยอดนิยม 3 อัน (คนเรียนเยอะสุด)
   const popularCourses = courses.slice().sort((a, b) => b.studentCount - a.studentCount).slice(0, 3);
 
-  // สูตรแนะนำ 4 อัน (คนกดใจเยอะสุด แล้วตามคะแนน)
   const recommendedRecipes = recipes.slice()
     .sort((a, b) => b.favoriteCount - a.favoriteCount || (b.rating || 0) - (a.rating || 0))
     .slice(0, 4);
@@ -102,121 +81,63 @@ async function loadHome() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 3)
     .map((ch, i) => ({ ...ch, isTop: i === 0, followers: catalog.formatCount(ch.count) }));
-  // หน้าออกแบบไว้ให้อันดับ 1 อยู่ตรงกลาง → เรียงเป็น [อันดับ 2, อันดับ 1, อันดับ 3]
   const topChefs = ranked.length === 3 ? [ranked[1], ranked[0], ranked[2]] : ranked;
 
   return { popularCourses, recommendedRecipes, banners, chefs: topChefs };
-}
-
-/* ---------------------------------------------------------- โปรไฟล์ */
-
-/** แปลงรายการ Favorite / Transaction เป็นการ์ด (ตัดรายการที่ถูกลบไปแล้วทิ้ง) */
-async function itemsFor(rows, getType, getId) {
-  const ids = { Recipe: [], SingleCourse: [], MultiCourse: [] };
-  rows.forEach(r => { if (ids[getType(r)]) ids[getType(r)].push(getId(r)); });
-
-  const [recipes, courses] = await Promise.all([
-    Recipe.find({ _id: { $in: ids.Recipe } }).populate('publisher', 'name avatar').lean(),
-    ids.SingleCourse.length || ids.MultiCourse.length ? catalog.loadCourses() : [],
-  ]);
-  const recipeById = new Map(recipes.map(r => [r._id, mapRecipe(r)]));
-  const courseByKey = new Map(courses.map(c => [(c.kind === 'single' ? 'SingleCourse:' : 'MultiCourse:') + c.id, c]));
-
-  return rows.map(row => {
-    const type = getType(row);
-    if (type === 'Recipe') {
-      const r = recipeById.get(getId(row));
-      return r && { kind: 'recipe', ...r, row };
-    }
-    if (type === 'ExternalRecipe') {
-      // สูตรจาก TheMealDB ที่เพื่อนบันทึกชื่อ/รูปไว้ใน Favorite
-      return { kind: 'recipe', id: row.itemId, url: '/recipes/external/' + row.itemId, title: row.title || 'สูตรจาก TheMealDB',
-        description: 'สูตรทั่วไปจาก TheMealDB', tag: 'สูตรทั่วไป', tagType: 'inter', difficulty: null, rating: null,
-        cookMin: 0, price: 0, image: row.image || '', chef: 'TheMealDB', chefAvatar: '', row };
-    }
-    const c = courseByKey.get(type + ':' + getId(row));
-    return c && { kind: 'course', ...c, row };
-  }).filter(Boolean);
-}
-
-/** ชื่อเต็ม ↔ ชื่อ / นามสกุล (ใน Client มี field name ช่องเดียว) */
-function splitName(name) {
-  const parts = (name || '').trim().split(/\s+/);
-  return { firstName: parts.shift() || '', lastName: parts.join(' ') };
-}
-
-async function loadProfile(clientId) {
-  const client = await Client.findById(clientId).select('name email bio avatar role').lean();
-  if (!client) return null;
-
-  const [favRows, buyRows] = await Promise.all([
-    Favorite.find({ client: clientId }).sort({ createdAt: -1 }).lean(),
-    Transaction.find({ buyer: clientId }).sort({ purchasedAt: -1 }).lean(),
-  ]);
-
-  const favUrls = { Recipe: 'recipes/favorites/local', ExternalRecipe: 'recipes/favorites/external',
-    SingleCourse: 'courses/favorites/single', MultiCourse: 'courses/favorites/multi' };
-  const favorites = (await itemsFor(favRows, r => r.itemType, r => r.itemId)).map(f => ({
-    ...f, isPack: f.isPack || false, images: f.images || [f.image],
-    favUrl: '/' + favUrls[f.row.itemType] + '/' + f.row.itemId,   // ปุ่มหัวใจ (เอาออกจากรายการโปรด)
-  }));
-  const orders = (await itemsFor(buyRows, r => r.itemType, r => r.itemId)).map(o => ({
-    ...o,
-    price: o.row.amountPaid,                  // ราคาที่จ่ายจริง
-    date: thaiDate(o.row.purchasedAt),
-    image: o.kind === 'course' ? o.images[0] : o.image,
-    duration: o.kind === 'course' ? o.duration : (o.cookMin ? catalog.formatDuration(o.cookMin) : 'ไม่ระบุเวลา'),
-  }));
-
-  return {
-    user: { ...splitName(client.name), email: client.email, bio: client.bio || '', avatar: client.avatar || '' },
-    favorites,
-    orders,
-  };
-}
-
-/** บันทึกข้อมูลส่วนตัว → คืนข้อความ error (ถ้ามี) */
-async function saveProfile(clientId, body) {
-  const firstName = String(body.firstName || '').trim();
-  const lastName = String(body.lastName || '').trim();
-  const email = String(body.email || '').trim().toLowerCase();
-  const bio = String(body.bio || '').slice(0, 300);
-  if (!firstName) return 'กรุณากรอกชื่อ';
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'รูปแบบอีเมลไม่ถูกต้อง';
-  if (await Client.exists({ email, _id: { $ne: clientId } })) return 'อีเมลนี้มีผู้ใช้แล้ว';
-  await Client.updateOne({ _id: clientId }, { name: [firstName, lastName].filter(Boolean).join(' '), email, bio });
-  return null;
 }
 
 /* ---------------------------------------------------------- รายละเอียดคอร์ส */
 
 const youtubeId = url => (String(url || '').match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/) || [])[1] || null;
 
+const levelLabel = { BEGINNER: 'เริ่มต้น', INTERMEDIATE: 'ปานกลาง', ADVANCED: 'ขั้นสูง' };
+const toList = v => (Array.isArray(v) ? v.map(String).map(s => s.trim()).filter(Boolean) : []);
+
+/** ข้อมูลรายละเอียดคอร์ส ใช้ทั้งหน้าต่างเด้ง (?fragment=1) และหน้าเต็ม (ดูวิดีโอ) */
 async function loadCourseDetail(kind, id, clientId) {
   const courses = await catalog.loadCourses();
   const course = courses.find(c => c.kind === kind && c.id === id);
   if (!course) return null;
+  const byId = new Map(courses.filter(c => c.kind === 'single').map(c => [c.id, c]));
 
-  // คลิปวิดีโอ (แพ็ก = รวมคลิปของทุกคอร์สในแพ็ก)
+  // บทเรียน (แพ็ก = รวมบทเรียนของทุกคอร์สในแพ็ก)
   let sections = [];
+  let learnPoints = [];
   if (kind === 'single') {
-    const doc = await SingleCourse.findById(id).select('videos').lean();
-    sections = [{ title: course.title, url: null, videos: doc ? doc.videos : [] }];
+    const doc = await SingleCourse.findById(id).lean();
+    sections = [{ id, title: course.title, url: null, image: course.images[0], description: course.description, videos: doc ? doc.videos || [] : [] }];
+    learnPoints = toList(doc && doc.learnPoints);
   } else {
-    const pack = await MultiCourse.findById(id).select('includedCourses').lean();
-    const docs = await SingleCourse.find({ _id: { $in: pack ? pack.includedCourses : [] } }).select('title videos').lean();
-    sections = docs.map(d => ({ title: d.title, url: '/courses/' + d._id, videos: d.videos || [] }));
+    const pack = await MultiCourse.findById(id).lean();
+    const ids = pack ? pack.includedCourses || [] : [];
+    const docs = await SingleCourse.find({ _id: { $in: ids } }).select('title videos').lean();
+    const docById = new Map(docs.map(d => [d._id, d]));
+    sections = ids.map(cid => docById.get(cid)).filter(Boolean).map(d => {
+      const card = byId.get(d._id) || {};
+      return { id: d._id, title: d.title, url: '/courses/' + d._id, image: (card.images || [''])[0], description: card.description || '', videos: d.videos || [] };
+    });
+    learnPoints = toList(pack && pack.learnPoints);
   }
-  sections.forEach(s => s.videos = s.videos.map(v => ({ ...v, youtube: youtubeId(v.videoUrl), durationText: catalog.formatDuration(v.duration) })));
+  sections.forEach(s => s.videos = s.videos.map(v => {
+    const yt = youtubeId(v.videoUrl);
+    return { ...v, youtube: yt, thumb: yt ? `https://img.youtube.com/vi/${yt}/mqdefault.jpg` : s.image, durationText: catalog.formatDuration(v.duration) };
+  }));
 
   const itemType = kind === 'single' ? 'SingleCourse' : 'MultiCourse';
-  const [purchased, favorite] = clientId ? await Promise.all([
-    Transaction.exists({ buyer: clientId, itemType, itemId: id }),
-    Favorite.exists({ client: clientId, itemType, itemId: id }),
-  ]) : [false, false];
-  const isOwner = clientId && course.chefId === clientId;
+  const [rights, favorite, chef] = await Promise.all([
+    payments.access(clientId, kind, { _id: id, price: course.price, publisher: course.chefId }),
+    clientId ? Favorite.exists({ client: clientId, itemType, itemId: id }) : null,
+    course.chefId ? Client.findById(course.chefId).select('name avatar bio institution').lean() : null,
+  ]);
+  const { purchased, isOwner, canWatch } = rights;
+  const lessonCount = sections.reduce((n, s) => n + s.videos.length, 0);
 
-  return { course, sections, purchased: Boolean(purchased), canWatch: Boolean(purchased || isOwner), favorite: Boolean(favorite) };
+  return {
+    course, sections, learnPoints, lessonCount,
+    levelText: levelLabel[course.level] || 'เริ่มต้น',
+    chefInfo: { name: course.chef, avatar: course.chefAvatar, bio: (chef && chef.bio) || '', institution: (chef && chef.institution) || '' },
+    purchased, isOwner, canWatch, favorite: Boolean(favorite),
+  };
 }
 
-module.exports = { difficultyLabel, recipeLevels, loadRecipes, favoriteRecipeIds, loadHome, loadProfile, saveProfile, loadCourseDetail };
+module.exports = { loadRecipes, favoriteRecipeIds, loadHome, loadCourseDetail };
