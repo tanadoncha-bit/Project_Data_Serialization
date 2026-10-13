@@ -1,17 +1,18 @@
 /* =========================================
-   1. Base & Variables
+   1. ตั้งค่าพื้นฐานและตัวแปร (Base & Variables)
+   - กำหนดฟอนต์ Prompt, สีหลักแบรนด์ (สีส้ม) และ Reset ค่า Margin/Padding
    ========================================= */
 @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
 
 :root {
-    --primary-color: #F05A28; /* สีส้มตามแบรนด์ */
-    --primary-hover: #D94A1D;
-    --text-main: #333333;
-    --text-gray: #777777;
-    --border-color: #EBEBEB;
-    --bg-light: #FAFAFA;
-    --white: #FFFFFF;
-    --footer-bg: #1A1A1A;
+    --primary-color: #F05A28; /* สีส้มหลักของแบรนด์ */
+    --primary-hover: #D94A1D; /* สีส้มเข้มเมื่อเอาเมาส์ชี้ */
+    --text-main: #333333;     /* สีข้อความหลัก */
+    --text-gray: #777777;     /* สีข้อความเทา/คำอธิบาย */
+    --border-color: #EBEBEB;   /* สีเส้นขอบ */
+    --bg-light: #FAFAFA;       /* สีพื้นหลังสีเทาอ่อน */
+    --white: #FFFFFF;          /* สีขาว */
+    --footer-bg: #1A1A1A;      /* สีพื้นหลัง Footer */
 }
 
 * {
@@ -20,6 +21,7 @@
     box-sizing: border-box;
     font-family: 'Prompt', sans-serif;
 }
+/* เมนูใช้สี hover และ active จาก layout.css ร่วมกับหน้าสูตรอาหาร */
 
 body {
     color: var(--text-main);
@@ -31,8 +33,10 @@ a {
     text-decoration: none;
 }
 
+
 /* =========================================
-   2. Buttons & Elements
+   2. ปุ่มและโลโก้ (Buttons & Logo)
+   - สไตล์สำหรับโลโก้ ปุ่มแบบมีขอบ (Outline) และปุ่มทึบ (Solid/CTA)
    ========================================= */
 .logo {
     font-size: 24px;
@@ -46,6 +50,7 @@ a {
     color: var(--primary-color);
 }
 
+/* ปุ่มแบบมีขอบโปร่งใส */
 .btn-outline {
     border: 1px solid var(--primary-color);
     color: var(--primary-color);
@@ -59,7 +64,9 @@ a {
     background-color: #FFF0EB;
 }
 
-.btn-solid, .btn-cta {
+/* ปุ่มสีทึบพื้นหลังส้ม */
+.btn-solid, 
+.btn-cta {
     background-color: var(--primary-color);
     color: var(--white);
     padding: 8px 24px;
@@ -69,15 +76,18 @@ a {
     border: 1px solid var(--primary-color);
 }
 
-.btn-solid:hover, .btn-cta:hover {
+.btn-solid:hover, 
+.btn-cta:hover {
     background-color: var(--primary-hover);
 }
 
+
 /* =========================================
-   3. General Section Styles
+   3. สไตล์โครงสร้างทั่วไป (General Section Styles)
+   - ระยะขอบของ Section, หัวข้อประจำส่วน, และลิงก์ "ดูทั้งหมด"
    ========================================= */
 section {
-    max-width: 1200px;
+    max-width: 1115px;
     margin: 0 auto;
     padding: 60px 20px;
 }
@@ -86,23 +96,24 @@ section {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
 }
 
-.section-header h2, .section-header-left h2 {
+.section-header h2, 
+.section-header-left h2 {
     font-size: 24px;
     font-weight: 700;
 }
 
 .subtitle {
     color: var(--text-gray);
-    font-size: 14px;
+    font-size: 12px;
     margin-top: 5px;
 }
 
 .see-all {
-    color: var(--text-gray);
-    font-size: 14px;
+    color: var(--primary-color);
+    font-size: 12px;
     transition: 0.2s;
 }
 
@@ -110,8 +121,10 @@ section {
     color: var(--primary-color);
 }
 
+
 /* =========================================
-   4. Hero Section
+   4. ส่วนแบนเนอร์หลัก (Hero Section)
+   - ข้อความต้อนรับด้านซ้าย และรูปภาพพาสต้า/อาหารด้านขวา
    ========================================= */
 .hero {
     display: flex;
@@ -149,8 +162,10 @@ section {
     object-fit: cover;
 }
 
+
 /* =========================================
-   5. Features Section
+   5. ส่วนจุดเด่นบริการ (Features Section)
+   - การ์ด 3 ใบแสดงจุดเด่น และสไตล์ของไอคอน Lucide
    ========================================= */
 .features {
     display: grid;
@@ -161,39 +176,79 @@ section {
 
 .feature-card {
     border: 1px solid var(--border-color);
-    padding: 30px;
-    border-radius: 16px;
+    padding: 22px;
+    border-radius: 12px;
     background-color: var(--white);
 }
 
+.feature-card h3 {
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+
+.feature-card p {
+    font-size: 12px;
+    color: var(--text-gray);
+}
+
+/* สไตล์ไอคอนแบบรูปภาพเดิม */
 .feature-icon img {
     width: 40px;
     height: 40px;
     margin-bottom: 15px;
 }
 
-.feature-card h3 {
-    font-size: 18px;
-    margin-bottom: 10px;
+/* สไตล์ไอคอนแบบ Lucide Icon (SVG / i Tag) */
+.feature-icon svg,
+.feature-icon i {
+    width: 40px;
+    height: 40px;
+    color: var(--primary-color);
+    stroke-width: 0.75px;
+    margin-bottom: 15px;
 }
 
-.feature-card p {
-    font-size: 14px;
-    color: var(--text-gray);
-}
 
 /* =========================================
-   6. Popular Courses
+   6. ส่วนคอร์สเรียนยอดนิยม (Popular Courses)
+   - ตารางการ์ดคอร์ส 3 คอลัมน์, ป้าย Badge หมวดหมู่, และข้อมูลรายละเอียดคอร์ส
    ========================================= */
 .course-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
 }
+
+/* สองส่วนใช้ขนาด container และขอบแนวนอนเดียวกัน */
+.home-catalog-section {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1115px;
+    margin-inline: auto;
+    padding-inline: 20px;
+}
+
+.home-catalog-section > .section-header,
+.home-catalog-section > .section-header-left,
+.home-catalog-section > .course-grid,
+.home-catalog-section > .category-grid {
+    width: 100%;
+    min-width: 0;
+    margin-inline: 0;
+}
+
+.home-catalog-section .course-card,
+.home-catalog-section .category-card {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.popular-courses { padding-top: 20px; padding-bottom: 30px; }
+.categories-section { padding-top: 0; padding-bottom: 40px; }
 
 .course-card {
     border: 1px solid var(--border-color);
-    border-radius: 16px;
+    border-radius: 12px;
     overflow: hidden;
     transition: transform 0.2s;
 }
@@ -205,10 +260,11 @@ section {
 
 .course-image {
     position: relative;
-    height: 200px;
+    height: 135px;
 }
 
 .course-image img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -216,8 +272,8 @@ section {
 
 .badge {
     position: absolute;
-    top: 15px;
-    left: 15px;
+    top: 10px;
+    left: 10px;
     background: rgba(240, 90, 40, 0.9);
     color: white;
     padding: 4px 12px;
@@ -226,7 +282,7 @@ section {
 }
 
 .course-content {
-    padding: 20px;
+    padding: 14px;
 }
 
 .course-title-row {
@@ -237,7 +293,7 @@ section {
 }
 
 .course-title-row h3 {
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .rating {
@@ -251,9 +307,10 @@ section {
 }
 
 .course-desc {
-    font-size: 13px;
+    font-size: 11px;
     color: var(--text-gray);
-    margin-bottom: 20px;
+    margin-bottom: 18px;
+    min-height: 2.4em;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -263,29 +320,32 @@ section {
 .course-meta {
     display: flex;
     justify-content: space-between;
-    font-size: 12px;
-    color: #999;
-    border-top: 1px solid var(--border-color);
-    padding-top: 15px;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 10px;
+    color: #777D8C;
 }
 
+
 /* =========================================
-   7. Categories Section
+   7. ส่วนหมวดหมู่คอร์สเรียน (Categories Section)
+   - ตารางหมวดหมู่แบบ 6 คอลัมน์
    ========================================= */
 .section-header-left {
-    margin-bottom: 30px;
+    margin-bottom: 24px;
 }
 
 .category-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 15px;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
 }
 
 .category-card {
+    min-height: 104px;
     border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 25px 15px;
+    border-radius: 12px;
+    padding: 18px 10px;
     text-align: center;
     cursor: pointer;
     transition: 0.2s;
@@ -295,106 +355,168 @@ section {
     border-color: var(--primary-color);
 }
 
-.cat-icon img {
-    height: 40px;
-    margin-bottom: 15px;
+.cat-icon {
+    display: flex;
+    justify-content: center;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+
+.cat-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke-width: 1.25;
 }
 
 .category-card h4 {
-    font-size: 14px;
+    font-size: 12px;
     margin-bottom: 5px;
 }
 
 .cat-count {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-gray);
 }
 
+@media (max-width: 1024px) {
+    .category-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .home-catalog-section .course-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 600px) {
+    .home-catalog-section { padding-inline: 16px; }
+    .home-catalog-section .course-grid { grid-template-columns: minmax(0, 1fr); }
+    .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .course-grid, .features { grid-template-columns: 1fr; }
+    .course-image { height: auto; aspect-ratio: 2.55 / 1; }
+}
+
+
 /* =========================================
-   8. 3 Steps Section
+   8. ส่วนขั้นตอนการเรียนรู้ (3 Steps Section)
+   - บล็อกบอกขั้นตอนการใช้งาน 1-2-3
    ========================================= */
 .steps-section {
-    background-color: var(--bg-light);
-    border-radius: 24px;
-    border: 1px solid var(--border-color);
-    padding: 50px;
+    box-sizing: border-box;
+    width: calc(100% - 40px);
+    max-width: 1075px;
+    margin-inline: auto;
+    background-color: var(--white);
+    border-radius: 14px;
+    border: 1px solid #D9D9D9;
+    padding: 24px 20px 60px;
     margin-bottom: 40px;
 }
 
 .steps-section h2 {
     font-size: 24px;
-    margin-bottom: 30px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 48px;
 }
 
 .steps-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 30px;
 }
 
 .step-card {
     display: flex;
-    align-items: flex-start;
-    gap: 15px;
+    align-items: center;
+    gap: 16px;
 }
 
 .step-num {
-    width: 45px;
-    height: 45px;
-    background-color: #FFF0EB;
-    color: var(--primary-color);
+    width: 46px;
+    height: 46px;
+    background-color: #FFE9D9;
+    color: #FF6928;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
     flex-shrink: 0;
 }
 
 .step-text h4 {
-    font-size: 16px;
+    font-size: 14px;
+    font-weight: 600;
     margin-bottom: 5px;
 }
 
 .step-text p {
-    font-size: 13px;
-    color: var(--text-gray);
+    font-size: 12px;
+    color: #777D8C;
 }
 
+@media (max-width: 720px) {
+    .steps-section { padding: 24px 20px 30px; }
+    .steps-section h2 { font-size: 20px; margin-bottom: 28px; }
+    .steps-grid { grid-template-columns: 1fr; gap: 24px; }
+}
+
+@media (max-width: 600px) {
+    .steps-section { width: calc(100% - 32px); }
+}
+
+
 /* =========================================
-   9. CTA Banner Section
+   9. ส่วนแบนเนอร์ชวนสมัครสมาชิก (CTA Banner Section)
+   - กล่องส้มอ่อนเชิญชวนสมัครสมาชิกพร้อมปุ่ม และรูปมะเขือเทศ
    ========================================= */
+.cta-section {
+    width: 100%;
+    max-width: 1115px;
+    margin-inline: auto;
+    padding: 8px 20px 40px;
+}
+
 .cta-banner {
-    background-color: #FFF5F2;
-    border-radius: 24px;
-    display: flex;
-    justify-content: space-between;
+    background-color: #FFF1E8;
+    border-radius: 16px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 220px;
+    gap: 24px;
     align-items: center;
-    padding: 40px 60px;
+    min-height: 142px;
+    padding: 28px;
     overflow: hidden;
     position: relative;
 }
 
 .cta-content {
-    flex: 1;
+    min-width: 0;
     z-index: 2;
 }
 
 .cta-content h2 {
-    font-size: 28px;
+    font-size: 22px;
     margin-bottom: 10px;
     font-weight: 700;
 }
 
 .cta-content p {
     color: var(--text-gray);
-    margin-bottom: 25px;
+    font-size: 14px;
+    margin-bottom: 0;
 }
 
-.btn-cta {
-    padding: 12px 30px;
-    display: inline-block;
+.cta-banner > .btn-cta {
+    padding: 12px 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: #FF6928;
+    border-color: #FF6928;
+    position: relative;
+    z-index: 2;
 }
 
 .cta-image {
@@ -402,18 +524,43 @@ section {
     right: 0;
     bottom: 0;
     top: 0;
-    width: 350px;
+    width: 260px;
+    pointer-events: none;
 }
 
 .cta-image img {
     height: 100%;
     width: 100%;
     object-fit: cover;
-    object-position: left;
+    object-position: right center;
+    mask-image: linear-gradient(to right, transparent, black 35%);
 }
 
+@media (max-width: 1024px) {
+    .cta-banner { grid-template-columns: minmax(0, 1fr) auto; padding-right: 180px; }
+    .cta-image { width: 180px; }
+}
+
+@media (max-width: 720px) {
+    .cta-banner { grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 24px 140px 24px 24px; }
+    .cta-content h2 { font-size: 20px; }
+    .cta-banner > .btn-cta { justify-self: start; white-space: normal; }
+    .cta-image { width: 140px; }
+}
+
+@media (max-width: 600px) {
+    .cta-section { padding-inline: 16px; }
+}
+
+@media (max-width: 420px) {
+    .cta-banner { padding-right: 24px; padding-bottom: 110px; }
+    .cta-image { top: auto; height: 100px; width: 180px; }
+}
+
+
 /* =========================================
-   10. Footer
+   10. ส่วนท้ายของเว็บ (Footer)
+   - ลิงก์เมนูด้านล่าง, ลิงก์ โซเชียล มีเดีย และ ลิขสิทธิ์
    ========================================= */
 .footer {
     background-color: var(--footer-bg);

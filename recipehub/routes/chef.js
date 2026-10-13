@@ -20,19 +20,8 @@ router.get('/', (req, res) => {
   res.redirect('/chef/dashboard');
 });
 
-/* =========================================================
-   DASHBOARD
-   ========================================================= */
-
-/** GET /chef/dashboard → สรุปคอร์ส สูตร ผู้เรียน รายได้ และคำสั่งซื้อล่าสุดของเชฟคนนี้ */
-router.get('/dashboard', asyncRoute(async (req, res) => {
-  const chef = await Client.findById(req.user._id).lean();
-  const range = req.query.range === '30' ? 30 : 7;
-  const allOrders = req.query.orders === 'all';
-  const data = await support.dashboardData(chef, { range, allOrders });
-  res.render('chef/dashboard', { title: 'Dashboard', active: 'dashboard', chef, allOrders, ...data });
-}));
-
+/** GET /chef/dashboard  แสดงหน้า Dashboard ของเชฟ */
+router.use('/dashboard', require('./dashboard'));
 /* =========================================================
    จัดการคอร์ส
    ========================================================= */

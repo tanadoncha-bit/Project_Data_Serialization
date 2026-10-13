@@ -15,12 +15,12 @@
   <%- include('partials/navbar', { active: 'home', recipePublicNav: true }) %>
 
   <section class="hero">
-    <div class="hero-text" style="margin-left: -390px;">
+    <div class="hero-text">
       <h1><span class="text-orange">Learn to Cook</span><br>Easy, Fun, Delicious</h1>
       <p>เรียนทำอาหารออนไลน์กับเชฟมืออาชีพ ครบทุกเมนู ทุกระดับ<br>เริ่มต้นได้จากที่บ้าน พร้อมสูตรอาหารและเทคนิคที่ทำตามได้จริง</p>
     </div>
     <div class="hero-image">
-      <img src="/images/hero-pasta.jpg" alt="Delicious Pasta with Tomatoes">
+      <img src="/images/homepage/moowan1.png" alt="Delicious Pasta with Tomatoes">
     </div>
   </section>
 
@@ -28,55 +28,59 @@
   <section class="features">
     <div class="feature-card">
       <div class="feature-icon">
-        <img src="/icons/hat.svg" alt="Chef Hat Icon">
+        <i data-lucide="graduation-cap"></i>
       </div>
       <h3>เรียนกับเชฟมืออาชีพ</h3>
       <p>คอร์สเรียนคุณภาพจากเชฟที่มีประสบการณ์จริง สอนอย่างละเอียด เข้าใจง่าย</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon">
-        <img src="/icons/book.svg" alt="Book Icon">
+        <i data-lucide="book-open"></i>
       </div>
       <h3>คลังสูตรอาหาร</h3>
       <p>ค้นพบสูตรอาหารหลากหลาย ทั้งอาหารไทย อาหารนานาชาติ และเบเกอรี่</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon">
-        <img src="/icons/heart.svg" alt="Heart Icon">
+        <i data-lucide="heart"></i>
       </div>
       <h3>สร้างรายได้จากสูตรลับ</h3>
       <p>เปิดโอกาสให้คุณแชร์สูตรอาหารและสร้างรายได้จากสิ่งที่คุณรัก</p>
     </div>
+    
   </section>
 
   <!-- Popular Courses Section -->
-  <section class="popular-courses">
+  <section class="popular-courses home-catalog-section">
     <div class="section-header">
       <div>
         <h2>คอร์สเรียนยอดนิยม</h2>
-        <p class="subtitle">ตัวอย่างคอร์สคุณภาพที่เปิดสอนอยู่บน CookHub</p>
+        <p class="subtitle">ตัวอย่างคอร์สคุณภาพที่เปิดสอนอยู่บน CookHup</p>
       </div>
       <a href="/courses" class="see-all">ดูทั้งหมด &rarr;</a>
     </div>
 
     <div class="course-grid">
       <!-- ดึงข้อมูลคอร์สจาก Controller -->
+      <% if (courses.length === 0) { %>
+        <p>ยังไม่มีคอร์สเรียนในขณะนี้</p>
+      <% } %>
       <% courses.forEach(course => { %>
       <div class="course-card">
         <div class="course-image">
+          <img src="<%= course.cover_image_url %>" alt="<%= course.title %>" loading="lazy">
           <span class="badge"><%= course.category %></span>
 
         </div>
         <div class="course-content">
           <div class="course-title-row">
             <h3><%= course.title %></h3>
-            <div class="rating"><span class="star">★</span> <%= course.rating %></div>
           </div>
           <p class="course-desc"><%= course.description %></p>
           <div class="course-meta">
             <span><i class="far fa-play-circle"></i> <%= course.lesson_count %> บทเรียน</span>
             <span><i class="far fa-clock"></i> <%= course.duration_text %></span>
-            <span><i class="far fa-user"></i> <%= course.student_count %> คนเรียน</span>
+            <span><i class="far fa-user"></i> <%= course.student_count %> ผู้ซื้อ</span>
           </div>
         </div>
       </div>
@@ -85,7 +89,7 @@
   </section>
 
   <!-- Categories Section -->
-  <section class="categories-section">
+  <section class="categories-section home-catalog-section">
     <div class="section-header-left">
       <h2>เลือกเรียนตามหมวดหมู่</h2>
       <p class="subtitle">ค้นหาคอร์สที่ใช่สำหรับคุณ</p>
@@ -94,7 +98,7 @@
       <% categories.forEach(cat => { %>
       <div class="category-card">
         <div class="cat-icon">
-          <img src="<%= cat.icon_url %>" alt="<%= cat.name %>">
+          <i data-lucide="<%= cat.icon %>" aria-hidden="true"></i>
         </div>
         <h4><%= cat.name %></h4>
         <span class="cat-count">(<%= cat.count %> คอร์ส)</span>
@@ -137,10 +141,10 @@
       <div class="cta-content">
         <h2>พร้อมเริ่มต้นเส้นทางการทำอาหารของคุณแล้วหรือยัง?</h2>
         <p>สมัครสมาชิกวันนี้ และเข้าถึงคอร์สเรียนมากมายจากเชฟมืออาชีพ</p>
-        <a href="/register" class="btn-cta"><i class="fas fa-plus"></i> สมัครสมาชิกเลย</a>
       </div>
+      <a href="/register" class="btn-cta"><span aria-hidden="true">＋</span> สมัครสมาชิกเลย</a>
       <div class="cta-image">
-        <img src="/images/cta-tomatoes.png" alt="Fresh Ingredients">
+        <img src="/images/homepage/cta-tomatoes.png" alt="" aria-hidden="true">
       </div>
     </div>
   </section>
