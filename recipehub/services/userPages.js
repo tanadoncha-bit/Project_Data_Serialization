@@ -81,9 +81,12 @@ async function loadHome() {
     .sort((a, b) => b.favoriteCount - a.favoriteCount || (b.rating || 0) - (a.rating || 0))
     .slice(0, 4);
 
-  // แบนเนอร์: รูปจากสูตรที่มีรูป (ยังไม่มี collection แบนเนอร์ในระบบ)
-  const banners = recipes.filter(r => r.image).slice(0, 4).map(r => ({ image: r.image, link: r.url, title: r.title }));
-  if (!banners.length) banners.push({ image: '', link: '/courses', title: 'คอร์สเรียน' });
+  // แบนเนอร์: เปลี่ยนรูปได้ที่ public/images/homepage/Property1.png ถึง Property4.png
+  const banners = [1, 2, 3, 4].map(number => ({
+    image: '/images/homepage/Property' + number + '.png',
+    link: '/courses',
+    title: 'โปรโมชั่น ' + number,
+  }));
 
   // เชฟยอดนิยม 3 คน: นับผู้เรียนจากคอร์ส + ยอดกดใจจากสูตรของเชฟคนนั้น
   const score = new Map();
