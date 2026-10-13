@@ -1,0 +1,9 @@
+/* Country badges share the gold finish used on recipe cards. */
+.card .card__img .tag:not(.tag--pack) {
+    background: linear-gradient(115deg, #d2ab53 0%, #f6e6af 43%, #e9ca78 65%, #c69a3e 100%);
+    color: #554018;
+    border: 1px solid #c4a04c;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), 0 2px 5px rgba(73, 49, 10, .12);
+    font-weight: 600;
+    letter-spacing: .15px;
+}

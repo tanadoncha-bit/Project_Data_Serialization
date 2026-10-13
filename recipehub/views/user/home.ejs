@@ -3,6 +3,7 @@
 <head>
   <%- include('../partials/head', { title: 'หน้าแรก' }) %>
   <link rel="stylesheet" href="/stylesheets/cookhub.css">
+  <link rel="stylesheet" href="/stylesheets/card-tags.css">
 </head>
 <body data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
   <%- include('../partials/navbar', { active: 'home', recipePublicNav: true }) %>

@@ -34,8 +34,15 @@ function mapRecipe(r) {
 }
 
 async function loadRecipes() {
-  const rows = await Recipe.find().populate('publisher', 'name avatar').lean();
-  return rows.map(mapRecipe);
+  const [rows, favorites] = await Promise.all([
+    Recipe.find().populate('publisher', 'name avatar').lean(),
+    Favorite.aggregate([
+      { $match: { itemType: 'Recipe' } },
+      { $group: { _id: '$itemId', count: { $sum: 1 } } },
+    ]),
+  ]);
+  const counts = new Map(favorites.map(row => [row._id, row.count]));
+  return rows.map(row => mapRecipe({ ...row, favoriteCount: counts.get(row._id) || 0 }));
 }
 
 /** สูตรไหนผู้ใช้กดใจไว้ → Set ของ id */
