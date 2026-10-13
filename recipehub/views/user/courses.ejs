@@ -25,7 +25,7 @@
     </div>
   </section>
 
-  <div class="container container--wide">
+  <div class="container container--wide course-list">
 
     <!-- ================= แถบเครื่องมือ ================= -->
     <div class="toolbar">
@@ -123,26 +123,17 @@
       <% }) %>
     </div>
 
-    <!-- ================= เลขหน้า ================= -->
-    <% if (totalPages > 1) { %>
+    <!-- ================= เลขหน้า (แบบเดียวกับหน้าสูตรของเพื่อน: ‹ 1 / 3 ›) ================= -->
     <nav class="pagination" aria-label="เลขหน้า">
-      <a href="<%= makeUrl({ page: page - 1 }) %>" class="arrow <%= page <= 1 ? 'disabled' : '' %>" aria-label="หน้าก่อน">
-        <i data-lucide="chevron-left" class="ic-12"></i>
-      </a>
-      <% pageList.forEach(p => { %>
-        <% if (p === '...') { %>
-          <span>···</span>
-        <% } else if (p === page) { %>
-          <span class="current"><%= p %></span>
-        <% } else { %>
-          <a href="<%= makeUrl({ page: p }) %>" class="num"><%= p %></a>
-        <% } %>
-      <% }) %>
-      <a href="<%= makeUrl({ page: page + 1 }) %>" class="arrow <%= page >= totalPages ? 'disabled' : '' %>" aria-label="หน้าถัดไป">
-        <i data-lucide="chevron-right" class="ic-12"></i>
-      </a>
+      <% if (page > 1) { %>
+        <a href="<%= makeUrl({ page: page - 1 }) %>" class="arrow" aria-label="หน้าก่อน"><i data-lucide="chevron-left" class="ic-14"></i></a>
+      <% } %>
+      <span class="current" aria-current="page"><%= page %></span>
+      <span class="total">/ <%= totalPages %></span>
+      <% if (page < totalPages) { %>
+        <a href="<%= makeUrl({ page: page + 1 }) %>" class="arrow" aria-label="หน้าถัดไป"><i data-lucide="chevron-right" class="ic-14"></i></a>
+      <% } %>
     </nav>
-    <% } %>
   </div>
   </main>
 
