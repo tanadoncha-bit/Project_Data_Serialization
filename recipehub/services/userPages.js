@@ -7,10 +7,10 @@
 const Recipe = require('../models/Recipe');
 const Client = require('../models/Client');
 const Favorite = require('../models/Favorite');
-const Transaction = require('../models/Transaction');
 const SingleCourse = require('../models/SingleCourse');
 const MultiCourse = require('../models/MultiCourse');
 const catalog = require('./courseCatalog');
+const payments = require('./coursePayments');
 
 /* ---------------------------------------------------------- สูตรอาหาร */
 
@@ -132,19 +132,20 @@ async function loadCourseDetail(kind, id, clientId) {
   }));
 
   const itemType = kind === 'single' ? 'SingleCourse' : 'MultiCourse';
-  const [purchased, favorite, chef] = await Promise.all([
-    clientId ? Transaction.exists({ buyer: clientId, itemType, itemId: id }) : null,
+  const [rights, favorite, chef] = await Promise.all([
+    // สิทธิ์ดูวิดีโอ: ซื้อแล้ว (หรือซื้อแพ็กที่มีคอร์สนี้) / เป็นเชฟเจ้าของ / คอร์สฟรี — services/coursePayments.js
+    payments.access(clientId, kind, { _id: id, price: course.price, publisher: course.chefId }),
     clientId ? Favorite.exists({ client: clientId, itemType, itemId: id }) : null,
     course.chefId ? Client.findById(course.chefId).select('name avatar bio institution').lean() : null,
   ]);
-  const isOwner = Boolean(clientId && course.chefId === clientId);
+  const { purchased, isOwner, canWatch } = rights;
   const lessonCount = sections.reduce((n, s) => n + s.videos.length, 0);
 
   return {
     course, sections, learnPoints, lessonCount,
     levelText: levelLabel[course.level] || 'เริ่มต้น',
     chefInfo: { name: course.chef, avatar: course.chefAvatar, bio: (chef && chef.bio) || '', institution: (chef && chef.institution) || '' },
-    purchased: Boolean(purchased), isOwner, canWatch: Boolean(purchased || isOwner), favorite: Boolean(favorite),
+    purchased, isOwner, canWatch, favorite: Boolean(favorite),
   };
 }
 

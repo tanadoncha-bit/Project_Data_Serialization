@@ -9,8 +9,8 @@
   <% if (canWatch) { %>
     <a href="<%= watchUrl %>" class="btn btn--primary cm-cta"><i data-lucide="circle-play" class="ic-16"></i> <%= isOwner && !purchased ? 'ดูคอร์สของคุณ' : 'เริ่มเรียนคอร์สนี้' %></a>
   <% } else { %>
-    <%# ระบบชำระเงินของทีมรองรับเฉพาะสูตรอาหาร — ปุ่มนี้จะเปิดใช้เมื่อมีระบบจ่ายเงินคอร์ส %>
-    <button type="button" class="btn btn--primary cm-cta" disabled title="ระบบชำระเงินสำหรับคอร์สยังไม่เปิดให้บริการ"><i data-lucide="shopping-cart" class="ic-16"></i> ซื้อคอร์สนี้ (เร็ว ๆ นี้)</button>
+    <%# ซื้อคอร์ส — public/javascripts/coursePurchase.js (QR PromptPay / ซื้อจำลอง แบบเดียวกับหน้าสูตรของเพื่อน) %>
+    <button type="button" class="btn btn--primary cm-cta" data-buy-course data-kind="<%= course.kind %>" data-id="<%= course.id %>"><i data-lucide="shopping-cart" class="ic-16"></i> ซื้อคอร์สนี้</button>
   <% } %>
 <% } %>
 

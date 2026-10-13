@@ -114,10 +114,11 @@ function mapPack(pack, singleById, students) {
   };
 }
 
-/** นับจำนวนคนซื้อของแต่ละคอร์ส จาก Transaction → Map('SingleCourse:1' → 12) */
+/** นับจำนวนคนซื้อของแต่ละคอร์ส จาก Transaction → Map('SingleCourse:1' → 12)
+    ไม่นับการซื้อจำลอง/ทดสอบ (demo, gateway-test) ให้ตรงกับหน้าเชฟของเพื่อน (services/chefSupport.js นับเฉพาะ real) */
 async function countStudents() {
   const rows = await Transaction.aggregate([
-    { $match: { itemType: { $in: ['SingleCourse', 'MultiCourse'] } } },
+    { $match: { itemType: { $in: ['SingleCourse', 'MultiCourse'] }, paymentMode: { $nin: ['demo', 'gateway-test'] } } },
     { $group: { _id: { t: '$itemType', id: '$itemId' }, n: { $sum: 1 } } },
   ]);
   return new Map(rows.map(r => [r._id.t + ':' + r._id.id, r.n]));

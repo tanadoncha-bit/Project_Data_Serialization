@@ -589,3 +589,76 @@ img[hidden], .img-placeholder[hidden] { display: none !important; }
   .cm-stats { grid-template-columns: 1fr; }
   .cm-pack-info { padding-right: 0; }
 }
+
+/* ===========================================================
+   16. หน้าต่างซื้อคอร์ส — public/javascripts/coursePurchase.js
+   หน้าตาเดียวกับหน้าต่างชำระเงินสูตรของเพื่อน (recipes.css .recipe-promptpay-checkout / .recipe-demo-checkout)
+   ใช้คลาส ck-pay ของเราเอง จะได้ไม่ชนกับ CSS ของเพื่อน
+   =========================================================== */
+.ck-pay {
+  position: fixed; border: 0; padding: 28px; border-radius: 20px; color: #222;
+  font-family: 'Prompt', sans-serif; width: 440px; max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 48px); overflow-y: auto; box-sizing: border-box;
+}
+.ck-pay::backdrop { background: rgba(0, 0, 0, .56); }
+.ck-pay [hidden] { display: none !important; }
+.ck-pay h2 { margin: 0 0 8px; font-size: 21px; font-weight: 600; }
+.ck-pay p { margin: 0; }
+.ck-pay .btn { font-family: inherit; }
+.ck-pay__close {
+  position: absolute; right: 12px; top: 10px; width: 32px; height: 32px;
+  border: 0; background: transparent; color: #888; font-size: 24px; cursor: pointer;
+}
+.ck-pay__brand { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: 15px; font-weight: 600; color: #f66a29; }
+.ck-pay__brand span { font-size: 10px; font-weight: 400; letter-spacing: 1.2px; color: #999; }
+.ck-pay__summary { background: #faf9f7; border: 1px solid #eeece8; border-radius: 12px; padding: 16px; margin-top: 12px; }
+.ck-pay__label { font-size: 11px; color: #999; }
+.ck-pay__title { font-size: 14px; line-height: 1.6; color: #333; }
+.ck-pay__summary .ck-pay__title { margin: 5px 0 16px; }
+.ck-pay__total {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  border-top: 1px solid #e9e7e3; padding-top: 14px; font-size: 12px; color: #777;
+}
+.ck-pay__total .ck-pay__price { font-size: 24px; font-weight: 600; color: #222; }
+.ck-pay__method { display: flex; align-items: center; gap: 10px; margin: 20px 0 14px; }
+.ck-pay__mark {
+  display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px;
+  border: 1px solid #e5e5e5; font-size: 12px; font-weight: 600; color: #555;
+}
+.ck-pay__method > div { display: flex; flex-direction: column; gap: 3px; }
+.ck-pay__method strong { font-size: 13px; font-weight: 500; }
+.ck-pay__method small { font-size: 11px; color: #999; }
+.ck-pay__qr { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 12px 0; }
+.ck-pay__qr img { width: 230px; max-width: 100%; background: #fff; padding: 12px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; }
+.ck-pay__countdown { font-size: 12px; color: #777; font-variant-numeric: tabular-nums; }
+.ck-pay__status { min-height: 20px; margin: 16px 0 !important; text-align: center; font-size: 13px; line-height: 1.7; color: #777; }
+.ck-pay[data-payment-state="pending"] .ck-pay__status::before {
+  content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: #e5a441;
+}
+.ck-pay[data-payment-state="failed"] .ck-pay__status,
+.ck-pay[data-payment-state="expired"] .ck-pay__status { color: #b75a37; }
+.ck-pay__create { width: 100%; height: 44px; border-radius: 10px; }
+.ck-pay__footer { margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee; text-align: center; font-size: 11px; color: #999; }
+
+/* ซื้อจำลอง */
+.ck-pay--demo { width: 420px; padding: 24px; }
+.ck-pay--demo h2 { font-size: 18px; margin-bottom: 16px; }
+.ck-pay--demo .ck-pay__price { display: block; margin: 12px 0; font-size: 22px; color: #f56a28; }
+.ck-pay__muted { font-size: 13px; line-height: 1.7; color: #777; }
+.ck-pay--demo .ck-pay__status { text-align: left; margin: 8px 0 0 !important; color: #b75a37; }
+.ck-pay__actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+/* แจ้งเตือนมุมจอ */
+.ck-toast {
+  position: fixed; left: 50%; bottom: 28px; z-index: 2000; transform: translate(-50%, 20px);
+  padding: 12px 20px; border-radius: 12px; background: #222; color: #fff;
+  font-family: 'Prompt', sans-serif; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+}
+.ck-toast.show { opacity: 1; transform: translate(-50%, 0); }
+.ck-toast.is-error { background: #b75a37; }
+
+@media (max-width: 480px) {
+  .ck-pay { padding: 22px; }
+  .ck-pay__brand { margin-bottom: 16px; }
+}
