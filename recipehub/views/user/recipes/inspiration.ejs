@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="th">
 
-<head><%- include('../partials/head', { title }) %>
+<head><%- include('../../partials/head', { title }) %>
   <link rel="stylesheet" href="/stylesheets/recipes.css">
 </head>
 
 <body>
-  <%- include('../partials/navbar', { active, recipePublicNav: true }) %>
+  <%- include('../../partials/navbar', { active, recipePublicNav: true }) %>
   <main class="recipe-page"><a class="recipe-back" href="/recipes">← สูตรอาหารของ RecipeHub</a>
     <h1>ไอเดียจาก TheMealDB</h1>
     <p class="recipe-muted">เมนูอ้างอิงจาก TheMealDB สำหรับหาแรงบันดาลใจในการทำอาหาร</p>
@@ -16,7 +16,7 @@
     <div id="meal-results" class="recipe-grid"></div>
     <section id="meal-detail" class="recipe-panel" hidden></section>
     <p class="recipe-muted">แหล่งข้อมูล: <a href="https://www.themealdb.com" target="_blank" rel="noopener noreferrer">TheMealDB</a></p>
-  </main><%- include('../partials/footer') %>
+  </main><%- include('../../partials/footer') %>
   <script src="/javascripts/mealInspiration.js" defer></script>
 </body>
 

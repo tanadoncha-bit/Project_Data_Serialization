@@ -17,7 +17,7 @@ router.use((req, res, next) => {
 });
 
 async function ownRecipes(req) {
-  return (await Recipe.find({ publisher: req.recipeChefId }).select('title category level difficulty price image duration rating reviewCount ingredients.name steps.stepNumber').sort({ createdAt: -1 }).lean()).map(support.recipeView);
+  return (await Recipe.find({ publisher: req.recipeChefId }).select('title category price image duration rating reviewCount ingredients.name steps.stepNumber').sort({ createdAt: -1 }).lean()).map(support.recipeView);
 }
 
 async function renderList(req, res, initialModal = null, status = 200) {
@@ -51,7 +51,7 @@ router.post('/upload-image', (req,res,next)=>{
 });
 
 router.get('/create', support.asyncRoute(async (req, res) => {
-  await renderModal(req, res, 'form', { price: 0, difficulty: 'EASY', category: 'อาหารไทย', ingredients: [], steps: [] });
+  await renderModal(req, res, 'form', { price: 0, category: 'อาหารไทย', ingredients: [], steps: [] });
 }));
 
 router.post('/', support.asyncRoute(async (req, res) => {
@@ -70,7 +70,11 @@ router.param('id', support.asyncRoute(async (req, res, next) => {
   next();
 }));
 
-router.get('/:id', support.asyncRoute(async (req, res) => renderModal(req, res, 'preview', req.recipe)));
+router.get('/:id', support.asyncRoute(async (req, res) => {
+  const recipe = req.recipe.toObject();
+  recipe.publisher = res.locals.recipeChefInfo;
+  await renderModal(req, res, 'preview', recipe);
+}));
 
 router.get('/:id/edit', support.asyncRoute(async (req, res) => renderModal(req, res, 'form', req.recipe)));
 

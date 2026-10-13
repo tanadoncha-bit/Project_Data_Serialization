@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="th">
 
-<head><%- include('../partials/head', { title }) %>
+<head><%- include('../../partials/head', { title }) %>
   <link rel="stylesheet" href="/stylesheets/recipes.css">
 </head>
 
 <body class="recipe-site public-recipe-site">
-  <%- include('../partials/navbar', { active, recipePublicNav: true }) %>
+  <%- include('../../partials/navbar', { active, recipePublicNav: true }) %>
   <section class="recipe-banner public-recipe-banner">
     <div class="recipe-banner-inner">
       <h1><span>Find Your</span><br>Perfect Recipe</h1>
@@ -15,7 +15,7 @@
   </section>
   <main class="recipe-page public-recipe-page">
     <form method="get" action="/recipes" id="recipe-browse-form">
-      <%- include('../partials/browse-controls', { filters }) %>
+      <%- include('../../partials/browse-controls', { filters }) %>
     </form>
     <p class="recipe-results-count">ผลลัพธ์ <strong>
         <%= total %>
@@ -46,7 +46,7 @@
   <dialog id="recipe-content-dialog" class="recipe-dialog recipe-content-dialog recipe-preview-dialog" aria-label="รายละเอียดสูตรอาหาร"><button class="recipe-modal-close recipe-preview-close" type="button" data-close-recipe aria-label="ปิดสูตรอาหาร">×</button>
     <div id="recipe-modal-content"></div>
   </dialog>
-  <%- include('../partials/footer') %>
+  <%- include('../../partials/footer') %>
   <script src="/javascripts/recipeModals.js" defer></script>
 </body>
 

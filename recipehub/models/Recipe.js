@@ -10,7 +10,7 @@ const recipeSchema = new Schema({
   description: { type: String, default: null, maxlength: 10000 },
   category:    { type: String, required: true, trim: true, maxlength: 80 },
   cuisine:     { type: String, enum: ['Thai', 'Japanese', 'Chinese', 'British', 'Korean', 'International'], default: null }, 
-  level:       { type: String, enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'], default: 'BEGINNER' },
+  level:       { type: String, enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'] },
   difficulty:  { type: String, enum: ['EASY', 'MEDIUM', 'HARD'] },
   duration:    { type: Number, default: null, min: 0 },
   rating:      { type: Number, default: null, min: 0, max: 5 },

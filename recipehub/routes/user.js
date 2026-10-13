@@ -1,7 +1,7 @@
 /* ===========================================================
    หน้าฝั่งผู้ใช้ของมุกดา (อยู่ใต้ /user ทั้งหมด จะได้ไม่ชนกับ /home /recipes /profile ของเพื่อน)
      GET  /user            หน้าแรก (คอร์สยอดนิยม / สูตรแนะนำ / เชฟยอดนิยม)
-     GET  /user/recipes    รายการสูตรอาหาร + ตัวกรอง
+     GET  /user/recipes    ส่งต่อไปหน้าหลัก /recipes
      GET  /user/profile    โปรไฟล์ (?tab=info | favorites | history)   ต้อง login
      POST /user/profile    บันทึกข้อมูลส่วนตัว                          ต้อง login
    ข้อมูลทั้งหมดมาจาก MongoDB ผ่าน services/userPages.js
@@ -11,7 +11,7 @@ const router = express.Router();
 
 const pages = require('../services/userPages');
 const catalog = require('../services/courseCatalog');
-const { buildListPage } = require('../helpers/list-filters');
+const recipeBrowseRedirect = require('../helpers/recipeBrowseRedirect');
 const { asyncRoute, databaseReady } = require('../services/recipeSupport');
 const { requireLogin } = require('../middleware/requireRole');
 
@@ -28,21 +28,8 @@ router.get('/', asyncRoute(async (req, res) => {
   res.render('user/home', Object.assign(data, { favoriteKeys, favoriteIds }));
 }));
 
-/* รายการสูตรอาหาร */
-router.get('/recipes', asyncRoute(async (req, res) => {
-  const [recipes, favIds] = await Promise.all([
-    pages.loadRecipes(),
-    pages.favoriteRecipeIds(req.user && req.user._id),
-  ]);
-  const data = buildListPage(req, recipes, '/user/recipes', { level: 'difficulty', minutes: 'cookMin' });
-  res.render('user/recipes', Object.assign(data, {
-    recipes: data.list,
-    levels: pages.recipeLevels,
-    difficultyLabel: pages.difficultyLabel,
-    favoriteIds: favIds,
-    loggedIn: Boolean(req.user),
-  }));
-}));
+/* หน้าสูตรหลักใช้ /recipes; รองรับลิงก์เดิมและแปลงตัวกรอง */
+router.get('/recipes', (req, res) => res.redirect(302, recipeBrowseRedirect(req.query)));
 
 /* โปรไฟล์ */
 async function renderProfile(req, res, extra = {}) {
