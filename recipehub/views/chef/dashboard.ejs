@@ -3,14 +3,184 @@
 
 <head>
   <%- include('../partials/head', { title }) %>
+  <link rel="stylesheet" href="/stylesheets/chef.css">
 </head>
 
-<body>
+<body class="chef-site">
   <%- include('../partials/navbar', { active }) %>
 
-  <main class="container">
-    <h1>Dashboard</h1>
-    <!-- เนื้อหา dashboard ค่อยใส่ทีหลัง -->
+  <!-- ===== Hero ===== -->
+  <section class="chef-hero chef-hero--dashboard">
+    <div class="chef-hero-inner">
+      <h1><span class="accent">สร้างคอร์สใหม่</span><br>แบ่งปันความรู้ในแบบของคุณ</h1>
+      <p>เปลี่ยนความเชี่ยวชาญของคุณให้เป็นคอร์สออนไลน์<br>สร้างแรงบันดาลใจให้กับคนรักการทำอาหารทั่วประเทศ</p>
+      <a href="/chef/courses?new=single" class="chef-btn chef-btn-primary chef-btn-pill">เริ่มสร้างคอร์ส <i data-lucide="arrow-right"></i></a>
+    </div>
+  </section>
+
+  <main class="chef-page">
+
+    <!-- ===== การ์ดเชฟ ===== -->
+    <section class="chef-card chef-identity">
+      <div class="chef-identity-avatar">
+        <% if (chef.avatar) { %><img src="<%= chef.avatar %>" alt="รูปโปรไฟล์">
+        <% } else { %><i data-lucide="user"></i><% } %>
+      </div>
+      <div class="chef-identity-text">
+        <h2>เชฟ<%= chef.name %> <span class="chef-badge">Chef Instructor</span></h2>
+        <p><%= chef.bio || chef.institution || 'ยังไม่ได้กรอกข้อมูลแนะนำตัว' %>
+          <a href="/profile" class="chef-link-small">แก้ไขโปรไฟล์</a></p>
+      </div>
+      <div class="chef-status">
+        <span>สถานะบัญชีเชฟ</span>
+        <% if (chef.isVerifiedChef) { %>
+        <strong class="chef-status-pill ok">✓ ผ่านการรับรอง (Verified)</strong>
+        <% } else { %>
+        <strong class="chef-status-pill wait">รอการตรวจสอบ</strong>
+        <% } %>
+      </div>
+    </section>
+
+    <!-- ===== การ์ดสถิติ ===== -->
+    <section class="chef-stats">
+      <article class="chef-card chef-stat">
+        <span class="chef-stat-icon orange"><i data-lucide="book-open"></i></span>
+        <div>
+          <h3>คอร์สทั้งหมด</h3>
+          <strong><%= stats.courses %> คอร์ส</strong>
+          <small class="green"><%= stats.coursesThisMonth ? '+ ' + stats.coursesThisMonth + ' คอร์สในเดือนนี้' : 'ยังไม่มีคอร์สใหม่เดือนนี้' %></small>
+        </div>
+      </article>
+      <article class="chef-card chef-stat">
+        <span class="chef-stat-icon orange"><i data-lucide="chef-hat"></i></span>
+        <div>
+          <h3>สูตรอาหาร</h3>
+          <strong><%= stats.recipes %> เมนู</strong>
+          <small class="orange"><%= stats.avgRating ? 'คะแนนเฉลี่ย ' + stats.avgRating + ' ★' : 'ยังไม่มีรีวิว' %></small>
+        </div>
+      </article>
+      <article class="chef-card chef-stat">
+        <span class="chef-stat-icon green"><i data-lucide="users"></i></span>
+        <div>
+          <h3>ผู้เรียนทั้งหมด</h3>
+          <strong><%= stats.students.toLocaleString('en-US') %> คน</strong>
+          <small class="green"><%= stats.studentsThisMonth ? '+ ' + stats.studentsThisMonth + ' คนในเดือนนี้' : 'ยังไม่มีผู้เรียนใหม่เดือนนี้' %></small>
+        </div>
+      </article>
+      <article class="chef-card chef-stat">
+        <span class="chef-stat-icon orange"><i data-lucide="wallet"></i></span>
+        <div>
+          <h3>รายได้สะสม</h3>
+          <strong>฿<%= stats.revenue %></strong>
+          <small><%= stats.lastSale ? 'อัปเดตล่าสุด ' + stats.lastSale : 'ยังไม่มียอดขาย' %></small>
+        </div>
+      </article>
+    </section>
+
+    <!-- ===== กราฟรายได้ + ไฮไลต์ ===== -->
+    <section class="chef-split">
+      <article class="chef-card chef-chart-card">
+        <div class="chef-card-head">
+          <h2>รายได้รายสัปดาห์ (Weekly Revenue)</h2>
+          <form method="get" class="chef-range">
+            <i data-lucide="calendar"></i>
+            <select name="range" onchange="this.form.submit()" aria-label="ช่วงเวลา">
+              <option value="7" <%= chart.range === 7 ? 'selected' : '' %>>7 วันที่ผ่านมา</option>
+              <option value="30" <%= chart.range === 30 ? 'selected' : '' %>>30 วันที่ผ่านมา</option>
+            </select>
+          </form>
+        </div>
+        <div class="chef-chart-meta">
+          <span>รวม ฿<%= chart.totalText %></span>
+          <% if (chart.change !== null) { %>
+          <span class="chef-change <%= chart.change < 0 ? 'down' : '' %>"><%= chart.change > 0 ? '+' : '' %><%= chart.change %>% เทียบกับช่วงก่อน</span>
+          <% } %>
+        </div>
+        <div class="chef-chart" style="--bars: <%= chart.bars.length %>">
+          <div class="chef-chart-axis">
+            <% chart.ticks.forEach(t => { %><span><%= t %></span><% }) %>
+          </div>
+          <div class="chef-chart-plot">
+            <div class="chef-chart-grid"><% for (let i = 0; i < 5; i++) { %><i></i><% } %></div>
+            <% chart.bars.forEach(b => { %>
+            <div class="chef-bar-col" title="<%= b.label %> : ฿<%= b.totalText %>">
+              <div class="chef-bar" style="height: <%= b.pct.toFixed(2) %>%"><span class="chef-bar-tip">฿<%= b.totalText %></span></div>
+              <span class="chef-bar-label"><%= b.label %></span>
+            </div>
+            <% }) %>
+          </div>
+        </div>
+        <% if (!chart.axisMax) { %><p class="chef-muted chef-chart-empty">ยังไม่มีรายได้ในช่วงนี้</p><% } %>
+      </article>
+
+      <div class="chef-side">
+        <article class="chef-card chef-highlight">
+          <h3><i data-lucide="flame"></i> คอร์สยอดนิยมอันดับ 1</h3>
+          <% if (topCourse) { %>
+          <div class="chef-highlight-body">
+            <%- include('_thumb', { src: topCourse.imageUrl, alt: topCourse.title }) %>
+            <div>
+              <strong><%= topCourse.title %></strong>
+              <div class="chef-highlight-meta">
+                <span><%= topCourse.students.toLocaleString('en-US') %> นักเรียน</span>
+                <span class="chef-price">฿<%= topCourse.price.toLocaleString('en-US') %></span>
+              </div>
+            </div>
+          </div>
+          <% } else { %><p class="chef-muted">ยังไม่มีผู้ซื้อคอร์ส</p><% } %>
+        </article>
+        <article class="chef-card chef-highlight">
+          <h3><i data-lucide="star"></i> สูตรที่มีคะแนนรีวิวมากที่สุด</h3>
+          <% if (topRecipe) { %>
+          <div class="chef-highlight-body">
+            <%- include('_thumb', { src: topRecipe.image, alt: topRecipe.title }) %>
+            <div>
+              <strong><%= topRecipe.title %></strong>
+              <div class="chef-highlight-meta">
+                <span class="chef-rating">★ <%= topRecipe.rating.toFixed(1) %></span>
+                <span><%= (topRecipe.reviewCount || 0).toLocaleString('en-US') %> รีวิว</span>
+              </div>
+            </div>
+          </div>
+          <% } else { %><p class="chef-muted">ยังไม่มีสูตรที่ได้รับรีวิว</p><% } %>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== คำสั่งซื้อล่าสุด ===== -->
+    <section class="chef-card chef-orders" id="orders">
+      <div class="chef-card-head">
+        <h2><i data-lucide="shopping-basket"></i> รายการคำสั่งซื้อคอร์สล่าสุด (Recent Orders)</h2>
+        <% if (totalOrders > 5) { %>
+        <a class="chef-link" href="<%= allOrders ? '/chef/dashboard#orders' : '/chef/dashboard?orders=all#orders' %>"><%= allOrders ? 'ย่อรายการ ←' : 'ดูทั้งหมด →' %></a>
+        <% } %>
+      </div>
+      <% if (!orders.length) { %>
+      <p class="chef-muted chef-empty-row">ยังไม่มีคำสั่งซื้อคอร์ส</p>
+      <% } else { %>
+      <div class="chef-table-wrap">
+        <table class="chef-table">
+          <thead><tr><th>ผู้เรียน</th><th>คอร์ส</th><th>วันที่สั่งซื้อ</th><th>ยอดชำระ</th><th>สถานะ</th></tr></thead>
+          <tbody>
+            <% orders.forEach(o => { %>
+            <tr>
+              <td>
+                <div class="chef-buyer">
+                  <span class="chef-buyer-avatar"><% if (o.buyerAvatar) { %><img src="<%= o.buyerAvatar %>" alt=""><% } %></span>
+                  <div><strong><%= o.buyerName %></strong><small><%= o.buyerEmail %></small></div>
+                </div>
+              </td>
+              <td><%= o.course %></td>
+              <td class="chef-muted"><%= o.date %></td>
+              <td class="chef-amount">+฿<%= o.amount %></td>
+              <td><span class="chef-status-pill ok sm">สำเร็จ</span></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+    </section>
   </main>
 
   <%- include('../partials/footer') %>
