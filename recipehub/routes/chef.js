@@ -7,9 +7,7 @@ router.get('/', (req, res) => {
 });
 
 /** GET /chef/dashboard  แสดงหน้า Dashboard ของเชฟ */
-router.get('/dashboard', (req, res) => {
-  res.render('chef/dashboard', { title: 'Dashboard', active: 'dashboard' });
-});
+router.use('/dashboard', require('./dashboard'));
 
 /** GET /chef/courses  หน้าจัดการคอร์สของเชฟ */
 router.get('/courses', (req, res) => {
