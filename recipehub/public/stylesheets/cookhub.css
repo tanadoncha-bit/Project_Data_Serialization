@@ -9,12 +9,10 @@
    เฉพาะหน้า
      9.  หน้ารายการ (คอร์ส / สูตรอาหาร)
      10. ป๊อปอัปตัวกรอง
-     11. การ์ดสูตรอาหาร
-     12. หน้าโปรไฟล์
    =========================================================== */
 
 /* ===========================================================
-   CookHub — สไตล์เนื้อหาหน้าฝั่งผู้ใช้ (หน้าแรก / คอร์ส / สูตร / โปรไฟล์)
+   CookHub — สไตล์เนื้อหาหน้าฝั่งผู้ใช้ (หน้าแรก / คอร์ส)
    โหลดต่อจาก partials/head ของเพื่อน:  <link rel="stylesheet" href="/stylesheets/cookhub.css">
 
    ** Navbar + Footer + ฟอนต์ ใช้ของเพื่อน (layout.css) ไฟล์นี้ไม่ยุ่ง **
@@ -26,8 +24,6 @@
    เฉพาะหน้า
      9.  หน้ารายการ (คอร์ส / สูตรอาหาร)
      10. ป๊อปอัปตัวกรอง
-     11. การ์ดสูตรอาหาร
-     12. หน้าโปรไฟล์
    =========================================================== */
 
 /* ========== 1. ตัวแปร + พื้นฐาน ========== */
@@ -412,123 +408,6 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .filter__actions .btn--primary { background: #ff7a2f; }
 .filter__actions .btn--primary:hover { background: var(--primary-dark); }
 
-/* ===========================================================
-   11. การ์ดสูตรอาหาร  — views/user/profile.ejs (แท็บรายการโปรด)
-   =========================================================== */
-.recipe-card .card__img { aspect-ratio: 2.55 / 1; }
-.recipe-card .card__body { padding: 10px 14px 0; }
-.recipe-card .card__title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.recipe-card .card__desc { margin-bottom: 8px; }
-.recipe-card .chef-mini { margin-bottom: 12px; }
-.recipe-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-.cook-time { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); }
-.level { font-size: 9px; font-weight: 500; line-height: 1; padding: 4px 9px; border-radius: 5px; }
-.level--easy   { background: #d9f2d9; color: #2f8a3f; }
-.level--medium { background: #f8dfb3; color: #a0661a; }
-.level--hard   { background: #ffd0c9; color: #c43a2a; }
-.recipe-card .card__foot {
-  margin: 0 -14px; padding: 10px 14px 12px; border-top: 1px solid #efefef;
-}
-
-/* ===========================================================
-   12. หน้าโปรไฟล์  — views/user/profile.ejs
-   =========================================================== */
-.profile-wrap { max-width: 1018px; margin: 0 auto; padding: 18px 24px 40px; }
-.panel { background: #fff; border: 1px solid #e3e3e3; border-radius: 12px; }
-
-/* หัวโปรไฟล์ */
-.profile-head { display: flex; align-items: center; gap: 52px; padding: 30px 34px; min-height: 222px; }
-.avatar { position: relative; width: 143px; height: 143px; flex-shrink: 0; }
-.avatar__img { width: 100%; height: 100%; border-radius: 50%; border: 3px solid #f6a98a; }
-.avatar__img.img-placeholder svg { width: 60px; height: 60px; }
-.avatar__img[hidden] { display: none; }
-.avatar-status { font-size: 12px; color: var(--primary); margin-top: 4px; }
-.avatar__cam {
-  position: absolute; right: 2px; bottom: 8px; width: 28px; height: 28px; border-radius: 50%;
-  background: var(--primary); color: #fff; display: grid; place-items: center; cursor: pointer;
-  border: 2px solid #fff;
-}
-.avatar__cam input { display: none; }
-.profile-head__name { font-size: 26px; font-weight: 600; }
-.profile-head__email { display: inline-block; font-size: 15px; color: #666; text-decoration: underline; margin: 2px 0 6px; }
-.profile-head__bio { font-size: 14px; color: #555; line-height: 1.6; max-width: 440px; }
-
-/* แท็บ */
-.tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 5px; margin: 22px 0 20px; }
-.tab {
-  display: flex; align-items: center; justify-content: center; gap: 8px; height: 50px;
-  border-radius: 10px; font-size: 21px; color: var(--text);
-}
-.tab svg { flex-shrink: 0; }
-.tab:hover { color: var(--primary); }
-.tab.active { background: #ff7a2f; color: #fff; }
-.tab .tab-ic--fav { color: #ef5a6f; }
-.tab .tab-ic--history { color: #ef5a3a; }
-.tab.active svg { color: #fff; }
-
-/* ข้อมูลส่วนตัว */
-.info { padding: 16px 24px 22px; }
-.info h2 { font-size: 26px; font-weight: 600; margin-bottom: 6px; }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 28px; padding: 0 10px; }
-.field label { display: block; font-size: 14px; margin-bottom: 4px; }
-.field input, .field textarea {
-  width: 100%; height: 30px; padding: 0 10px; border: 1px solid #dcdcdc; border-radius: 5px;
-  font-family: inherit; font-size: 14px; color: var(--text); background: #fff;
-}
-.field textarea { height: 84px; padding: 6px 10px; resize: vertical; }
-.field input:focus, .field textarea:focus { outline: none; border-color: var(--primary); }
-.field--full { grid-column: 1 / -1; }
-.field__count { text-align: right; font-size: 11px; color: #999; margin-top: 2px; }
-.save-btn {
-  height: 32px; padding: 0 16px; margin: 6px 0 0 10px; border: none; border-radius: 5px;
-  background: #ff7a2f; color: #fff; font-family: inherit; font-size: 14px; cursor: pointer;
-}
-.save-btn:hover { background: var(--primary-dark); }
-.alert-ok { margin: 0 8px 10px; padding: 8px 12px; border-radius: 6px; background: #e8f7ec; color: #2f8a3f; font-size: 12px; }
-
-/* หัวข้อในแท็บ */
-.tab-title { display: flex; align-items: center; gap: 8px; font-size: 26px; font-weight: 600; margin-left: 4px; }
-.tab-sub { font-size: 13px; color: #888; margin: 0 0 16px 44px; }
-
-/* รายการโปรด */
-.fav-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.fav-grid .course-card .card__foot,
-.fav-grid .recipe-card .card__foot { margin: 10px -14px 0; padding: 10px 14px 12px; border-top: 1px solid #efefef; }
-.fav-grid .course-card .card__body { padding-bottom: 0; }
-.empty { text-align: center; color: #999; font-size: 13px; padding: 40px 0; }
-
-/* ประวัติการซื้อ */
-.order { display: flex; align-items: center; gap: 14px; padding: 6px; margin-bottom: 8px; border: 1px solid #e6e6e6; border-radius: 8px; }
-.order__img { width: 146px; aspect-ratio: 1.95 / 1; border-radius: 4px; flex-shrink: 0; }
-.order__main { flex: 1; min-width: 0; padding: 2px 0; }
-.order__type { display: inline-block; font-size: 9px; padding: 2px 8px; border-radius: 3px; }
-.order__type--course { background: #fde0d6; color: #c4502c; }
-.order__type--recipe { background: #fcd98a; color: #8a5a00; }
-.order__title { font-size: 15px; font-weight: 600; margin: 3px 0 1px; }
-.order__desc { font-size: 10px; color: #888; }
-.order__meta { display: flex; gap: 70px; font-size: 10px; color: #888; margin-top: 8px; }
-.order__meta span { display: flex; align-items: center; gap: 3px; }
-.order__side {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  width: 290px; padding: 4px 14px 4px 12px; border-left: 1px solid #ddd; align-self: stretch;
-}
-.order__paid { display: flex; align-items: center; gap: 4px; font-size: 9px; color: #2f9e57; }
-.order__date { font-size: 11px; color: #555; margin: 6px 0 2px; }
-.order__price { font-family: var(--font-en); font-size: 20px; font-weight: 500; color: var(--primary); }
-.order__btn {
-  width: 72px; height: 26px; border-radius: 3px; background: #ff7a2f; color: #fff;
-  font-size: 10px; display: grid; place-items: center;
-}
-.order__btn:hover { background: var(--primary-dark); }
-
-@media (max-width: 760px) {
-  .profile-head { flex-direction: column; text-align: center; gap: 16px; }
-  .tabs { grid-template-columns: 1fr; }
-  .form-grid { grid-template-columns: 1fr; }
-  .fav-grid { grid-template-columns: 1fr; }
-  .order { flex-wrap: wrap; }
-  .order__side { width: 100%; border-left: none; border-top: 1px solid #ddd; padding-top: 8px; }
-}
 /* ไม่มีผลลัพธ์ (หน้ารายการ) */
 .empty-state { text-align: center; padding: 56px 16px; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .empty-state h2 { font-size: 18px; color: var(--text); }
