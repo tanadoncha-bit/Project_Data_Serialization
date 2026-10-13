@@ -15,7 +15,7 @@ function startSession(req, res, next, user) {
   req.session.regenerate((err) => {
     if (err) return next(err);
     req.session.userId = user._id;
-    res.json({ redirect: user.role === 'chef' ? '/chef/dashboard' : '/home' });
+    res.json({ redirect: user.role === 'chef' ? '/chef/dashboard' : '/user' });
   });
 }
 

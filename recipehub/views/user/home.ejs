@@ -51,7 +51,7 @@
         <% popularCourses.forEach(c => { %>
           <a href="<%= c.url %>" class="card" data-course-modal>
             <div class="card__img">
-              <%- include('_image', { src: c.image, alt: c.title, cls: 'card__photo' }) %>
+              <%- include('_image', { src: (c.images || []).find(Boolean), alt: c.title, cls: 'card__photo' }) %>
               <span class="tag tag--<%= c.tagType %>"><%= c.tag %></span>
               <button class="fav <%= favoriteKeys.has(c.kind + ':' + c.id) ? 'on' : '' %>" type="button" data-fav-url="/courses/favorites/<%= c.kind %>/<%= c.id %>" aria-label="รายการโปรด">
                 <i data-lucide="heart" class="ic-14"></i>
@@ -151,10 +151,6 @@
         <% if (!chefs.length) { %><p class="empty">ยังไม่มีเชฟในระบบ</p><% } %>
         <% chefs.forEach((chef, i) => { const top = chef.isTop; %>
           <div class="chef <%= top ? 'chef--top' : 'chef--side' %>">
-            <% if (top) { %>
-              <!-- มงกุฎ + ช่อใบไม้ -->
-              <i data-lucide="crown" class="chef__crown"></i>
-            <% } %>
             <%- include('_image', { src: chef.avatar, alt: chef.name, cls: 'chef__avatar', icon: 'chef-hat' }) %>
             <div class="chef__name"><%= chef.name %></div>
             <div class="chef__role"><%= chef.role %></div>
@@ -184,7 +180,6 @@
           </a>
         </div>
       </div>
-      <div class="cta__img" aria-hidden="true"></div>
     </section>
   </div>
   </main>

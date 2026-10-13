@@ -186,47 +186,52 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .promo__dots button.active { background: var(--primary); opacity: 1; }
 
 /* เชฟยอดนิยม */
-.chefs { position: relative; overflow: hidden; padding: 36px 0 56px; background: #fffaf6; }
+.chefs {
+  position: relative; overflow: hidden; padding: 56px 0 36px;
+  background: #fff url('/images/homepage/Popular.png') center 52px / min(100%, 1304px) auto no-repeat;
+}
 .chefs .container { position: relative; }
+.chefs .section-title { font-size: 28px; }
+.chefs .section-sub { font-size: 14px; }
 .chefs__row {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; align-items: start;
-  margin-top: -46px;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; align-items: start;
+  margin-top: 0;
 }
 .chef {
-  position: relative; background: rgba(255,255,255,.92);
-  border: 1px solid #f6c3ab; border-radius: 10px; text-align: center;
+  position: relative; background: rgba(255,255,255,.35);
+  border: 1px solid #ff9c80; border-radius: 18px; text-align: center;
 }
-.chef--side { margin-top: 189px; height: 207px; padding-top: 76px; }
-.chef--top  { margin-top: 120px; height: 244px; padding-top: 112px; }
+.chef--side { margin-top: 144px; min-height: 214px; padding: 78px 12px 24px; }
+.chef--top  { margin-top: 74px; min-height: 250px; padding: 108px 12px 24px; }
 .chef__avatar {
   overflow: hidden;
   position: absolute; left: 50%; transform: translateX(-50%); border-radius: 50%;
   border: 3px solid #fff; box-shadow: 0 0 0 1px #f6c3ab;
 }
-.chef--side .chef__avatar { width: 125px; height: 125px; top: -56px; }
-.chef--top  .chef__avatar { width: 170px; height: 170px; top: -70px; box-shadow: 0 0 0 2px #f7a21b; }
-.chef__crown { position: absolute; top: -132px; left: 50%; transform: translateX(-50%); width: 56px; height: 56px; color: var(--star); fill: #ffd98a; }
-.chef__name { font-size: 14px; font-weight: 700; }
-.chef__role { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-.chef__stars { display: flex; justify-content: center; gap: 4px; margin: 12px 0 8px; color: var(--star); }
-.chef__followers { font-size: 11px; font-weight: 600; }
+.chef--side .chef__avatar { width: 130px; height: 130px; top: -58px; }
+.chef--top  .chef__avatar { width: 176px; height: 176px; top: -74px; border: 0; box-shadow: 0 0 0 2px #f7a21b; }
+.chef__name { font-size: 18px; font-weight: 700; }
+.chef__role { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
+.chef__stars { display: flex; justify-content: center; gap: 6px; margin: 16px 0 12px; color: var(--star); }
+.chef__stars svg { width: 20px; height: 20px; }
+.chef__followers { font-size: 14px; font-weight: 600; }
 .chef__followers span { font-weight: 400; }
 
 /* CTA ด้านล่าง */
 .cta {
-  position: relative; display: flex; height: 200px; border-radius: 12px; overflow: hidden;
-  background: linear-gradient(100deg, #fde7d8 0%, #fdf0e6 60%, #fbe6d8 100%);
-  margin-bottom: 16px;
+  position: relative; display: flex; aspect-ratio: 1520 / 300; border-radius: 16px; overflow: hidden;
+  background: #fde7d8 url('/images/homepage/Bottom.png') center / 100% 100% no-repeat;
+  margin: 44px 0 24px;
 }
-.cta__text { flex: 1; padding: 0 0 0 66px; display: flex; flex-direction: column; justify-content: center; }
+.cta__text { flex: 1; padding: 0; }
+.cta__title, .cta__sub { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .cta__title { font-size: 26px; font-weight: 700; line-height: 1.3; }
 .cta__title span { color: var(--heading-orange); }
 .cta__sub { font-size: 12px; color: #6b6b6b; margin: 4px 0 18px; }
-.cta__actions { display: flex; gap: 20px; }
+.cta__actions { position: absolute; left: 6.58%; top: 59.3%; display: flex; gap: 20px; }
 .cta__actions .btn { height: 40px; }
 .cta__actions .btn--primary { width: 165px; }
 .cta__actions .btn--outline { width: 123px; padding: 0 14px; background: #fff7f2; border-color: #fbe0d2; }
-.cta__img { width: 390px; flex-shrink: 0; background: url('/images/recipes/recipe-hero.png') 85% center / cover no-repeat; }
 
 /* ========== 8. มือถือ (ส่วนกลาง) ========== */
 @media (max-width: 900px) {
@@ -235,11 +240,16 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
   .hero__title .l1 { font-size: 34px; }
   .hero__title .l2 { font-size: 28px; }
   .chefs__row { grid-template-columns: 1fr; margin-top: 0; gap: 90px; }
-  .chef--side, .chef--top { margin-top: 90px; height: auto; padding-bottom: 20px; }
-  .chef__crown { display: none; }
-  .cta { height: auto; }
-  .cta__text { padding: 28px; }
-  .cta__img { display: none; }
+  .chefs { background-size: auto 650px; }
+  .chefs .section-title { font-size: 28px; }
+  .chefs .section-sub { font-size: 14px; }
+  .chef--side, .chef--top { margin-top: 100px; min-height: 0; padding: 110px 16px 28px; }
+  .chef--top .chef__avatar { width: 190px; height: 190px; top: -86px; }
+  .chef--side .chef__avatar { width: 190px; height: 190px; top: -86px; }
+  .cta { aspect-ratio: auto; min-height: 250px; background-size: auto 100%; background-position: right center; }
+  .cta__text { padding: 28px; background: rgba(255,244,236,.94); max-width: 75%; }
+  .cta__title, .cta__sub { position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal; }
+  .cta__actions { position: static; flex-wrap: wrap; gap: 12px; }
 }
 @media (max-width: 560px) {
   .grid-3 { grid-template-columns: 1fr; }

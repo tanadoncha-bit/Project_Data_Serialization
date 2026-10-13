@@ -1983,3 +1983,61 @@
     line-height: 1.6;
   }
 }
+
+/* Full recipe pages use normal document scrolling. */
+.recipe-single-page { width: min(1136px, 100%); box-sizing: border-box; }
+.recipe-single-page .recipe-back { display: inline-flex; margin-bottom: 24px; }
+.recipe-single-page .recipe-external-media .recipe-image { height: clamp(240px, 32vw, 440px); }
+@media (max-width: 700px) {
+  .recipe-single-page .recipe-external-media .recipe-image { height: 240px; }
+  .recipe-single-page .recipe-back { margin-bottom: 18px; }
+}
+
+.recipe-chef-full-page{max-width:1000px}
+.recipe-chef-full-page .recipe-modal-heading{margin-bottom:24px}
+.recipe-chef-full-page .recipe-page-actions{display:flex;justify-content:flex-end;margin-bottom:18px}
+.recipe-chef-full-page .recipe-modal-footer{position:static}
+
+/* Shared full recipe detail layout for readers and chefs. */
+.recipe-single-page:not(.recipe-chef-full-page){max-width:1200px;width:calc(100% - 48px);padding:32px 24px 56px}
+@media(min-width:901px){
+ .recipe-single-page .recipe-external-hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:32px;align-items:start;padding-bottom:28px}
+ .recipe-single-page .recipe-external-intro{padding:4px 0 0}
+ .recipe-single-page .recipe-local-intro-grid{grid-template-columns:1fr;gap:20px;margin:14px 0 20px}
+ .recipe-single-page .recipe-external-media .recipe-image{height:360px}
+ .recipe-single-page .recipe-external-summary{flex-wrap:wrap;gap:12px 16px}
+}
+@media(max-width:700px){.recipe-single-page:not(.recipe-chef-full-page){width:100%;padding:24px 16px 40px}}
+
+/* Full-page editor: readable fields and a dedicated image column. */
+.recipe-chef-full-page{max-width:1140px;width:calc(100% - 48px);padding:32px 24px 48px}
+.recipe-chef-full-page .recipe-modal-heading h2{font-size:26px}
+.recipe-chef-full-page .recipe-modal-heading p,.recipe-chef-full-page .recipe-wizard-progress{font-size:13px}
+.recipe-chef-full-page .recipe-form label,.recipe-chef-full-page .recipe-category-field,.recipe-chef-full-page .recipe-wizard-nav button{font-size:14px}
+.recipe-chef-full-page .recipe-form input,.recipe-chef-full-page .recipe-form textarea,.recipe-chef-full-page .recipe-form-dropdown summary{font-size:15px}
+.recipe-chef-full-page .recipe-form-grid{gap:20px}
+.recipe-chef-full-page .recipe-menu-image{min-width:0}
+.recipe-chef-full-page .recipe-image-upload{width:100%;margin-top:0;min-height:300px;box-sizing:border-box}
+.recipe-chef-full-page .recipe-image-upload img{width:100%;max-width:100%;height:280px;object-fit:cover}
+@media(min-width:901px){
+ .recipe-chef-full-page .recipe-menu-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:28px;align-items:start}
+ .recipe-chef-full-page .recipe-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .recipe-chef-full-page .recipe-wizard-panel{padding:24px}
+}
+@media(max-width:900px){.recipe-chef-full-page .recipe-menu-image{margin-top:20px}}
+@media(max-width:700px){
+ .recipe-chef-full-page{width:100%;padding:24px 16px 40px}
+ .recipe-chef-full-page .recipe-modal-heading h2{font-size:21px}
+ .recipe-chef-full-page .recipe-image-upload{min-height:220px}
+ .recipe-chef-full-page .recipe-image-upload img{height:220px}
+}
+
+/* Soft page backdrop around the recipe workspace. */
+body.recipe-site:has(.recipe-single-page){background:#f4f5f6}
+.recipe-single-page{background:#fff;border:1px solid #eceef0;border-radius:16px;margin-top:28px;margin-bottom:40px;box-shadow:0 3px 16px rgba(35,40,45,.025)}
+body.recipe-site:has(.recipe-single-page) .navbar{background:#fff}
+@media(max-width:700px){
+ .recipe-single-page,.recipe-single-page:not(.recipe-chef-full-page),.recipe-chef-full-page{width:calc(100% - 24px);margin-top:16px;margin-bottom:24px;padding:20px 14px 28px;border-radius:12px}
+}
+
+#recipe-browse-results[aria-busy="true"]{opacity:.55;transition:opacity .15s}

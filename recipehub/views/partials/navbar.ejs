@@ -12,7 +12,7 @@
   <ul class="nav-menu" id="cookhubNavMenu">
     <% if (!loggedIn) { %>
     <% } else if (publicNav) { %>
-    <li><a href="/home" class="<%= current === 'home' ? 'active' : '' %>">หน้าแรก</a></li>
+    <li><a href="<%= isChef ? '/chef/dashboard' : '/user' %>" class="<%= current === 'home' ? 'active' : '' %>">หน้าแรก</a></li>
     <li><a href="/courses" class="<%= current === 'courses' ? 'active' : '' %>">คอร์ส</a></li>
     <li><a href="/recipes" class="<%= current === 'recipes' ? 'active' : '' %>">สูตรอาหาร</a></li>
     <% } else { %>

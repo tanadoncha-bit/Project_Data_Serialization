@@ -21,7 +21,7 @@ router.use((req, res, next) => {
 
 router.use('/reviews', require('./recipeReviews'));
 
-router.get('/inspiration', (req, res) => res.render('recipes/inspiration', { title: 'ไอเดียจาก TheMealDB' }));
+router.get('/inspiration', (req, res) => res.render('user/recipes/inspiration', { title: 'ไอเดียจาก TheMealDB' }));
 // External IDs have their own namespace so they cannot collide with MongoDB recipe IDs.
 router.get('/external/:id', support.asyncRoute(async (req, res) => {
   if (!/^[1-9]\d{0,9}$/.test(req.params.id)) throw createError(400, 'รหัสเมนูไม่ถูกต้อง');
@@ -30,8 +30,8 @@ router.get('/external/:id', support.asyncRoute(async (req, res) => {
   catch (_) { throw createError(502, 'TheMealDB ไม่พร้อมใช้งาน กรุณาลองใหม่ภายหลัง'); }
   if (!meal) throw createError(404, 'ไม่พบเมนู');
   const locals = { title: meal.title, meal, videoEmbed: support.videoEmbed(meal.videoUrl) };
-  if (req.query.fragment === '1') return res.render('recipes/_externalDetail', locals);
-  res.render('recipes/external', locals);
+  if (req.query.fragment === '1') return res.render('user/recipes/_externalDetail', locals);
+  res.render('user/recipes/external', locals);
 }));
 router.use(support.databaseReady);
 
@@ -85,7 +85,7 @@ router.get('/', support.asyncRoute(async (req, res) => {
   const pageSize = 12;
   // Keep local recipes available even if the external service fails.
   let externalError = '';
-  const hasUnsupportedFilter = filters.difficulty || Number(filters.minDuration) > 0 || filters.maxDuration || Number(filters.minPrice) > 0;
+  const hasUnsupportedFilter = Number(filters.minDuration) > 0 || filters.maxDuration || Number(filters.minPrice) > 0;
   const externalRequest = (filters.source === 'chef' || hasUnsupportedFilter ? Promise.resolve([]) : filters.search ? mealApi.search(filters.search) : mealApi.browse())
     .catch(() => { externalError = 'โหลดเมนูจาก TheMealDB ไม่สำเร็จ กรุณาลองใหม่ภายหลัง'; return []; });
   const [allMeals, categories] = await Promise.all([
@@ -122,7 +122,7 @@ router.get('/', support.asyncRoute(async (req, res) => {
   const client = support.numericId(req.user?._id || req.session?.userId);
   const favorites = client ? await Favorite.find({client,itemType:{$in:['Recipe','ExternalRecipe']},itemId:{$in:[...recipes.map(r=>r._id),...externalMeals.map(m=>Number(m.id))]}}).select('itemType itemId').lean() : [];
   const favoriteKeys = new Set(favorites.map(f=>f.itemType+':'+f.itemId));
-  res.render('recipes/index', { title: 'สูตรอาหาร', recipes: recipes.map(support.recipeView), externalMeals, externalError, countryOptions,
+  res.render('user/recipes/index', { title: 'สูตรอาหาร', recipes: recipes.map(support.recipeView), externalMeals, externalError, countryOptions,
     orderedCards, favoriteKeys, categories: categories.filter(Boolean).sort(),
     cataloguePending: filters.source !== 'chef' && !hasUnsupportedFilter && !filters.search && !!mealApi.cataloguePending?.(),
     filters, page, total, pages: Math.ceil(total / pageSize), pageQuery: support.filterQuery(filters) });
@@ -145,9 +145,9 @@ router.get('/:id', support.asyncRoute(async (req, res) => {
     delete recipe.steps;
     delete recipe.videoUrl;
   }
-  const locals = { title: recipe.title, recipe, canAccess, videoEmbed: support.videoEmbed(recipe.videoUrl) };
-  if (req.query.fragment === '1') return res.render('recipes/_detail', locals);
-  res.render('recipes/show', locals);
+  const locals = { title: recipe.title, recipe, canAccess, saved: req.query.saved === '1', videoEmbed: support.videoEmbed(recipe.videoUrl) };
+  if (req.query.fragment === '1') return res.render('user/recipes/_detail', locals);
+  res.render('user/recipes/show', locals);
 }));
 
 module.exports = router;

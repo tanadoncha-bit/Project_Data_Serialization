@@ -83,10 +83,9 @@ function safeUrl(value) {
 function parseRecipe(body, existing) {
   const names = list(body.ingredientName);
   const amounts = list(body.ingredientAmount);
-  const difficulty = text(body.difficulty) || Object.keys(difficultyLevels).find(key => difficultyLevels[key] === text(body.level)) || (existing && existing.difficulty);
   const recipe = { title: text(body.title || body.name),
     description: body.description === undefined ? (existing && existing.description) || '' : text(body.description),
-    category: text(body.category), cuisine: countries.localCountry(text(body.category)), difficulty, level: difficultyLevels[difficulty] || (existing && existing.level) || 'BEGINNER', price: Number(body.price),
+    category: text(body.category), cuisine: countries.localCountry(text(body.category)), price: Number(body.price),
     image: text(body.image || body.imageUrl),
     videoUrl: body.videoUrl === undefined ? (existing && existing.videoUrl) || '' : text(body.videoUrl),
     duration: body.duration === undefined ? (existing && existing.duration) ?? null : text(body.duration) ? Number(body.duration) : null,
@@ -98,7 +97,6 @@ function parseRecipe(body, existing) {
   if (recipe.description.length > 10000) errors.push('คำอธิบายสูตรต้องไม่เกิน 10000 ตัวอักษร');
   if (!recipe.title || recipe.title.length > 200) errors.push('กรุณาระบุชื่อสูตรไม่เกิน 200 ตัวอักษร');
   if (!recipe.category || recipe.category.length > 80) errors.push('กรุณาระบุหมวดหมู่ไม่เกิน 80 ตัวอักษร');
-  if (recipe.difficulty && !difficulties.includes(recipe.difficulty)) errors.push('กรุณาเลือกระดับความยาก');
   if (!text(body.price) || !Number.isFinite(recipe.price) || recipe.price < 0) errors.push('ราคาต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป');
   if (!recipe.image || recipe.image.length > 2000 || !(safeUrl(recipe.image) || /^\/uploads\/recipes\/[a-f0-9]{32}\.(jpg|png|webp)$/.test(recipe.image))) errors.push('กรุณาเลือกรูปภาพเมนู');
   if (recipe.duration !== null && (!Number.isFinite(recipe.duration) || recipe.duration < 0)) errors.push('ระยะเวลาต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป');
@@ -111,16 +109,13 @@ function parseRecipe(body, existing) {
 
 function parseFilters(query) {
   const filters = { source: text(query.source) || 'all', country: list(query.country).filter(value => value !== '').map(text), search: text(query.search), category: list(query.category).filter(value => value !== '').map(text),
-    level: text(query.level), difficulty: text(query.difficulty), sort: text(query.sort) || 'popular',
+    sort: text(query.sort) || 'popular',
     minPrice: text(query.minPrice), maxPrice: text(query.maxPrice), minDuration: text(query.minDuration),
     maxDuration: text(query.maxDuration), minRating: text(query.minRating) };
   if (Object.keys(filters).filter(key => !['category', 'country'].includes(key)).some(key => query[key] !== undefined && typeof query[key] !== 'string') || list(query.category).some(value => typeof value !== 'string')) throw createError(400, 'ตัวกรองไม่ถูกต้อง');
   if (filters.country.length > 80 || filters.country.some(value => value.length > 80) || list(query.country).some(value => typeof value !== 'string')) throw createError(400, 'ตัวกรองประเทศไม่ถูกต้อง');
   filters.country = [...new Set(filters.country.map(countries.normalizeCountry))];
   if (filters.search.length > 200 || filters.category.length > 20 || filters.category.some(value => value.length > 80)) throw createError(400, 'คำค้นหายาวเกินกำหนด');
-  if (filters.level && !levels.includes(filters.level)) throw createError(400, 'ระดับความยากไม่ถูกต้อง');
-  if (!filters.difficulty && filters.level) filters.difficulty = Object.keys(difficultyLevels).find(key => difficultyLevels[key] === filters.level);
-  if (filters.difficulty && !difficulties.includes(filters.difficulty)) throw createError(400, 'ระดับความยากไม่ถูกต้อง');
   if (!['popular', 'rating', 'newest'].includes(filters.sort)) throw createError(400, 'การเรียงลำดับไม่ถูกต้อง');
   if (!['all','chef','general'].includes(filters.source)) throw createError(400, 'ประเภทสูตรไม่ถูกต้อง');
   const clauses = [];
@@ -133,14 +128,6 @@ function parseFilters(query) {
     clauses.push({ category: { $in: values } });
   }
   if (filters.country.length) clauses.push(countries.localCountryCriteria(filters.country));
-  if (filters.difficulty) {
-    const legacy = { difficulty: { $exists: false }, level: difficultyLevels[filters.difficulty] };
-    if (filters.difficulty === 'EASY') {
-      delete legacy.level;
-      legacy.$or = [{ level: 'BEGINNER' }, { level: { $exists: false } }];
-    }
-    clauses.push({ $or: [{ difficulty: filters.difficulty }, legacy] });
-  }
   for (const [field, min, max] of [['price', 'minPrice', 'maxPrice'], ['duration', 'minDuration', 'maxDuration']]) {
     const range = {};
     for (const [key, operator] of [[min, '$gte'], [max, '$lte']]) {
@@ -163,7 +150,6 @@ function parseFilters(query) {
 
 function recipeView(record) {
   const recipe = record.toObject ? record.toObject() : { ...record };
-  recipe.difficulty = recipe.difficulty || Object.keys(difficultyLevels).find(key => difficultyLevels[key] === recipe.level) || 'EASY';
   recipe.ingredientCount = recipe.ingredients ? recipe.ingredients.length : recipe.ingredientCount || 0;
   recipe.stepCount = recipe.steps ? recipe.steps.length : recipe.stepCount || 0;
   return recipe;
@@ -172,7 +158,7 @@ function recipeView(record) {
 function filterQuery(filters) {
   const params = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
-    if (key === 'level') return;
+    if (['level', 'difficulty'].includes(key)) return;
     (Array.isArray(value) ? value : [value]).filter(Boolean).forEach(item => params.append(key, item));
   });
   return params.toString();
