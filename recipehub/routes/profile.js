@@ -15,6 +15,7 @@ const router = express.Router();
 router.use(requireLogin);
 
 const avatarImages = require('../services/avatarImages');
+const mailer = require('../services/mailer');
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024, files: 1 } });
 
 const itemModels = { Recipe, SingleCourse, MultiCourse };
@@ -33,13 +34,13 @@ async function loadItems(rows) {
       image: doc.image || '',
       price: row.amountPaid ?? doc.price ?? 0,
       date: row.purchasedAt || row.createdAt,
-            url: row.itemType === 'Recipe' ? `/recipes/${doc._id}` : row.itemType === 'MultiCourse' ? `/courses/pack/${doc._id}` : `/courses/${doc._id}`,
+      url: row.itemType === 'Recipe' ? `/recipes/${doc._id}` : row.itemType === 'MultiCourse' ? `/courses/pack/${doc._id}` : `/courses/${doc._id}`,
     };
   }));
   return items.filter(Boolean);
 }
 
-/** ดึงข้อมูลทั้งหมดของหน้าโปรไฟล์ แล้ว renderใช้ทั้งตอนเปิดหน้าและตอนบันทึกไม่ผ่าน */
+/** ดึงข้อมูลทั้งหมดของหน้าโปรไฟล์ แล้ว render ใช้ทั้งตอนเปิดหน้าและตอนบันทึกไม่ผ่าน */
 async function renderProfile(req, res, { form, error, saved, status = 200 } = {}) {
   const user = await Client.findById(req.user._id).lean();
   const isChef = user.role === 'chef';
@@ -63,7 +64,11 @@ async function renderProfile(req, res, { form, error, saved, status = 200 } = {}
 
 router.get('/', async (req, res, next) => {
   try {
-    const messages = { 1: 'บันทึกการแก้ไขเรียบร้อยแล้ว', password: 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว' };
+    const messages = {
+      1: 'บันทึกการแก้ไขเรียบร้อยแล้ว',
+      password: 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว',
+      email: 'บันทึกแล้ว เราส่งลิงก์ยืนยันไปที่อีเมลใหม่ อีเมลจะเปลี่ยนหลังกดยืนยัน (ถ้าไม่เจอ ลองดูใน Spam)',
+    };
     await renderProfile(req, res, { saved: messages[req.query.saved] });
   } catch (err) {
     next(err);
@@ -93,7 +98,9 @@ router.post('/', async (req, res, next) => {
     else if (await Client.exists({ ...others, email: form.email })) error = 'อีเมลนี้ถูกใช้แล้ว';
     if (error) return renderProfile(req, res, { form, error, status: 400 });
 
-    const update = { name: form.name, username: form.username, email: form.email, bio: form.bio };
+    // เปลี่ยนอีเมล → ยังไม่เปลี่ยนทันที เก็บไว้รอยืนยันจากลิงก์ในเมลใหม่
+    const emailChanged = form.email !== req.user.email;
+    const update = { name: form.name, username: form.username, bio: form.bio, pendingEmail: emailChanged ? form.email : null };
     if (isChef) update.institution = form.institution;
     try {
       await Client.updateOne({ _id: req.user._id }, update);
@@ -103,7 +110,15 @@ router.post('/', async (req, res, next) => {
       return renderProfile(req, res, { form, error: `${field}นี้ถูกใช้แล้ว`, status: 409 });
     }
 
-
+    if (emailChanged) {
+      try {
+        await mailer.sendVerifyMail(await Client.findById(req.user._id));
+      } catch (err) {
+        console.error('[mailer] ส่งเมลยืนยันอีเมลใหม่ไม่สำเร็จ:', err.message);
+        return renderProfile(req, res, { form, error: 'บันทึกแล้ว แต่ส่งเมลยืนยันไปที่อีเมลใหม่ไม่สำเร็จ ลองกดบันทึกอีกครั้ง', status: 502 });
+      }
+      return res.redirect('/profile?saved=email');
+    }
     res.redirect('/profile?saved=1');
   } catch (err) {
     next(err);

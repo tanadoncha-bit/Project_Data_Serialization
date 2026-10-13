@@ -13,7 +13,7 @@ function openModal(name) {
 }
 
 /** ส่งข้อมูลฟอร์มเป็น JSON ไปที่ url ผ่านแล้วไปหน้าที่เซิร์ฟเวอร์บอก หรือโชว์ข้อความสำเร็จ ไม่ผ่านโชว์ error */
-function handleSubmit(form, url) {
+function handleSubmit(form, url, { onError, onSuccess } = {}) {
   const errorBox = form.querySelector('.auth-error');
   const successBox = form.querySelector('.auth-success');
   const submitBtn = form.querySelector('.auth-submit');
@@ -33,11 +33,13 @@ function handleSubmit(form, url) {
       if (!res.ok) {
         errorBox.textContent = data.error || 'เกิดข้อผิดพลาด ลองใหม่อีกครั้ง';
         errorBox.hidden = false;
+        if (onError) onError(data);
         return;
       }
       if (data.redirect) return (window.location.href = data.redirect);
       successBox.textContent = data.message;
       successBox.hidden = false;
+      if (onSuccess) onSuccess(data);
     } catch (err) {
       errorBox.textContent = 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้ง';
       errorBox.hidden = false;
@@ -73,8 +75,38 @@ if (modals.login && modals.register) {
     });
   });
 
-  handleSubmit(document.getElementById('loginForm'), '/login');
-  handleSubmit(regForm, '/register');
+  // login แล้วบัญชียังไม่ยืนยันอีเมล → โชว์ปุ่มส่งลิงก์ยืนยันใหม่
+  const loginForm = document.getElementById('loginForm');
+  const resendBtn = loginForm.querySelector('[data-resend-verify]');
+  let resendEmail = '';
+  handleSubmit(loginForm, '/login', {
+    onError: (data) => {
+      resendEmail = data.resendEmail || '';
+      resendBtn.hidden = !resendEmail;
+    },
+  });
+  resendBtn.addEventListener('click', async () => {
+    resendBtn.disabled = true;
+    const errorBox = loginForm.querySelector('.auth-error');
+    const successBox = loginForm.querySelector('.auth-success');
+    try {
+      const res = await fetch('/verify-email/resend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ email: resendEmail }),
+      });
+      const data = await res.json().catch(() => ({}));
+      errorBox.hidden = true;
+      successBox.textContent = data.message || data.error || 'ส่งไม่สำเร็จ ลองใหม่อีกครั้ง';
+      successBox.hidden = false;
+      resendBtn.hidden = true;
+    } finally {
+      resendBtn.disabled = false;
+    }
+  });
+
+  handleSubmit(regForm, '/register', { onSuccess: () => regForm.reset() });
+  handleSubmit(document.getElementById('forgotForm'), '/forgot-password');
 
   const params = new URLSearchParams(location.search);
   if (params.get('login') === '1') openModal('login');
