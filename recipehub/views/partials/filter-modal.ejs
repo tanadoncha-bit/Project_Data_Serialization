@@ -1,3 +1,9 @@
+<%#
+  ป๊อปอัปตัวกรอง ตามแบบ Figma "ตัวกรองคอร์สเรียน" — ใช้ในหน้าคอร์ส
+  สไตล์อยู่ใน cookhub.css ข้อ 10 | เปิดด้วยปุ่ม id="openFilter"
+  ใช้: include('../partials/filter-modal', { filterTitle, filterAction, filters, keep: { sort, level }, durationLabel })
+  filters มาจาก helpers/list-filters.js → readFilters()
+%>
 <%
   const typeOptions = locals.typeOptions || [];
   const keepVals = locals.keep || {};

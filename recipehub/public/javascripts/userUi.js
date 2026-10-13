@@ -1,3 +1,4 @@
+// userUi.js — ส่วนโต้ตอบของหน้าผู้ใช้ (views/user/*)
 (function () {
   const dialog = document.getElementById('course-dialog');
   const content = document.getElementById('course-dialog-content');

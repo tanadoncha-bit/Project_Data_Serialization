@@ -1,3 +1,4 @@
+// services/userPages.js — ดึงข้อมูลจาก MongoDB ให้หน้าฝั่งผู้ใช้ (views/user/*)
 const Recipe = require('../models/Recipe');
 const Client = require('../models/Client');
 const Favorite = require('../models/Favorite');
@@ -6,6 +7,9 @@ const MultiCourse = require('../models/MultiCourse');
 const catalog = require('./courseCatalog');
 const payments = require('./coursePayments');
 
+/* ---------------------------------------------------------- สูตรอาหาร */
+
+/** สูตร 1 อัน (populate publisher แล้ว) → ข้อมูลสำหรับการ์ด */
 function mapRecipe(r) {
   const chef = r.publisher && typeof r.publisher === 'object' ? r.publisher : {};
   return {
@@ -34,11 +38,14 @@ async function loadRecipes() {
   return rows.map(mapRecipe);
 }
 
+/** สูตรไหนผู้ใช้กดใจไว้ → Set ของ id */
 async function favoriteRecipeIds(clientId) {
   if (!clientId) return new Set();
   const rows = await Favorite.find({ client: clientId, itemType: 'Recipe' }).select('itemId').lean();
   return new Set(rows.map(f => f.itemId));
 }
+
+/* ---------------------------------------------------------- หน้าแรก */
 
 async function loadHome() {
   const [courses, recipes, chefs] = await Promise.all([
@@ -60,6 +67,7 @@ async function loadHome() {
     title: 'โปรโมชั่น ' + number,
   }));
 
+  // เชฟยอดนิยม 3 คน: นับผู้เรียนจากคอร์ส + ยอดกดใจจากสูตรของเชฟคนนั้น
   const score = new Map();
   const mainCategory = new Map();
   courses.forEach(c => { if (c.chefId) score.set(c.chefId, (score.get(c.chefId) || 0) + c.studentCount); });
@@ -78,17 +86,21 @@ async function loadHome() {
   return { popularCourses, recommendedRecipes, banners, chefs: topChefs };
 }
 
+/* ---------------------------------------------------------- รายละเอียดคอร์ส */
+
 const youtubeId = url => (String(url || '').match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/) || [])[1] || null;
 
 const levelLabel = { BEGINNER: 'เริ่มต้น', INTERMEDIATE: 'ปานกลาง', ADVANCED: 'ขั้นสูง' };
 const toList = v => (Array.isArray(v) ? v.map(String).map(s => s.trim()).filter(Boolean) : []);
 
+/** ข้อมูลรายละเอียดคอร์ส ใช้ทั้งหน้าต่างเด้ง (?fragment=1) และหน้าเต็ม (ดูวิดีโอ) */
 async function loadCourseDetail(kind, id, clientId) {
   const courses = await catalog.loadCourses();
   const course = courses.find(c => c.kind === kind && c.id === id);
   if (!course) return null;
   const byId = new Map(courses.filter(c => c.kind === 'single').map(c => [c.id, c]));
 
+  // บทเรียน (แพ็ก = รวมบทเรียนของทุกคอร์สในแพ็ก)
   let sections = [];
   let learnPoints = [];
   if (kind === 'single') {

@@ -13,6 +13,7 @@
 
     <a href="/courses" class="back-link"><i data-lucide="chevron-left" class="ic-14"></i> กลับไปหน้าคอร์สเรียน</a>
 
+    <!-- ================= หัวคอร์ส ================= -->
     <section class="cd-head">
       <div class="cd-cover card__img">
         <% (course.images.length ? course.images : ['']).forEach(img => { %>
@@ -63,6 +64,7 @@
       </div>
     </section>
 
+    <!-- ================= บทเรียน ================= -->
     <section class="cd-lessons">
       <h2 class="section-title">บทเรียนในคอร์ส</h2>
       <% if (!canWatch) { %><p class="section-sub">ซื้อคอร์สเพื่อดูวิดีโอทั้งหมด</p><% } %>

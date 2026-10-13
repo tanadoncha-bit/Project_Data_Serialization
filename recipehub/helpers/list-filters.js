@@ -1,9 +1,20 @@
+/* ===========================================================
+   ฟังก์ชันช่วยของหน้ารายการ (หน้าคอร์ส)
+   - sortOptions     ตัวเลือก "เรียงตาม"
+   - readFilters     อ่านค่าตัวกรองจาก URL
+   - applyFilters    กรอง + เรียงรายการ
+   - filtersToQuery  แปลงตัวกรองกลับเป็น query
+   - buildPageList   สร้างเลขหน้า เช่น [1, 2, '...', 41]
+   - urlMaker        สร้างลิงก์ที่จำค่าตัวกรองเดิมไว้
+   =========================================================== */
+
 const sortOptions = [
   { value: 'popular', label: 'ยอดนิยม' },
   { value: 'rating', label: 'คะแนนสูงสุด' },
   { value: 'latest', label: 'ใหม่ล่าสุด' },
 ];
 
+// สร้างรายการเลขหน้า เช่น [1, 2, '...', 41]
 function buildPageList(page, totalPages) {
   if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
   if (page <= 2) return [1, 2, '...', totalPages];
@@ -11,6 +22,7 @@ function buildPageList(page, totalPages) {
   return [1, '...', page, '...', totalPages];
 }
 
+// อ่านค่าตัวกรองจาก URL
 function readFilters(q) {
   return {
     types: [].concat(q.type || []),
@@ -22,6 +34,7 @@ function readFilters(q) {
   };
 }
 
+// แปลงตัวกรองกลับเป็น query (เอาเฉพาะค่าที่ไม่ใช่ค่าเริ่มต้น)
 function filtersToQuery(f) {
   const q = {};
   if (f.types.length) q.type = f.types;
@@ -33,6 +46,7 @@ function filtersToQuery(f) {
   return q;
 }
 
+// สร้างลิงก์ที่จำค่าตัวกรองเดิมไว้ เช่น makeUrl({ page: 2 })
 function urlMaker(base, current) {
   return function (changes) {
     const all = Object.assign({}, current, changes);
@@ -45,6 +59,10 @@ function urlMaker(base, current) {
   };
 }
 
+// กรอง + เรียงรายการ
+// fields บอกว่าข้อมูลแต่ละแบบใช้ชื่อ field อะไร เช่น { level: 'level', minutes: 'durMin' }
+// ข้อมูลมาจาก database แล้ว (services/courseCatalog.js) แต่กรองในหน่วยความจำ เพราะบาง field
+// (คะแนน / เวลา / จำนวนคนเรียน) ต้องคำนวณจากหลาย collection ก่อน กรองด้วย query ตรง ๆ ไม่ได้
 function applyFilters(items, { level, sort, filters }, fields) {
   const minRating = filters.ratings.length ? Math.min(...filters.ratings.map(Number)) : 0;
   let list = items.filter(it =>

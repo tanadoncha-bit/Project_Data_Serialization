@@ -1,3 +1,4 @@
+// coursePurchase.js — ปุ่ม "ซื้อคอร์สนี้" (data-buy-course data-kind="single|multi" data-id="1")
 (function () {
   const icons = () => { if (window.lucide) window.lucide.createIcons(); };
   const baht = n => '฿' + Number(n).toLocaleString('th-TH');
@@ -33,6 +34,7 @@
     return data;
   }
 
+  /** หลังซื้อสำเร็จ: กดจากหน้าต่างเด้ง → โหลดเนื้อหาคอร์สใหม่ / หน้าเต็ม → รีเฟรช */
   async function afterPurchase(button, url, message) {
     const content = button.closest('#course-dialog-content');
     if (content && content.isConnected) {
@@ -59,6 +61,7 @@
     return d;
   }
 
+  /* ---------- ซื้อจำลอง (ไม่มี Omise key + RECIPE_DEMO_PAYMENTS=true) ---------- */
   function openDemo(info, button) {
     const d = makeDialog('ck-pay--demo',
       '<h2>ซื้อคอร์ส · โหมดสาธิต</h2><p class="ck-pay__title"></p><strong class="ck-pay__price"></strong>'
@@ -83,6 +86,7 @@
     d.showModal();
   }
 
+  /* ---------- QR PromptPay (Omise) — หน้าตาเดียวกับหน้าต่างชำระเงินสูตร ---------- */
   function openPromptpay(info, button) {
     const d = makeDialog('ck-pay--qr',
       '<button type="button" class="ck-pay__close" aria-label="ปิดการจ่ายเงิน">×</button>'

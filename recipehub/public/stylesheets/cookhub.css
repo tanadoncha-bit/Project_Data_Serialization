@@ -1,3 +1,18 @@
+/* ===========================================================
+   CookHub — สไตล์หน้าฝั่งผู้ใช้ (หน้าแรก / คอร์ส)
+   Navbar + Footer + ฟอนต์ ใช้ layout.css ไฟล์นี้ไม่ยุ่ง
+   ทุกอย่างในไฟล์นี้อยู่ใต้ <main class="cookhub"> จึงไม่ชนกับ CSS หน้าอื่น
+
+     1. ตัวแปร + พื้นฐาน     2. รูปภาพ + ไอคอน   3. ปุ่ม
+     4. หัวข้อ section        5. การ์ด            6. หน้าแรก
+     8. มือถือ (ส่วนกลาง)
+   เฉพาะหน้า
+     9.  หน้ารายการคอร์ส       10. ป๊อปอัปตัวกรอง
+     13. รายละเอียดคอร์ส       14. dropdown ระดับ
+     15. หน้าต่างเด้งคอร์ส      16. หน้าต่างซื้อคอร์ส
+   =========================================================== */
+
+/* ========== 1. ตัวแปร + พื้นฐาน ========== */
 :root {
   --primary: var(--orange, #F26B2A);
   --primary-dark: #D9541A;
@@ -17,6 +32,7 @@ main.cookhub { width: 100%; max-width: none; margin: 0; padding: 0; line-height:
 .cookhub button { font-family: inherit; }
 .cookhub .container { width: 100%; max-width: var(--container); margin: 0 auto; padding: 0 24px; }
 
+/* ========== 2. รูปภาพ + ไอคอน ========== */
 .img-placeholder {
   display: flex; align-items: center; justify-content: center;
   background: var(--primary-soft); color: var(--primary);
@@ -34,6 +50,7 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 [class*="ic-"] { flex-shrink: 0; }
 .is-filled { fill: currentColor; }
 
+/* ========== 3. ปุ่ม ========== */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   height: 38px; padding: 0 22px; border-radius: 999px;
@@ -47,6 +64,7 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .btn svg { color: var(--primary); flex-shrink: 0; }
 .btn--primary svg { color: #fff; }
 
+/* ========== 4. หัวข้อ section ========== */
 .section { padding: 36px 0; }
 .section-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; }
 .section-title {
@@ -57,6 +75,7 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .see-all { font-size: 12px; font-weight: 500; color: var(--primary); margin-top: 4px; }
 .see-all:hover { text-decoration: underline; }
 
+/* ========== 5. การ์ด ========== */
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
@@ -99,6 +118,8 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .recipe-mini .card__body { padding: 12px 12px 10px; }
 .recipe-mini .card__title { font-family: var(--font-en); font-size: 12px; font-weight: 600; }
 .likes { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--primary); margin-top: 14px; }
+
+/* ========== 6. หน้าแรก  — views/user/home.ejs ========== */
 
 .hero {
   position: relative; height: 380px; display: flex; align-items: center;
@@ -179,6 +200,7 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 .cta__actions .btn--primary { width: 165px; }
 .cta__actions .btn--outline { width: 123px; padding: 0 14px; background: #fff7f2; border-color: #fbe0d2; }
 
+/* ========== 8. มือถือ (ส่วนกลาง) ========== */
 @media (max-width: 900px) {
   .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
   .hero__content { padding: 0 24px; }
@@ -200,6 +222,9 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
   .grid-3 { grid-template-columns: 1fr; }
   .promo { aspect-ratio: 2.4 / 1; }
 }
+/* ===========================================================
+   9. หน้ารายการคอร์ส  — views/user/courses.ejs
+   =========================================================== */
 .container--wide { max-width: 1128px; }
 
 .hero--list { height: 410px; }
@@ -277,6 +302,9 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 @media (max-width: 560px) {
   .course-grid { grid-template-columns: 1fr; }
 }
+/* ===========================================================
+   10. ป๊อปอัปตัวกรอง  — views/partials/filter-modal.ejs
+   =========================================================== */
 .filter-btn { border-color: var(--primary); }
 
 .modal { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 20px; }
@@ -349,6 +377,9 @@ img.card__photo, img.half, img.promo__photo, img.chef__avatar, img.chef-mini__av
 img[hidden], .img-placeholder[hidden] { display: none !important; }
 .alert-error { margin: 0 8px 10px; padding: 8px 12px; border-radius: 6px; background: #fdecec; color: #c43a2a; font-size: 12px; }
 
+/* ===========================================================
+   13. รายละเอียดคอร์ส  — views/user/course-detail.ejs
+   =========================================================== */
 .cookhub .course-detail { padding: 24px 24px 56px; }
 .back-link { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
 .back-link:hover { color: var(--primary); }
@@ -390,6 +421,9 @@ img[hidden], .img-placeholder[hidden] { display: none !important; }
 .tag--british { background: #e8ecf8; color: #34495e; }
 .tag--korean  { background: #f3e8fb; color: #7d3c98; }
 
+/* ===========================================================
+   14. dropdown ระดับ / ความยาก — views/user/_levelSelect.ejs (แบบ Figma "Difficulty")
+   =========================================================== */
 .level-dd { position: relative; }
 .level-dd summary {
   list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
@@ -413,6 +447,9 @@ img[hidden], .img-placeholder[hidden] { display: none !important; }
 .level-dd__option.is-selected .level-dd__check { visibility: visible; }
 .level-dd__option:focus-within { outline: 2px solid var(--primary); outline-offset: -2px; }
 
+/* ===========================================================
+   15. หน้าต่างเด้งรายละเอียดคอร์ส — views/user/_courseModal.ejs (แบบ Figma buy course / course / pack courses)
+   =========================================================== */
 .course-dialog {
   width: min(920px, calc(100vw - 32px)); max-height: calc(100vh - 40px); padding: 0; border: 0;
   border-radius: 22px; background: #fff; overflow: auto; box-shadow: 0 24px 70px rgba(0,0,0,.3);
@@ -510,6 +547,11 @@ img[hidden], .img-placeholder[hidden] { display: none !important; }
   .cm-pack-info { padding-right: 0; }
 }
 
+/* ===========================================================
+   16. หน้าต่างซื้อคอร์ส — public/javascripts/coursePurchase.js
+   หน้าตาเดียวกับหน้าต่างชำระเงินสูตร (recipes.css .recipe-promptpay-checkout / .recipe-demo-checkout)
+   ใช้คลาส ck-pay แยก จะได้ไม่ชนกับ recipes.css
+   =========================================================== */
 .ck-pay {
   position: fixed; border: 0; padding: 28px; border-radius: 20px; color: #222;
   font-family: 'Prompt', sans-serif; width: 440px; max-width: calc(100vw - 32px);

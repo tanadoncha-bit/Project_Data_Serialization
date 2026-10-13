@@ -1,3 +1,4 @@
+// userFavorites.js — ปุ่มหัวใจในหน้าผู้ใช้ (views/user/*) บันทึกลงตาราง Favorite ใน database
 (function () {
   const loggedIn = document.body.dataset.loggedIn === 'true';
 

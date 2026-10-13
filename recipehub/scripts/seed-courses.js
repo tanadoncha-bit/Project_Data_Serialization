@@ -1,3 +1,4 @@
+// scripts/seed-courses.js — ใส่คอร์สตัวอย่างลง MongoDB (ใช้สูตรอาหารที่มีอยู่แล้วเป็น baseRecipe)
 require('dotenv').config();
 const mongoose = require('mongoose');
 const Recipe = require('../models/Recipe');

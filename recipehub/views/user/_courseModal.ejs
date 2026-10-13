@@ -1,3 +1,8 @@
+<%#
+  เนื้อหาหน้าต่างเด้งรายละเอียดคอร์ส — โหลดด้วย /courses/:id?fragment=1 หรือ /courses/pack/:id?fragment=1
+  (โครงเดียวกับหน้าต่างสูตรอาหาร views/user/recipes/_detail.ejs + ?fragment=1)
+  แบบ Figma: "buy course" (ยังไม่ซื้อ), "course" (ซื้อแล้ว / เจ้าของ), "pack courses" (แพ็ก)
+%>
 <% const watchUrl = course.kind === 'single' ? '/courses/' + course.id : '/courses/pack/' + course.id; %>
 <% const favUrl = '/courses/favorites/' + course.kind + '/' + course.id; %>
 <% const buyArea = () => { %>
@@ -9,6 +14,7 @@
 <% } %>
 
 <% if (!course.isPack) { %>
+<!-- ===================== คอร์สเดี่ยว ===================== -->
 <article class="cm cm--single">
   <div class="cm-cover">
     <%- include('_image', { src: course.images[0], alt: course.title, cls: 'cm-cover__img' }) %>
@@ -78,6 +84,7 @@
 </article>
 
 <% } else { %>
+<!-- ===================== แพ็กคอร์ส ===================== -->
 <article class="cm cm--pack">
   <button class="cm-round cm-pack-close" type="button" data-close-course aria-label="ปิด"><i data-lucide="x" class="ic-18"></i></button>
 

@@ -1,3 +1,11 @@
+<%#
+  รูปภาพ — ใช้วิธีเดียวกับ views/user/recipes/_image.ejs
+  - รูปเก็บเป็น "ลิงก์" ใน database (field image / avatar)
+    เช่น /uploads/recipes/xxxx.jpg (อัปโหลดผ่านหน้าเชฟ) หรือ https://...
+  - ถ้ายังไม่มีรูป หรือโหลดรูปไม่ได้ (เช่น ไฟล์ใน public/uploads อยู่เครื่องคนอื่น)
+    จะแสดงกรอบสีส้มอ่อน + ไอคอนแทน
+  ใช้: include('_image', { src: recipe.image, alt: recipe.title, cls: 'card__photo', icon: 'utensils' })
+%>
 <% const hasSrc = locals.src && /^(https?:\/\/|\/uploads\/|\/images\/)/i.test(locals.src); %>
 <% if (hasSrc) { %>
 <img class="<%= locals.cls || '' %>" src="<%= locals.src %>" alt="<%= locals.alt || '' %>" loading="lazy" referrerpolicy="no-referrer"

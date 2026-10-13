@@ -1,3 +1,4 @@
+// services/courseCatalog.js — ดึงคอร์สจาก MongoDB แล้วแปลงเป็นข้อมูลที่หน้า /courses ใช้แสดง
 const SingleCourse = require('../models/SingleCourse');
 const MultiCourse = require('../models/MultiCourse');
 const Transaction = require('../models/Transaction');
@@ -12,6 +13,7 @@ const levelOptions = [
 ];
 const levelRank = { BEGINNER: 1, INTERMEDIATE: 2, ADVANCED: 3 };
 
+/** หมวดของสูตร → ป้ายประเทศ (รายการเดียวกับตัวกรองหน้าสูตร services/recipeCountries.js) */
 const tagKey = { Thai: 'thai', British: 'british', Chinese: 'chinese', Japanese: 'japan', Korean: 'korean', International: 'inter' };
 const tagTypes = countryOptions.map(country => ({ value: tagKey[country], label: countryLabel(country) }));
 function tagFor(category) {
@@ -19,16 +21,19 @@ function tagFor(category) {
   return { tag: countryLabel(country), tagType: tagKey[country] };
 }
 
+/** นาที → "2 ชม. 30 นาที" */
 function formatDuration(min) {
   if (!min) return 'ไม่ระบุเวลา';
   const h = Math.floor(min / 60), m = Math.round(min % 60);
   return [h ? h + ' ชม.' : '', m ? m + ' นาที' : ''].filter(Boolean).join(' ');
 }
 
+/** 1200 → "1.2K" */
 function formatCount(n) {
   return n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : String(n);
 }
 
+/** คอร์สเดี่ยว 1 อัน → ข้อมูลสำหรับการ์ด */
 function mapSingle(course, students) {
   const recipe = course.baseRecipe || {};
   const chef = course.publisher || {};
@@ -57,6 +62,7 @@ function mapSingle(course, students) {
   };
 }
 
+/** แพ็กคอร์ส 1 อัน → ข้อมูลสำหรับการ์ด (รวมค่าจากคอร์สข้างใน) */
 function mapPack(pack, singleById, students) {
   const items = (pack.includedCourses || []).map(id => singleById.get(id)).filter(Boolean);
   const rated = items.filter(c => c.rating != null);
@@ -89,6 +95,8 @@ function mapPack(pack, singleById, students) {
   };
 }
 
+/** นับจำนวนคนซื้อของแต่ละคอร์ส จาก Transaction → Map('SingleCourse:1' → 12)
+    ไม่นับการซื้อจำลอง/ทดสอบ (demo, gateway-test) ให้ตรงกับหน้าเชฟ (services/chefSupport.js นับเฉพาะ real) */
 async function countStudents() {
   const rows = await Transaction.aggregate([
     { $match: { itemType: { $in: ['SingleCourse', 'MultiCourse'] }, paymentMode: { $nin: ['demo', 'gateway-test'] } } },
@@ -97,6 +105,7 @@ async function countStudents() {
   return new Map(rows.map(r => [r._id.t + ':' + r._id.id, r.n]));
 }
 
+/** ดึงคอร์สทั้งหมด (เดี่ยว + แพ็ก) พร้อมข้อมูลสำหรับแสดงผล */
 async function loadCourses() {
   const [singles, packs, students] = await Promise.all([
     SingleCourse.find()
@@ -113,6 +122,7 @@ async function loadCourses() {
   return singleCards.concat(packCards);
 }
 
+/** คอร์สไหนผู้ใช้กดใจไว้บ้าง → Set('single:1', 'multi:2') */
 async function favoriteKeys(clientId) {
   if (!clientId) return new Set();
   const rows = await Favorite.find({ client: clientId, itemType: { $in: ['SingleCourse', 'MultiCourse'] } })
@@ -120,6 +130,7 @@ async function favoriteKeys(clientId) {
   return new Set(rows.map(f => (f.itemType === 'SingleCourse' ? 'single:' : 'multi:') + f.itemId));
 }
 
+/** กดใจ / เลิกกดใจ คอร์ส */
 async function setFavorite(clientId, kind, id, on) {
   const itemType = { single: 'SingleCourse', multi: 'MultiCourse' }[kind];
   if (!itemType) return null;
