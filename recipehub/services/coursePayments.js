@@ -106,7 +106,11 @@ async function createOrder(buyer, kind, course) {
   }
   const activeKey = activeKeyFor(buyer, kind, course._id, livemode);
   let order = await Order.findOne({ activeKey });
-  if (order) return order.chargeId ? reconcile(order, await gateway.retrieveCharge(order.chargeId)) : order;
+  if (order) {
+    // QR เดิมยังใช้ได้ → ใช้อันเดิม / หมดอายุหรือไม่สำเร็จแล้ว → สร้างใหม่ด้านล่าง
+    if (order.chargeId) order = await reconcile(order, await gateway.retrieveCharge(order.chargeId));
+    if (['creating', 'pending', 'paid'].includes(order.status)) return order;
+  }
 
   try {
     order = await Order.create({ _id: randomBytes(16).toString('hex'), buyer, itemType: ITEM_TYPE[kind], itemId: course._id, title: course.title, amount, livemode, activeKey });

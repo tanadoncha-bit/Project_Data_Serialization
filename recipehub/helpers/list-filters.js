@@ -1,105 +1,75 @@
 /* ===========================================================
-   ฟังก์ชันช่วยของหน้ารายการ (หน้าคอร์ส)
-   - sortOptions     ตัวเลือก "เรียงตาม"
+   ฟังก์ชันช่วยของหน้ารายการคอร์ส
+   ใช้ชื่อช่องเดียวกับแถบควบคุม/ตัวกรองของหน้าสูตร (views/partials/browse-controls.ejs, browse-filter.ejs)
+     source (= ระดับ), sort, country, minDuration, maxDuration, minPrice, maxPrice, minRating, page
    - readFilters     อ่านค่าตัวกรองจาก URL
    - applyFilters    กรอง + เรียงรายการ
-   - filtersToQuery  แปลงตัวกรองกลับเป็น query
-   - buildPageList   สร้างเลขหน้า เช่น [1, 2, '...', 41]
-   - urlMaker        สร้างลิงก์ที่จำค่าตัวกรองเดิมไว้
+   - buildListPage   กรอง + แบ่งหน้า + ลิงก์เปลี่ยนหน้า
    =========================================================== */
 
-const sortOptions = [
-  { value: 'popular', label: 'ยอดนิยม' },
-  { value: 'rating', label: 'คะแนนสูงสุด' },
-  { value: 'latest', label: 'ใหม่ล่าสุด' },
-];
+const PER_PAGE = 15;
+const SORTS = ['popular', 'rating', 'latest'];
 
-// สร้างรายการเลขหน้า เช่น [1, 2, '...', 41]
-function buildPageList(page, totalPages) {
-  if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
-  if (page <= 2) return [1, 2, '...', totalPages];
-  if (page >= totalPages - 1) return [1, '...', totalPages - 1, totalPages];
-  return [1, '...', page, '...', totalPages];
-}
+const toNumber = v => {
+  const n = Number(v);
+  return v === undefined || v === '' || !Number.isFinite(n) || n <= 0 ? '' : n;
+};
 
-// อ่านค่าตัวกรองจาก URL
+// อ่านค่าตัวกรองจาก URL ('' = ไม่กรอง)
 function readFilters(q) {
+  const rating = Number(q.minRating);
   return {
-    types: [].concat(q.type || []),
-    ratings: [].concat(q.rating || []),
-    minDur: parseInt(q.minDur) || 15,
-    maxDur: parseInt(q.maxDur) || 480,
-    minPrice: parseInt(q.minPrice) || 0,
-    maxPrice: q.maxPrice !== undefined ? parseInt(q.maxPrice) : 5000,
-  };
-}
-
-// แปลงตัวกรองกลับเป็น query (เอาเฉพาะค่าที่ไม่ใช่ค่าเริ่มต้น)
-function filtersToQuery(f) {
-  const q = {};
-  if (f.types.length) q.type = f.types;
-  if (f.ratings.length) q.rating = f.ratings;
-  if (f.minDur !== 15) q.minDur = f.minDur;
-  if (f.maxDur !== 480) q.maxDur = f.maxDur;
-  if (f.minPrice !== 0) q.minPrice = f.minPrice;
-  if (f.maxPrice !== 5000) q.maxPrice = f.maxPrice;
-  return q;
-}
-
-// สร้างลิงก์ที่จำค่าตัวกรองเดิมไว้ เช่น makeUrl({ page: 2 })
-function urlMaker(base, current) {
-  return function (changes) {
-    const all = Object.assign({}, current, changes);
-    const params = new URLSearchParams();
-    Object.keys(all).forEach(k => [].concat(all[k]).forEach(v => {
-      if (v !== undefined && v !== '' && v !== 'all') params.append(k, v);
-    }));
-    const qs = params.toString();
-    return qs ? base + '?' + qs : base;
+    source: typeof q.source === 'string' && q.source ? q.source : 'all',
+    sort: SORTS.includes(q.sort) ? q.sort : (q.sort === 'newest' ? 'latest' : 'popular'),
+    country: [].concat(q.country || []).filter(v => typeof v === 'string' && v),
+    maxDuration: toNumber(q.maxDuration),
+    maxPrice: toNumber(q.maxPrice),
+    minRating: rating >= 1 && rating <= 5 ? String(rating) : '',
   };
 }
 
 // กรอง + เรียงรายการ
-// fields บอกว่าข้อมูลแต่ละแบบใช้ชื่อ field อะไร เช่น { level: 'level', minutes: 'durMin' }
-// ข้อมูลมาจาก database แล้ว (services/courseCatalog.js) แต่กรองในหน่วยความจำ เพราะบาง field
-// (คะแนน / เวลา / จำนวนคนเรียน) ต้องคำนวณจากหลาย collection ก่อน กรองด้วย query ตรง ๆ ไม่ได้
-function applyFilters(items, { level, sort, filters }, fields) {
-  const minRating = filters.ratings.length ? Math.min(...filters.ratings.map(Number)) : 0;
+// fields บอกว่าข้อมูลใช้ชื่อ field อะไร เช่น { level: 'level', minutes: 'durMin', country: 'country' }
+// กรองในหน่วยความจำ เพราะคะแนน / เวลา / จำนวนคนเรียน ต้องคำนวณจากหลาย collection ก่อน
+function applyFilters(items, f, fields) {
+  const minRating = Number(f.minRating) || 0;
   let list = items.filter(it =>
-    (level === 'all' || it[fields.level] === level) &&
-    (!filters.types.length || filters.types.includes(it.tagType)) &&
-    (filters.minDur <= 15 || it[fields.minutes] >= filters.minDur) && (filters.maxDur >= 480 || it[fields.minutes] <= filters.maxDur) &&
-    it.price >= filters.minPrice && (filters.maxPrice >= 5000 || it.price <= filters.maxPrice) &&
+    (f.source === 'all' || it[fields.level] === f.source) &&
+    (!f.country.length || f.country.includes(it[fields.country])) &&
+    (f.maxDuration === '' || (it[fields.minutes] || 0) <= f.maxDuration) &&
+    (f.maxPrice === '' || it.price <= f.maxPrice) &&
     (it.rating || 0) >= minRating
   );
-  if (sort === 'popular') list = list.slice().sort((a, b) => (b.studentCount || 0) - (a.studentCount || 0));
-  if (sort === 'rating') list = list.slice().sort((a, b) => (b.rating || 0) - (a.rating || 0));
-  if (sort === 'latest') list = list.slice().sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  if (f.sort === 'popular') list = list.slice().sort((a, b) => (b.studentCount || 0) - (a.studentCount || 0));
+  if (f.sort === 'rating') list = list.slice().sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  if (f.sort === 'latest') list = list.slice().sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   return list;
 }
 
-const PER_PAGE = 15;
+// query ของตัวกรองปัจจุบัน (ไม่รวม page) สำหรับลิงก์เปลี่ยนหน้า
+function filterQuery(f) {
+  const params = new URLSearchParams();
+  if (f.source !== 'all') params.set('source', f.source);
+  params.set('sort', f.sort);
+  f.country.forEach(c => params.append('country', c));
+  if (f.maxDuration !== '') params.set('maxDuration', f.maxDuration);
+  if (f.maxPrice !== '') params.set('maxPrice', f.maxPrice);
+  if (f.minRating) params.set('minRating', f.minRating);
+  return params.toString();
+}
 
-function buildListPage(req, items, base, fields) {
-  const level = req.query.level || 'all';
-  const sort = req.query.sort || 'popular';
+function buildListPage(req, items, fields) {
   const filters = readFilters(req.query);
-  const all = applyFilters(items, { level, sort, filters }, fields);
-
+  const all = applyFilters(items, filters, fields);
   const totalPages = Math.max(1, Math.ceil(all.length / PER_PAGE));
   const page = Math.min(totalPages, Math.max(1, parseInt(req.query.page) || 1));
-  const list = all.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-  const filterQuery = filtersToQuery(filters);
-
   return {
-    list,
+    list: all.slice((page - 1) * PER_PAGE, page * PER_PAGE),
     total: all.length,
-    level, sort, page, totalPages,
-    pageList: buildPageList(page, totalPages),
-    sorts: sortOptions,
-    filters, filterQuery,
-    makeUrl: urlMaker(base, Object.assign({ level, sort, page }, filterQuery)),
+    page, totalPages,
+    filters,
+    pageQuery: filterQuery(filters),
   };
 }
 
-module.exports = { sortOptions, readFilters, applyFilters, filtersToQuery, buildPageList, urlMaker, buildListPage };
+module.exports = { readFilters, applyFilters, buildListPage };

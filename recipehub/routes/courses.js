@@ -1,6 +1,6 @@
 /* ===========================================================
    หน้าคอร์สเรียน
-     GET /courses?level=&sort=&page=&type=&rating=&minDur=&maxDur=&minPrice=&maxPrice=
+     GET /courses?source=&sort=&country=&maxDuration=&maxPrice=&minRating=&page=
      PUT /courses/favorites/:kind/:id   (kind = single | multi, body: { favorite: true/false })
      ซื้อคอร์ส: /courses/checkout/... และ /courses/payments/...  (ดูด้านล่าง)
    ข้อมูลมาจาก MongoDB: SingleCourse + MultiCourse (+ Recipe, Client, Transaction, Favorite)
@@ -11,6 +11,7 @@ const router = express.Router();
 const catalog = require('../services/courseCatalog');
 const pages = require('../services/userPages');
 const { buildListPage } = require('../helpers/list-filters');
+const countries = require('../services/recipeCountries');
 const { asyncRoute, databaseReady, numericId } = require('../services/recipeSupport');
 const { randomBytes } = require('node:crypto');
 const payments = require('../services/coursePayments');
@@ -22,14 +23,15 @@ router.get('/', databaseReady, asyncRoute(async (req, res) => {
     catalog.loadCourses(),
     catalog.favoriteKeys(req.user && req.user._id),
   ]);
-  const data = buildListPage(req, courses, '/courses', { level: 'level', minutes: 'durMin' });
+  const data = buildListPage(req, courses, { level: 'level', minutes: 'durMin', country: 'country' });
 
   res.render('user/courses', Object.assign(data, {
     title: 'คอร์สเรียน',
     active: 'courses',
     courses: data.list,
-    levels: catalog.levelOptions,
-    types: catalog.tagTypes,
+    sourceOptions: catalog.levelOptions.map(l => [l.value, l.label]),
+    countryOptions: countries.countryOptions,
+    countryLabel: countries.countryLabel,
     favoriteKeys: favorites,
     loggedIn: Boolean(req.user),
   }));
@@ -113,8 +115,7 @@ async function showDetail(kind, req, res, next) {
   if (!id) return next();
   const data = await pages.loadCourseDetail(kind, id, req.user && req.user._id);
   if (!data) return next();
-  const view = req.query.fragment === '1' ? 'user/_courseModal' : 'user/course-detail';
-  res.render(view, Object.assign(data, { loggedIn: Boolean(req.user) }));
+  res.render('user/course-detail', Object.assign(data, { loggedIn: Boolean(req.user) }));
 }
 router.get('/pack/:id', databaseReady, asyncRoute((req, res, next) => showDetail('multi', req, res, next)));
 router.get('/:id', databaseReady, asyncRoute((req, res, next) => showDetail('single', req, res, next)));
