@@ -37,7 +37,7 @@ app.set('view engine', 'ejs');
 
 app.get('/healthz', (req, res) => {
   const ready = require('mongoose').connection.readyState === 1;
-  res.set('Cache-Control', 'no-store').status(ready ? 200 : 503).json({ status: ready ? 'ok' : 'starting' });
+  res.set('Cache-Control', 'no-store').status(ready ? 200 : 503).json({ status: ready ? 'ok' : 'starting', ...(process.env.RENDER_GIT_COMMIT ? { revision: process.env.RENDER_GIT_COMMIT } : {}) });
 });
 app.use(logger(isProduction ? 'combined' : 'dev'));
 app.use(express.json({verify:(req,res,buffer)=>{if(req.originalUrl.split('?')[0]==='/payments/omise/webhook')req.rawBody=buffer;}}));
