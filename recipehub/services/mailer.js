@@ -10,12 +10,23 @@ const RESEND_GAP_MS = 60 * 1000;
 let transporter = null;
 
 function getTransporter() {
-  const { MAIL_USER, MAIL_PASS } = process.env;
-  if (!MAIL_USER || !MAIL_PASS) return null;
-  if (!transporter) {
+  if (transporter) return transporter;
+  if (process.env.SMTP_HOST) {
+    const port = Number(process.env.SMTP_PORT || 2525);
+    if (!Number.isInteger(port) || port < 1 || port > 65535 || !process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.MAIL_FROM) {
+      throw new Error('SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS and MAIL_FROM must be configured correctly');
+    }
     transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: MAIL_USER, pass: MAIL_PASS.replace(/\s/g, '') },
+      host: process.env.SMTP_HOST.trim(), port, secure: port === 465,
+      requireTLS: port !== 465,
+      auth: { user: process.env.SMTP_USER.trim(), pass: process.env.SMTP_PASS.trim() },
+      connectionTimeout: 15000, greetingTimeout: 15000, socketTimeout: 30000,
+    });
+  } else {
+    const { MAIL_USER, MAIL_PASS } = process.env;
+    if (!MAIL_USER || !MAIL_PASS) return null;
+    transporter = nodemailer.createTransport({
+      service: 'gmail', auth: { user: MAIL_USER, pass: MAIL_PASS.replace(/\s/g, '') },
     });
   }
   return transporter;
@@ -39,8 +50,9 @@ const sentRecently = (user) => Boolean(user.mailSentAt && Date.now() - user.mail
 
 
 async function sendLinkMail(to, subject, intro, buttonText, link) {
-  const t = process.env.RESEND_API_KEY ? null : getTransporter();
-  if (!t && !process.env.RESEND_API_KEY) {
+  const useResend = !process.env.SMTP_HOST && Boolean(process.env.RESEND_API_KEY);
+  const t = useResend ? null : getTransporter();
+  if (!t && !useResend) {
     if (process.env.NODE_ENV === 'production') throw new Error('Email provider is not configured');
     console.log(`[mailer] ยังไม่ได้ตั้ง MAIL_USER/MAIL_PASS → ${subject} (${to}): ${link}`);
     return;
@@ -58,14 +70,17 @@ async function sendLinkMail(to, subject, intro, buttonText, link) {
       <p style="font-size:12px;color:#777">ถ้าคุณไม่ได้ทำรายการนี้ ไม่ต้องทำอะไร</p>
     </div>`,
   };
-  if (process.env.RESEND_API_KEY) {
+  if (useResend) {
     if (!process.env.MAIL_FROM) throw new Error('MAIL_FROM is required for Resend');
     try {
       await axios.post('https://api.resend.com/emails', { ...mail, to: [to] }, {
         headers: { Authorization: 'Bearer ' + process.env.RESEND_API_KEY }, timeout: 15000,
       });
     } catch (_) { throw new Error('ส่งอีเมลไม่สำเร็จ กรุณาตรวจการตั้งค่าผู้ให้บริการอีเมล'); }
-  } else { await t.sendMail(mail); }
+  } else {
+    try { await t.sendMail(mail); }
+    catch (_) { throw new Error('ส่งอีเมลไม่สำเร็จ กรุณาตรวจการตั้งค่า SMTP หรือผู้ส่งใน Brevo'); }
+  }
 }
 
 

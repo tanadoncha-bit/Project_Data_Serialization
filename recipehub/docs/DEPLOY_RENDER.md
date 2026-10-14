@@ -96,3 +96,25 @@ Render Free จะพักหลังไม่มีคนเข้า 15 น�
 - https://render.com/docs/node-version
 - https://render.com/docs/health-checks
 - https://resend.com/docs/api-reference/emails/send-email
+
+## ใช้ Brevo SMTP แทน Resend
+
+โค้ดจะเลือก SMTP เมื่อมี SMTP_HOST แม้ยังมี RESEND_API_KEY ค้างอยู่ แนะนำเอา RESEND_API_KEY ออกจากบริการนี้เมื่อเปลี่ยนสำเร็จ
+
+ตั้ง Environment ใน Render:
+
+| KEY | VALUE |
+| --- | --- |
+| SMTP_HOST | smtp-relay.brevo.com |
+| SMTP_PORT | 2525 |
+| SMTP_USER | Login จากหน้า Brevo SMTP ไม่ใช่อีเมลผู้ส่ง |
+| SMTP_PASS | SMTP key จาก Brevo ไม่ใช่รหัสผ่านบัญชีหรือ API key |
+| MAIL_FROM | CookHub <อีเมลผู้ส่งที่ยืนยันใน Brevo> |
+
+Brevo > Settings > Senders, domains, IPs ให้เพิ่มและยืนยัน Sender ที่ควบคุมอีเมลได้ก่อน ใช้อีเมลจากผู้ให้บริการฟรีได้ตามเงื่อนไขบัญชี แต่ Brevo อาจแทนส่วนโดเมนผู้ส่งด้วย brevosend.com เมื่อไม่ได้ยืนยันโดเมน
+
+2525 ใช้ STARTTLS และบังคับเข้ารหัส; ไม่ใช้ 587 ที่ Render Free บล็อก ต้องทดสอบเชื่อมต่อจาก Render หลัง deploy จริง หากบัญชีเปิด IP restriction ต้องอนุญาต outbound IP ของบริการ Render ด้วย
+
+กด Save, rebuild, and deploy แล้วทดสอบลืมรหัสผ่านกับบัญชีทดสอบที่ควบคุมเอง ตรวจ Transactional logs ของ Brevo ประกอบ ยังไม่ถือว่าทดสอบส่งจริงผ่านจนกว่าอีเมลถึงผู้รับ
+
+อ้างอิง: https://help.brevo.com/hc/en-us/articles/10905415650322-Which-SMTP-port-should-I-use-Port-587-465-or-2525
