@@ -1,0 +1,600 @@
+.cookhub-ai {
+    font-family: Prompt, sans-serif;
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 950
+}
+
+.cookhub-ai [hidden] {
+    display: none !important
+}
+
+.cookhub-ai button,
+.cookhub-ai input {
+    font: inherit
+}
+
+.cookhub-ai button {
+    cursor: pointer
+}
+
+.cookhub-ai-launcher {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #ffdcc9;
+    background: #fff;
+    border-radius: 30px;
+    padding: 6px 16px 6px 6px;
+    box-shadow: 0 8px 28px #71341426;
+    color: #853c20;
+    font-size: 13px
+}
+
+.cookhub-ai-launcher img {
+    width: 48px;
+    height: 48px
+}
+
+.cookhub-ai-panel {
+    width: 380px;
+    height: min(620px, calc(100dvh - 48px));
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #f1e5dd;
+    border-radius: 24px;
+    background: #fffdf9;
+    overflow: hidden;
+    box-shadow: 0 18px 60px #40251633
+}
+
+.cookhub-ai-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #ff6925;
+    color: white;
+    padding: 18px;
+    flex-shrink: 0
+}
+
+.cookhub-ai-header>img {
+    width: 44px;
+    height: 44px;
+    border-radius: 16px
+}
+
+.cookhub-ai-header h2 {
+    font-size: 17px;
+    margin: 0;
+    font-weight: 600
+}
+
+.cookhub-ai-header h2 span {
+    font-size: 10px;
+    background: #fff0c5;
+    color: #7e4b14;
+    padding: 2px 6px;
+    border-radius: 6px
+}
+
+.cookhub-ai-header p {
+    font-size: 10px;
+    margin: 4px 0 0;
+    color: #fff2e8
+}
+
+.cookhub-ai-header button {
+    margin-left: auto;
+    border: 0;
+    background: #ffffff24;
+    color: white;
+    font-size: 25px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    line-height: 1
+}
+
+.cookhub-ai-messages {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 18px;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #f2d7c5 transparent
+}
+
+.cookhub-ai-intro {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 12px;
+    border: 1px solid #f5d7a8;
+    background: #fff5e3;
+    border-radius: 16px;
+    margin-bottom: 18px
+}
+
+.cookhub-ai-intro img {
+    width: 54px;
+    height: 54px
+}
+
+.cookhub-ai-intro p {
+    margin: 0;
+    color: #7e4927;
+    font-size: 13px
+}
+
+.cookhub-ai-intro span {
+    font-size: 11px;
+    color: #9e7957
+}
+
+.cookhub-ai-bubble {
+    padding: 13px 15px;
+    background: white;
+    border: 1px solid #eee5dd;
+    border-radius: 16px 16px 16px 4px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #4c423b;
+    margin: 0 20px 12px 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere
+}
+
+.cookhub-ai-bubble.is-user {
+    background: #fff0e6;
+    border-color: #ffe0cd;
+    margin: 0 0 12px 32px;
+    border-radius: 16px 16px 4px 16px;
+    color: #854322
+}
+
+.cookhub-ai-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px
+}
+
+.cookhub-ai-suggestions button {
+    background: #fff;
+    border: 1px solid #f0d8c9;
+    color: #9c5736;
+    border-radius: 20px;
+    padding: 7px 10px;
+    font-size: 11px
+}
+
+.cookhub-ai-card {
+    display: block;
+    background: #fff;
+    border: 1px solid #f0d8c9;
+    border-radius: 12px;
+    padding: 12px;
+    margin: 8px 0;
+    text-decoration: none;
+    color: #514137;
+    font-size: 12px
+}
+
+.cookhub-ai-card strong {
+    display: block;
+    font-weight: 500
+}
+
+.cookhub-ai-card span {
+    display: block;
+    margin-top: 5px;
+    color: #ed6225;
+    font-size: 11px
+}
+
+.cookhub-ai-status {
+    margin: 0;
+    padding: 0 18px;
+    font-size: 11px;
+    color: #a4512b;
+    min-height: 18px
+}
+
+.cookhub-ai-form {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px 8px;
+    border-top: 1px solid #eee6df;
+    background: #fff;
+    flex-shrink: 0
+}
+
+.cookhub-ai-form input {
+    width: 0;
+    flex: 1;
+    min-height: 44px;
+    min-width: 0;
+    border: 1px solid #e5dbd2;
+    border-radius: 24px;
+    background: #fffdf9;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #3f3025;
+    box-sizing: border-box
+}
+
+.cookhub-ai-form button {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #ff6925;
+    color: white;
+    font-size: 20px
+}
+
+.cookhub-ai button:disabled {
+    opacity: .5;
+    cursor: wait
+}
+
+.cookhub-ai-note {
+    font-size: 9px;
+    text-align: center;
+    color: #a1968d;
+    padding: 0 10px 10px;
+    background: white
+}
+
+.cookhub-ai-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%)
+}
+
+.cookhub-ai button:focus-visible,
+.cookhub-ai a:focus-visible,
+.cookhub-ai input:focus-visible {
+    outline: 2px solid #a74317;
+    outline-offset: 3px
+}
+
+body:has(dialog[open]) .cookhub-ai {
+    visibility: hidden
+}
+
+@media(max-width:600px) {
+    .cookhub-ai {
+        right: 12px;
+        bottom: max(12px, env(safe-area-inset-bottom))
+    }
+
+    .cookhub-ai-launcher {
+        padding-right: 6px
+    }
+
+    .cookhub-ai-launcher>span {
+        display: none
+    }
+
+    .cookhub-ai-panel {
+        width: calc(100vw - 24px);
+        max-width: 380px;
+        height: min(600px, calc(100dvh - 24px));
+        border-radius: 20px
+    }
+
+    .cookhub-ai-form input {
+        font-size: 16px
+    }
+}
+
+@media(prefers-reduced-motion:no-preference) {
+    .cookhub-ai-panel {
+        animation: cookhub-ai-enter .18s ease-out
+    }
+
+    @keyframes cookhub-ai-enter {
+        from {
+            opacity: 0;
+            transform: translateY(12px)
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    }
+}
+
+.cookhub-ai-launcher {
+    width: 60px;
+    height: 60px;
+    justify-content: center;
+    padding: 5px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    user-select: none;
+    cursor: pointer
+}
+
+.cookhub-ai-launcher img {
+    pointer-events: none;
+    user-select: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%
+}
+.cookhub-ai-launcher>span {
+    display: none !important
+}
+
+@media(prefers-reduced-motion:no-preference) {
+    .cookhub-ai-launcher img {
+        animation: cookhub-chef-idle 4s ease-in-out infinite;
+        transform-origin: 50% 85%
+    }
+
+    .cookhub-ai-launcher:hover img {
+        animation: cookhub-chef-hello .7s ease-in-out
+    }
+
+    @keyframes cookhub-chef-idle {
+
+        0%,
+        100% {
+            transform: translateY(0) rotate(0)
+        }
+
+        25% {
+            transform: translateY(-3px) rotate(-3deg)
+        }
+
+        50% {
+            transform: translateY(0) rotate(0)
+        }
+
+        75% {
+            transform: translateY(-2px) rotate(3deg)
+        }
+    }
+
+    @keyframes cookhub-chef-hello {
+
+        0%,
+        100% {
+            transform: rotate(0)
+        }
+
+        25% {
+            transform: rotate(-9deg) translateY(-3px)
+        }
+
+        50% {
+            transform: rotate(8deg) translateY(-3px)
+        }
+
+        75% {
+            transform: rotate(-5deg)
+        }
+    }
+}
+.cookhub-ai-launcher {
+    width: 72px;
+    height: 78px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    border-radius: 20px
+}
+
+.cookhub-ai-launcher img {
+    width: 70px;
+    height: 77px;
+    border-radius: 0;
+    filter: drop-shadow(0 5px 5px #76381826)
+}
+
+.cookhub-ai-header>img {
+    width: 48px;
+    height: 52px;
+    border-radius: 0
+}
+
+.cookhub-ai-intro img {
+    width: 62px;
+    height: 68px
+}
+.cookhub-ai-panel {
+    border: 0;
+    outline: 0;
+    background: #fafaf3
+}
+
+.cookhub-ai-messages {
+    background: #fafaf3;
+    padding: 18px 14px
+}
+
+.cookhub-ai-message {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    margin-bottom: 14px;
+    min-width: 0
+}
+
+.cookhub-ai-avatar {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    object-fit: contain;
+    background: #fff0da;
+    border-radius: 50%;
+    padding: 2px;
+    box-sizing: border-box
+}
+
+.cookhub-ai-message .cookhub-ai-bubble {
+    margin: 0;
+    max-width: calc(100% - 34px);
+    box-sizing: border-box;
+    border-color: #e2e9d8;
+    border-radius: 17px 17px 17px 4px;
+    box-shadow: 0 2px 8px #3f502208
+}
+
+.cookhub-ai-message.is-user {
+    justify-content: flex-end;
+    padding-left: 32px
+}
+
+.cookhub-ai-message.is-user .cookhub-ai-bubble {
+    max-width: 100%;
+    border-color: #ffdfca;
+    border-radius: 17px 17px 4px 17px;
+    box-shadow: none
+}
+
+.cookhub-ai-form {
+    padding-bottom: 14px
+}
+
+.cookhub-ai-form input:focus {
+    outline: 0;
+    box-shadow: none;
+    border-color: #ff9c66
+}
+
+.cookhub-ai-form input:focus-visible {
+    outline: 0
+}
+
+.cookhub-ai-typing {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 20px;
+    width: 62px
+}
+
+.cookhub-ai-typing span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #c78d68;
+    animation: cookhub-typing 1.2s ease-in-out infinite
+}
+
+.cookhub-ai-typing span:nth-child(2) {
+    animation-delay: .15s
+}
+
+.cookhub-ai-typing span:nth-child(3) {
+    animation-delay: .3s
+}
+
+@keyframes cookhub-typing {
+
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+        opacity: .4
+    }
+
+    30% {
+        transform: translateY(-4px);
+        opacity: 1
+    }
+}
+
+.cookhub-ai-card {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-left: 34px
+}
+
+.cookhub-ai-card img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 10px;
+    flex-shrink: 0
+}
+
+.cookhub-ai-card>div {
+    min-width: 0
+}
+
+@media(prefers-reduced-motion:reduce) {
+    .cookhub-ai-typing span {
+        animation: none
+    }
+}
+.cookhub-ai,
+.cookhub-ai * {
+    box-sizing: border-box
+}
+
+.cookhub-ai .cookhub-ai-panel {
+    padding: 0;
+    margin: 0;
+    gap: 0;
+    min-width: 0;
+    min-height: 0;
+    max-width: calc(100vw - 24px);
+    align-items: stretch
+}
+
+.cookhub-ai .cookhub-ai-header {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    margin: 0;
+    padding: 18px;
+    flex: 0 0 auto;
+    z-index: 1
+}
+
+.cookhub-ai .cookhub-ai-messages {
+    position: relative;
+    width: 100%;
+    margin: 0;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 18px 14px;
+    scrollbar-width: none
+}
+
+.cookhub-ai .cookhub-ai-messages::-webkit-scrollbar {
+    display: none
+}
+
+.cookhub-ai .cookhub-ai-form {
+    width: 100%;
+    margin: 0;
+    padding: 12px 16px 14px;
+    flex: 0 0 auto;
+    min-height: 0
+}
+
+.cookhub-ai .cookhub-ai-status:empty {
+    display: none
+}
+
+.cookhub-ai .cookhub-ai-status {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 6px 16px
+}
+@media(max-width:720px){body:has(.nav-bottom-site) .cookhub-ai{bottom:calc(104px + env(safe-area-inset-bottom))}}

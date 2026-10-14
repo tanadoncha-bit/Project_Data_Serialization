@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+
+  <%- include('partials/head') %>
+
+
+  <link rel="stylesheet" href="/stylesheets/homepage.css">
+  <link rel="stylesheet" href="/stylesheets/recipes.css">
+  <link rel="stylesheet" href="/stylesheets/catalog-cards.css">
+</head>
+
+<body class="catalog-cards-site recipe-site public-recipe-site" data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
+
+  <%- include('partials/navbar', { active: 'home', recipePublicNav: true }) %>
+
+  <section class="hero">
+    <div class="hero-text">
+      <h1><span class="text-orange">Learn to Cook</span><br>Easy, Fun, Delicious</h1>
+      <p>เรียนทำอาหารออนไลน์กับเชฟมืออาชีพ ครบทุกเมนู ทุกระดับ<br>เริ่มต้นได้จากที่บ้าน พร้อมสูตรอาหารและเทคนิคที่ทำตามได้จริง</p>
+    </div>
+    <div class="hero-image">
+      <img src="/images/homepage/moowan1.png" alt="Delicious Pasta with Tomatoes">
+    </div>
+  </section>
+
+
+  <section class="features">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <i data-lucide="graduation-cap"></i>
+      </div>
+      <h3>เรียนกับเชฟมืออาชีพ</h3>
+      <p>คอร์สเรียนคุณภาพจากเชฟที่มีประสบการณ์จริง สอนอย่างละเอียด เข้าใจง่าย</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <i data-lucide="book-open"></i>
+      </div>
+      <h3>คลังสูตรอาหาร</h3>
+      <p>ค้นพบสูตรอาหารหลากหลาย ทั้งอาหารไทย อาหารนานาชาติ และเบเกอรี่</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <i data-lucide="heart"></i>
+      </div>
+      <h3>สร้างรายได้จากสูตรลับ</h3>
+      <p>เปิดโอกาสให้คุณแชร์สูตรอาหารและสร้างรายได้จากสิ่งที่คุณรัก</p>
+    </div>
+
+  </section>
+
+
+  <section class="popular-courses home-catalog-section">
+    <div class="section-header">
+      <div>
+        <h2>คอร์สเรียนยอดนิยม</h2>
+        <p class="subtitle">ตัวอย่างคอร์สคุณภาพที่เปิดสอนอยู่บน CookHup</p>
+      </div>
+      <a href="/courses" class="see-all">ดูทั้งหมด &rarr;</a>
+    </div>
+
+    <div class="course-grid">
+
+      <% if (courses.length === 0) { %>
+      <p>ยังไม่มีคอร์สเรียนในขณะนี้</p>
+      <% } %>
+      <% const guest = typeof currentUser === 'undefined' || !currentUser; %>
+      <% courses.forEach(c => { %>
+
+      <%- include('user/_courseCard', { c }) %>
+      <% }) %>
+    </div>
+  </section>
+
+
+  <section class="categories-section home-catalog-section">
+    <div class="section-header-left">
+      <h2>เลือกเรียนตามหมวดหมู่</h2>
+      <p class="subtitle">ค้นหาคอร์สที่ใช่สำหรับคุณ</p>
+    </div>
+    <div class="category-grid">
+      <% categories.forEach(cat => { %>
+      <div class="category-card">
+        <div class="cat-icon">
+          <i data-lucide="<%= cat.icon %>" aria-hidden="true"></i>
+        </div>
+        <h4><%= cat.name %></h4>
+        <span class="cat-count">(<%= cat.count %> คอร์ส)</span>
+      </div>
+      <% }) %>
+    </div>
+  </section>
+
+
+  <section class="steps-section">
+    <h2>เริ่มต้นเรียนกับ CookHub ง่ายๆ ใน 3 ขั้นตอน</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <h4>สมัครสมาชิก</h4>
+          <p>สร้างบัญชีฟรี ใช้เวลาแค่ไม่กี่นาที</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <h4>เลือกคอร์สที่สนใจ</h4>
+          <p>เลือกเรียนได้จากหลายหมวดหมู่</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <h4>เริ่มเรียนได้ทันที</h4>
+          <p>เรียนได้ทุกที่ ทุกเวลา บนทุกอุปกรณ์</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="cta-section">
+    <div class="cta-banner">
+      <div class="cta-content">
+        <h2>พร้อมเริ่มต้นเส้นทางการทำอาหารของคุณแล้วหรือยัง?</h2>
+        <p>สมัครสมาชิกวันนี้ และเข้าถึงคอร์สเรียนมากมายจากเชฟมืออาชีพ</p>
+      </div>
+      <a href="/register" class="btn-cta"><span aria-hidden="true">＋</span> สมัครสมาชิกเลย</a>
+      <div class="cta-image">
+        <img src="/images/homepage/cta-tomatoes.png" alt="" aria-hidden="true">
+      </div>
+    </div>
+  </section>
+
+
+  <%- include('partials/footer') %>
+  <script src="/javascripts/userFavorites.js" defer></script>
+</body>
+
+</html>

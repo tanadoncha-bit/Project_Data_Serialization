@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head><%- include('../../partials/head', { title }) %>
+  <link rel="stylesheet" href="/stylesheets/recipes.css">
+</head>
+
+<body class="recipe-site public-recipe-site">
+  <%- include('../../partials/navbar', { active, recipePublicNav: true }) %>
+  <section class="recipe-banner public-recipe-banner">
+    <div class="recipe-banner-inner">
+      <h1><span>Find Your</span><br>Perfect Recipe</h1>
+      <p>ค้นพบสูตรอาหารที่ทำตามได้ง่าย<br>พร้อมขั้นตอนและวัตถุดิบที่ครบถ้วน<br>ไม่ว่าจะคาว หวาน หรือเมนูโปรดของคุณ</p>
+    </div>
+  </section>
+  <main class="recipe-page public-recipe-page">
+    <form method="get" action="/recipes" id="recipe-browse-form">
+      <%- include('../../partials/browse-controls', { filters }) %>
+    </form>
+    <div id="recipe-browse-results" aria-live="polite">
+      <p class="recipe-results-count">ผลลัพธ์ <strong>
+          <%= total %>
+        </strong> สูตร</p>
+      <% if (typeof cataloguePending !== 'undefined' && cataloguePending) { %><p class="recipe-alert" role="status">กำลังโหลดสูตรทั่วไปเพิ่มเติม จำนวนผลลัพธ์เป็นสูตรที่โหลดแล้วในขณะนี้ <a href="/recipes?<%= pageQuery %>">อัปเดตรายการ</a></p><% } %>
+      <% if (externalError) { %><p class="recipe-alert" role="status"><%= externalError %></p><% } %>
+      <% if (!recipes.length && !externalMeals.length) { %>
+      <section class="recipe-empty">
+        <h2>ไม่พบสูตรอาหาร</h2>
+        <p>ลองเปลี่ยนคำค้นหาหรือตัวกรอง</p><a href="/recipes" class="recipe-btn">ล้างตัวกรอง</a>
+      </section>
+      <% } %>
+      <div class="recipe-grid">
+        <% orderedCards.forEach(item=> { %><%- item.type==='Recipe' ? include('_localCard',{recipe:item.value}) : include('_externalCard',{meal:item.value}) %><% }); %>
+      </div>
+      <nav class="recipe-pagination" aria-label="หน้ารายการสูตร">
+        <% if (page> 1) { %><a href="/recipes?<%= pageQuery %>&amp;page=<%= page - 1 %>" aria-label="หน้าก่อนหน้า">‹</a>
+        <% } %>
+        <% if (pages) { %><span aria-current="page">
+          <%= page %>
+        </span><span class="recipe-pagination-total">/ <%= pages %></span>
+        <% } %>
+        <% if (page < pages) { %><a href="/recipes?<%= pageQuery %>&amp;page=<%= page + 1 %>" aria-label="หน้าถัดไป">›</a>
+        <% } %>
+      </nav>
+    </div>
+  </main>
+  <%- include('_filterDialog') %>
+  <dialog id="recipe-content-dialog" class="recipe-dialog recipe-content-dialog recipe-preview-dialog" aria-label="รายละเอียดสูตรอาหาร"><button class="recipe-modal-close recipe-preview-close" type="button" data-close-recipe aria-label="ปิดสูตรอาหาร">×</button>
+    <div id="recipe-modal-content"></div>
+  </dialog>
+  <%- include('../../partials/footer') %>
+  <script src="/javascripts/recipeModals.js" defer></script>
+  <script src="/javascripts/recipeBrowse.js" defer></script>
+</body>
+
+</html>

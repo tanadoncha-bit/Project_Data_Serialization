@@ -1,0 +1,10 @@
+main {
+  width: 100%;
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: 40px 32px;
+}
+
+a {
+  color: #00B7FF;
+}

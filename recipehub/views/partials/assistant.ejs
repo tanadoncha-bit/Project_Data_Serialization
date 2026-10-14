@@ -1,0 +1,20 @@
+<link rel="stylesheet" href="/stylesheets/assistant.css">
+<div class="cookhub-ai" data-assistant data-assistant-user="<%= typeof currentUser !== 'undefined' && currentUser ? currentUser._id : 'guest' %>">
+  <button type="button" class="cookhub-ai-launcher" aria-label="เปิดน้องอุ่น ผู้ช่วย AI" aria-controls="cookhub-ai-panel" aria-expanded="false"><img src="/images/assistant/oven.svg" alt=""><span>ถามน้องอุ่น</span></button>
+  <section id="cookhub-ai-panel" class="cookhub-ai-panel" role="dialog" aria-labelledby="cookhub-ai-title" hidden>
+    <header class="cookhub-ai-header"><img src="/images/assistant/oven.svg" alt="">
+      <div>
+        <h2 id="cookhub-ai-title">น้องอุ่น <span>AI</span></h2>
+        <p>ผู้ช่วยเรื่องอาหารของ CookHub</p>
+      </div><button type="button" data-ai-close aria-label="ปิดผู้ช่วย">×</button>
+    </header>
+    <div class="cookhub-ai-messages" role="log" aria-label="บทสนทนา" aria-live="polite" aria-relevant="additions">
+      <div class="cookhub-ai-message"><img class="cookhub-ai-avatar" src="/images/assistant/oven-avatar.svg" alt="">
+        <div class="cookhub-ai-bubble">สวัสดีครับ ผมน้องอุ่น ช่วยคิดเมนู แนะนำสูตร และหาคอร์สที่เหมาะกับคุณได้ครับ</div>
+      </div>
+    </div>
+    <p class="cookhub-ai-status" role="status"></p>
+    <form class="cookhub-ai-form"><label class="cookhub-ai-sr" for="cookhub-ai-input">คำถามถึงน้องอุ่น</label><input id="cookhub-ai-input" name="message" maxlength="1000" autocomplete="off" placeholder="วันนี้มีวัตถุดิบอะไรบ้าง?" required><button type="submit" aria-label="ส่งข้อความ">➤</button></form>
+  </section>
+</div>
+<script src="/javascripts/assistant.js" defer></script>

@@ -1,0 +1,169 @@
+
+const express = require('express');
+const multer = require('multer');
+const bcrypt = require('bcryptjs');
+const Client = require('../models/Client');
+const Favorite = require('../models/Favorite');
+const Transaction = require('../models/Transaction');
+const Recipe = require('../models/Recipe');
+const SingleCourse = require('../models/SingleCourse');
+const MultiCourse = require('../models/MultiCourse');
+const { requireLogin } = require('../middleware/requireRole');
+const { usernameQuery } = require('./auth');
+
+const router = express.Router();
+router.use(requireLogin);
+
+const avatarImages = require('../services/avatarImages');
+const mailer = require('../services/mailer');
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024, files: 1 } });
+
+const itemModels = { Recipe, SingleCourse, MultiCourse };
+const itemLabels = { Recipe: 'สูตรอาหาร', SingleCourse: 'คอร์สเรียน', MultiCourse: 'แพ็กคอร์ส' };
+
+
+async function loadItems(rows) {
+  const items = await Promise.all(rows.map(async (row) => {
+    if (row.itemType === 'ExternalRecipe') return { type: row.itemType, label: 'สูตรทั่วไป', title: row.title || 'สูตรจาก TheMealDB', image: row.image || '', price: 0, date: row.createdAt, url: '/recipes/external/' + row.itemId };
+    const query = itemModels[row.itemType].findById(row.itemId);
+    if (row.itemType === 'SingleCourse') query.populate('baseRecipe', 'image');
+    if (row.itemType === 'MultiCourse') query.populate({ path: 'includedCourses', select: 'baseRecipe', populate: { path: 'baseRecipe', select: 'image' } });
+    const doc = await query.lean();
+    if (!doc) return null;
+    return {
+      type: row.itemType,
+      label: itemLabels[row.itemType],
+      title: doc.title,
+      image: doc.image || doc.baseRecipe?.image || doc.includedCourses?.find(course => course.baseRecipe?.image)?.baseRecipe.image || '',
+      images: row.itemType === 'MultiCourse' ? (doc.includedCourses || []).slice(0, 2).map(course => course.baseRecipe?.image || '') : [],
+      price: row.amountPaid ?? doc.price ?? 0,
+      date: row.purchasedAt || row.createdAt,
+      url: row.itemType === 'Recipe' ? `/recipes/${doc._id}` : row.itemType === 'MultiCourse' ? `/courses/pack/${doc._id}` : `/courses/${doc._id}`,
+    };
+  }));
+  return items.filter(Boolean);
+}
+
+
+async function renderProfile(req, res, { form, error, saved, status = 200 } = {}) {
+  const user = await Client.findById(req.user._id).lean();
+  const isChef = user.role === 'chef';
+
+  const favorites = isChef ? [] : await loadItems(await Favorite.find({ client: user._id }).sort({ createdAt: -1 }).lean());
+  const purchases = isChef ? [] : await loadItems(await Transaction.find({ buyer: user._id }).sort({ purchasedAt: -1 }).lean());
+
+  res.status(status).render('profile', {
+    title: 'โปรไฟล์',
+    active: '',
+    user,
+    form: form || user,
+    isChef,
+    favorites,
+    purchases,
+    error,
+    saved,
+  });
+}
+
+
+router.get('/', async (req, res, next) => {
+  try {
+    const messages = {
+      1: 'บันทึกการแก้ไขเรียบร้อยแล้ว',
+      password: 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว',
+      email: 'บันทึกแล้ว เราส่งลิงก์ยืนยันไปที่อีเมลใหม่ อีเมลจะเปลี่ยนหลังกดยืนยัน (ถ้าไม่เจอ ลองดูใน Spam)',
+    };
+    await renderProfile(req, res, { saved: messages[req.query.saved] });
+  } catch (err) {
+    next(err);
+  }
+});
+
+
+router.post('/', async (req, res, next) => {
+  try {
+    const form = {
+      name: String(req.body.name || '').trim(),
+      username: String(req.body.username || '').trim(),
+      email: String(req.body.email || '').trim().toLowerCase(),
+      bio: String(req.body.bio || '').trim(),
+      institution: String(req.body.institution || '').trim(),
+    };
+    const isChef = req.user.role === 'chef';
+    const others = { _id: { $ne: req.user._id } };                          
+
+    let error = null;
+    if (!form.name || !form.username || !form.email) error = 'กรุณากรอกชื่อ, username และอีเมล';
+    else if (!/^[A-Za-z0-9_]{3,20}$/.test(form.username)) error = 'username ต้องเป็น A-Z, a-z, 0-9 หรือ _ ยาว 3–20 ตัว';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) error = 'รูปแบบอีเมลไม่ถูกต้อง';
+    else if (form.bio.length > 300) error = 'แนะนำตัวได้ไม่เกิน 300 ตัวอักษร';
+    else if (isChef && !form.institution) error = 'กรุณาระบุสถาบันการทำอาหาร';
+    else if (await Client.exists({ ...others, ...usernameQuery(form.username) })) error = 'username นี้ถูกใช้แล้ว';
+    else if (await Client.exists({ ...others, email: form.email })) error = 'อีเมลนี้ถูกใช้แล้ว';
+    if (error) return renderProfile(req, res, { form, error, status: 400 });
+
+
+    const emailChanged = form.email !== req.user.email;
+    const update = { name: form.name, username: form.username, bio: form.bio, pendingEmail: emailChanged ? form.email : null };
+    if (isChef) { update.institution = form.institution; update.isVerifiedChef = Boolean(form.institution); }
+    try {
+      await Client.updateOne({ _id: req.user._id }, update);
+    } catch (err) {
+      if (err.code !== 11000) throw err;
+      const field = err.keyPattern && err.keyPattern.username ? 'username' : 'อีเมล';
+      return renderProfile(req, res, { form, error: `${field}นี้ถูกใช้แล้ว`, status: 409 });
+    }
+
+    if (emailChanged) {
+      try {
+        await mailer.sendVerifyMail(await Client.findById(req.user._id));
+      } catch (err) {
+        console.error('[mailer] ส่งเมลยืนยันอีเมลใหม่ไม่สำเร็จ:', err.message);
+        return renderProfile(req, res, { form, error: 'บันทึกแล้ว แต่ส่งเมลยืนยันไปที่อีเมลใหม่ไม่สำเร็จ ลองกดบันทึกอีกครั้ง', status: 502 });
+      }
+      return res.redirect('/profile?saved=email');
+    }
+    res.redirect('/profile?saved=1');
+  } catch (err) {
+    next(err);
+  }
+});
+
+
+router.post('/avatar', (req, res, next) => {
+  upload.single('avatar')(req, res, async (err) => {
+    try {
+      if (err) return res.status(400).json({ error: 'รูปต้องมีขนาดไม่เกิน 2 MB และส่งได้ครั้งละหนึ่งรูป' });
+      if (!req.file) return res.status(400).json({ error: 'รองรับเฉพาะไฟล์รูป jpg, png, gif, webp' });
+
+      const avatar = await avatarImages.store(req.file.buffer, req.user._id);
+      const updated = await Client.updateOne({ _id: req.user._id }, { $set: { avatar } }, { runValidators: true });
+      if (!updated.matchedCount) return res.status(404).json({ error: 'ไม่พบผู้ใช้' });
+      res.json({ avatar });
+    } catch (e) {
+      res.status(502).json({ error: 'อัปโหลดรูปโปรไฟล์ไม่สำเร็จ กรุณาใช้ JPG, PNG, GIF หรือ WebP ไม่เกิน 2 MB หรือลองใหม่' });
+    }
+  });
+});
+
+
+router.post('/password', async (req, res, next) => {
+  try {
+    const { currentPassword = '', newPassword = '', confirmPassword = '' } = req.body;
+    const user = await Client.findById(req.user._id).select('passwordHash');
+
+    let error = null;
+    if (!currentPassword || !newPassword || !confirmPassword) error = 'กรุณากรอกรหัสผ่านให้ครบทุกช่อง';
+    else if (!(await bcrypt.compare(currentPassword, user.passwordHash))) error = 'รหัสผ่านเดิมไม่ถูกต้อง';
+    else if (newPassword.length < 6) error = 'รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร';
+    else if (newPassword !== confirmPassword) error = 'รหัสผ่านใหม่ทั้งสองช่องไม่ตรงกัน';
+    if (error) return renderProfile(req, res, { error, status: 400 });
+
+    await Client.updateOne({ _id: req.user._id }, { passwordHash: await bcrypt.hash(newPassword, 10) });
+    res.redirect('/profile?saved=password');
+  } catch (err) {
+    next(err);
+  }
+});
+
+module.exports = router;

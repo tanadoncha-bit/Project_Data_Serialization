@@ -1,0 +1,66 @@
+:is(.course-browse-site,.catalog-cards-site) .course-card{min-width:0;border-radius:10px;display:flex;flex-direction:column}
+:is(.course-browse-site,.catalog-cards-site) .course-card .card__img{aspect-ratio:2.6 / 1;flex-shrink:0}
+:is(.course-browse-site,.catalog-cards-site) .course-card .card__body{padding:14px;display:flex;flex-direction:column;flex:1}
+:is(.course-browse-site,.catalog-cards-site) .course-card .card__title{font-size:14px;line-height:22px;min-height:22px;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+:is(.course-browse-site,.catalog-cards-site) .course-card .card__rating{font-size:14px}
+:is(.course-browse-site,.catalog-cards-site) .course-card .card__desc{font-size:11px;line-height:16px;min-height:0;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin:8px 0}
+:is(.course-browse-site,.catalog-cards-site) .course-card .chef-mini{font-size:11px;margin:6px 0}
+:is(.course-browse-site,.catalog-cards-site) .course-card .card__meta{font-size:11px;margin:8px 0 10px}
+:is(.course-browse-site,.catalog-cards-site) .course-card .card__foot{margin-top:auto;padding-top:12px}
+:is(.course-browse-site,.catalog-cards-site) .course-card .price{font-size:15px;line-height:22px}
+:is(.course-browse-site,.catalog-cards-site) .course-card .more{font-size:12px}
+.catalog-cards-site .grid-3,.catalog-cards-site .courses-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;align-items:stretch}
+@media(max-width:900px){.catalog-cards-site .grid-3,.catalog-cards-site .courses-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.catalog-cards-site .grid-3,.catalog-cards-site .courses-grid{grid-template-columns:1fr}}
+.catalog-cards-site .cookhub > .container{max-width:1200px;padding-left:32px;padding-right:32px}
+.catalog-cards-site > .home-catalog-section,.catalog-cards-site > .popular-courses,.catalog-cards-site > .features,.catalog-cards-site > .steps-section,.catalog-cards-site > .cta-section{width:calc(100% - 64px);max-width:1136px;margin-left:auto;margin-right:auto}
+.catalog-cards-site > .hero{width:calc(100% - 64px);max-width:1136px;margin-left:auto;margin-right:auto}
+.catalog-cards-site .popular-courses .course-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;align-items:stretch}
+.catalog-cards-site .course-card .chef-mini__avatar{width:22px;height:22px;flex-shrink:0;border-radius:50%;object-fit:cover}
+.catalog-cards-site .course-card .card__row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.catalog-cards-site .course-card .card__foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #eee}
+.catalog-cards-site .section-title,.catalog-cards-site .section-header h2,.catalog-cards-site .section-header-left h2{font-size:24px;line-height:1.4}
+.catalog-cards-site .course-card .card__img > .half{flex:1;min-width:0;width:0;height:100%;object-fit:cover}
+.catalog-cards-site .course-card .card__img{display:flex}
+@media(max-width:900px){.catalog-cards-site .popular-courses .course-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){
+ .catalog-cards-site .cookhub > .container{padding-left:16px;padding-right:16px}
+ .catalog-cards-site > .home-catalog-section,.catalog-cards-site > .popular-courses,.catalog-cards-site > .features,.catalog-cards-site > .steps-section,.catalog-cards-site > .cta-section,.catalog-cards-site > .hero{width:calc(100% - 32px)}
+ .catalog-cards-site .popular-courses .course-grid{grid-template-columns:1fr}
+ .catalog-cards-site .section-title,.catalog-cards-site .section-header h2,.catalog-cards-site .section-header-left h2{font-size:20px}
+}
+
+.catalog-cards-site > .popular-courses,.catalog-cards-site > .home-catalog-section{padding-left:0;padding-right:0}
+.catalog-cards-site .cookhub .hero--home{height:clamp(280px,31vw,460px)}
+.catalog-cards-site .cookhub .hero--home .hero__content{width:min(1136px,calc(100% - 64px));margin:0 auto;padding:0 0 0 13%}
+.catalog-cards-site .cookhub .hero--home .hero__title .l1,.catalog-cards-site .cookhub .hero--home .hero__title .l2{font-size:clamp(28px,3.5vw,52px);line-height:1.15;letter-spacing:0}
+.catalog-cards-site .cookhub .hero--home .hero__desc{font-size:16px;line-height:1.5;margin:14px 0 22px}
+.catalog-cards-site .cookhub .hero--home .hero__actions .btn{min-height:42px;height:auto;font-size:14px;padding:10px 20px}
+@media(max-width:600px){
+ .catalog-cards-site .cookhub .hero--home .hero__content{width:calc(100% - 32px);padding:0}
+ .catalog-cards-site .cookhub .hero--home .hero__title .l1,.catalog-cards-site .cookhub .hero--home .hero__title .l2{font-size:28px}
+ .catalog-cards-site .cookhub .hero--home .hero__desc{font-size:13px;max-width:100%}
+ .catalog-cards-site .cookhub .hero--home .hero__actions{flex-wrap:wrap;gap:10px}
+ .catalog-cards-site .cookhub .hero--home .hero__actions .btn{font-size:13px;padding:9px 14px}
+}
+.catalog-cards-site > .hero,.catalog-cards-site > .features{padding-left:0;padding-right:0;box-sizing:border-box}
+.catalog-cards-site > .features{gap:22px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.catalog-cards-site > .hero .hero-text,.catalog-cards-site > .hero .hero-image{min-width:0}
+.catalog-cards-site > .hero .hero-text h1{font-size:clamp(28px,3.5vw,52px);line-height:1.2}
+@media(max-width:900px){.catalog-cards-site > .features{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.catalog-cards-site > .features{grid-template-columns:1fr}.catalog-cards-site > .hero{gap:24px}}
+
+@media(max-width:600px){.catalog-cards-site > .hero{flex-direction:column;align-items:stretch}.catalog-cards-site > .hero .hero-text,.catalog-cards-site > .hero .hero-image{width:100%;flex:auto}}
+
+:is(.course-browse-site,.catalog-cards-site) .course-card .course-pack-caption{display:flex;align-items:center;gap:8px;margin:6px 0 2px;line-height:1.5}
+:is(.course-browse-site,.catalog-cards-site) .course-pack-caption>span{font-size:10px;color:#8055a4;background:#f4edfc;padding:3px 8px;border-radius:5px}
+:is(.course-browse-site,.catalog-cards-site) .course-pack-caption>small{font-size:10px;color:#888}
+:is(.course-browse-site,.catalog-cards-site) .course-card{height:auto;min-height:0}
+:is(.course-browse-site,.catalog-cards-site) .course-card .card__body{gap:0}
+:is(.course-browse-site,.catalog-cards-site) .course-card .card__row{min-height:22px;align-items:baseline}
+:is(.course-browse-site,.catalog-cards-site) .course-card .card__desc{height:32px;min-height:32px;margin:6px 0;overflow:hidden}
+:is(.course-browse-site,.catalog-cards-site) .course-card .chef-mini{margin:4px 0 8px}
+:is(.course-browse-site,.catalog-cards-site) .course-card .card__meta{margin:6px 0 12px}
+:is(.course-browse-site,.catalog-cards-site) .course-card .card__foot{margin-top:0;padding-top:12px;border-top:1px solid #eee}
+:is(.course-browse-site,.catalog-cards-site) .course-pack-overlay{position:absolute;bottom:10px;left:10px;display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:6px;background:#fff;color:#69458b;font-size:10px;line-height:1.5;box-shadow:0 1px 5px #00000012}
+:is(.course-browse-site,.catalog-cards-site) .course-pack-overlay svg{width:13px;height:13px}

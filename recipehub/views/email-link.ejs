@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <%- include('partials/head', { title }) %>
+</head>
+
+<body>
+  <%- include('partials/navbar') %>
+
+
+  <main class="email-link-page">
+    <div class="auth-logo"><i data-lucide="<%= form ? 'key-round' : 'mail-check' %>"></i></div>
+    <h1><%= message %></h1>
+    <% if (detail) { %><p class="auth-sub"><%= detail %></p><% } %>
+
+    <% if (form) { %>
+    <form method="POST" class="auth-form">
+      <% if (error) { %><p class="auth-error" role="alert"><%= error %></p><% } %>
+      <label for="newPassword">รหัสผ่านใหม่</label>
+      <input type="password" id="newPassword" name="password" autocomplete="new-password" minlength="6" required>
+      <label for="confirmPassword">ยืนยันรหัสผ่านใหม่</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" minlength="6" required>
+      <button type="submit" class="auth-submit">บันทึกรหัสผ่านใหม่</button>
+    </form>
+    <% } else if (typeof loginLink !== 'undefined' && loginLink) { %>
+    <a href="/home?login=1" class="error-home">เข้าสู่ระบบ</a>
+    <% } else { %>
+    <a href="/home" class="error-home">กลับหน้าแรก</a>
+    <% } %>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+
+</html>

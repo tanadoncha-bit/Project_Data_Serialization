@@ -1,0 +1,57 @@
+<% const current = typeof active !== 'undefined' ? active : ''; %>
+<% const loggedIn = typeof currentUser !== 'undefined' && currentUser; %>
+<% const isChef = loggedIn && currentUser.role === 'chef'; %>
+<% const publicNav = !isChef || (typeof recipePublicNav !== 'undefined' && recipePublicNav); %>
+<nav class="navbar <%= loggedIn ? 'nav-bottom-site' : '' %>">
+  <a href="#" class="nav-brand">
+    <span class="logo-box"><i data-lucide="chef-hat"></i></span>
+    <span><%= typeof brandName !== 'undefined' ? brandName : 'CookHub' %></span>
+  </a>
+
+  <ul class="nav-menu" id="cookhubNavMenu">
+    <% if (!loggedIn) { %>
+    <% } else if (publicNav) { %>
+    <li><a href="<%= isChef ? '/chef/dashboard' : '/user' %>" class="<%= current === 'home' ? 'active' : '' %>"><i class="nav-bottom-icon" data-lucide="house" aria-hidden="true"></i>หน้าแรก</a></li>
+    <li><a href="/courses" class="<%= current === 'courses' ? 'active' : '' %>"><i class="nav-bottom-icon" data-lucide="graduation-cap" aria-hidden="true"></i>คอร์ส</a></li>
+    <li><a href="/recipes" class="<%= current === 'recipes' ? 'active' : '' %>"><i class="nav-bottom-icon" data-lucide="notebook-tabs" aria-hidden="true"></i>สูตรอาหาร</a></li>
+    <% } else { %>
+    <li><a href="/chef/dashboard" class="<%= current === 'dashboard' ? 'active' : '' %>"><i class="nav-bottom-icon" data-lucide="layout-dashboard" aria-hidden="true"></i>Dashboard</a></li>
+    <li><a href="/chef/courses" class="<%= current === 'courses'   ? 'active' : '' %>"><i class="nav-bottom-icon" data-lucide="graduation-cap" aria-hidden="true"></i>จัดการคอร์ส</a></li>
+    <li><a href="/chef/recipes" class="<%= current === 'recipes'   ? 'active' : '' %>"><i class="nav-bottom-icon" data-lucide="notebook-tabs" aria-hidden="true"></i>จัดการสูตรอาหาร</a></li>
+    <% } %>
+  </ul>
+
+  <div class="nav-actions">
+    <% if(loggedIn) { %><button type="button" class="nav-mobile-toggle" aria-label="เปิดเมนูหลัก" aria-controls="cookhubNavMenu" aria-expanded="false"><i data-lucide="menu" aria-hidden="true"></i></button><% } %>
+    <% if (loggedIn) { %>
+    <% if (!publicNav) { %><button type="button" data-nav-notifications aria-expanded="false" aria-controls="cookhubNotifications" class="nav-bell" aria-label="การแจ้งเตือน">
+      <i data-lucide="bell"></i>
+      <span class="badge-dot" hidden></span>
+    </button><% } %>
+    <div class="nav-profile">
+      <button class="nav-avatar" id="profileToggle" aria-label="เมนูโปรไฟล์" aria-haspopup="true" aria-expanded="false">
+        <% if (currentUser.avatar) { %>
+        <img src="<%= currentUser.avatar %>" alt="" class="nav-avatar-img">
+        <% } else { %>
+        <i data-lucide="user"></i>
+        <% } %>
+      </button>
+
+      <div class="profile-menu" id="profileMenu" role="menu">
+        <a href="/profile" class="profile-item" role="menuitem">
+          <i data-lucide="user"></i> My Profile
+        </a>
+        <hr class="profile-divider">
+        <a href="/logout" class="profile-item logout" role="menuitem">
+          <i data-lucide="log-out"></i> Log Out
+        </a>
+      </div>
+    </div>
+    <% } else { %>
+    <div class="nav-guest">
+      <button type="button" class="nav-btn nav-btn-outline" data-open-login>เข้าสู่ระบบ</button>
+      <a href="/register" class="nav-btn nav-btn-fill" data-open-register>สมัครสมาชิก</a>
+    </div>
+    <% } %>
+  </div>
+</nav>

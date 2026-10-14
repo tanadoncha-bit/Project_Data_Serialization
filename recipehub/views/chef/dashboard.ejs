@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+
+<head><%- include('../partials/head', { title }) %>
+  <link rel="stylesheet" href="/stylesheets/dashboard.css">
+  <link rel="stylesheet" href="/stylesheets/chef-layout.css">
+</head>
+
+<body class="chef-dashboard">
+  <%- include('../partials/navbar', { active }) %>
+  <main class="dashboard-main">
+    <section class="dashboard-hero">
+      <div class="hero-inner">
+        <h1><span>สร้างคอร์สใหม่</span><br>แบ่งปันความรู้ในแบบของคุณ</h1>
+        <p>เปลี่ยนความเชี่ยวชาญของคุณให้เป็นคอร์สออนไลน์<br>สร้างแรงบันดาลใจให้กับคนรักการทำอาหารทั่วประเทศ</p>
+        <a class="dashboard-cta" href="/chef/courses/single/create">เริ่มสร้างคอร์ส <i data-lucide="arrow-right"></i></a>
+      </div>
+    </section>
+    <div class="dashboard-content">
+      <section class="chef-summary panel" aria-label="ข้อมูลเชฟ">
+        <div class="chef-identity">
+          <% if(chef.avatar) { %><img class="chef-avatar" src="<%= chef.avatar %>" alt="รูปโปรไฟล์เชฟ"><% } else { %><span class="chef-avatar placeholder"><i data-lucide="chef-hat"></i></span><% } %>
+          <div>
+            <div class="chef-name">
+              <h2><%= chef.name %></h2><a class="chef-verification <%= chef.isVerifiedChef ? 'is-verified' : 'is-unverified' %>" href="/profile"><i data-lucide="<%= chef.isVerifiedChef ? 'badge-check' : 'circle-help' %>" aria-hidden="true"></i><span><%= chef.isVerifiedChef ? 'ผ่านการรับรอง' : 'ยังไม่ได้รับรอง' %></span></a>
+            </div>
+            <p><%= chef.bio || '' %></p>
+          </div>
+        </div>
+        <a class="chef-profile-edit" href="/profile"><i data-lucide="pencil" aria-hidden="true"></i>แก้ไขโปรไฟล์</a>
+      </section>
+      <section class="dashboard-stats" aria-label="ภาพรวมสถิติ">
+        <% stats.forEach((s,i)=> { %>
+        <article class="stat-card panel"><span class="stat-icon <%= i===2?'green':'' %>"><i data-lucide="<%= s[0] %>"></i></span>
+          <div>
+            <h2><%= s[1] %></h2>
+            <p class="stat-value"><%= s[2] %></p>
+            <p class="stat-note <%= s[4] %>"><%= s[3] %></p>
+          </div>
+        </article>
+        <% }); %>
+      </section>
+      <section class="dashboard-analytics" aria-label="ยอดขายและผลงานยอดนิยม">
+        <article class="revenue-panel panel">
+          <div class="panel-heading">
+            <h2>ยอดซื้อรายสัปดาห์</h2>
+            <div class="period-picker"><select id="revenue-period" hidden aria-label="เลือกช่วงเวลายอดขาย">
+                <option value="current">7 วันที่ผ่านมา</option>
+                <option value="previous">7 วันก่อนหน้า</option>
+              </select><button type="button" class="period-trigger" aria-expanded="false" aria-controls="period-menu"><i data-lucide="calendar-days" aria-hidden="true"></i><span>7 วันที่ผ่านมา</span><i data-lucide="chevron-down" aria-hidden="true"></i></button>
+              <div class="period-menu" id="period-menu" hidden><button type="button" data-period="current" aria-pressed="true">7 วันที่ผ่านมา</button><button type="button" data-period="previous" aria-pressed="false">7 วันก่อนหน้า</button></div>
+            </div>
+          </div>
+          <div class="revenue-chart" role="img" aria-label="กราฟยอดซื้อรายวัน" aria-describedby="revenue-description">
+            <div class="chart-axis"><% [4,3,2,1,0].forEach(tick=> { %><span><%= money(chartMax*tick/4) %></span><% }); %></div>
+            <div class="chart-plot">
+              <div class="chart-grid"></div>
+              <div class="chart-bars">
+                <% periods.current.forEach(day=> { %><div class="chart-column">
+                  <div class="chart-bar" style="--bar-height:<%= day.value/chartMax*100 %>%" title="<%= day.label %> ฿<%= money(day.value) %>"></div><span class="chart-day"><%= day.label %></span>
+                </div><% }); %>
+              </div>
+            </div>
+          </div>
+          <p class="sr-only" id="revenue-description" aria-live="polite"><%= periods.current.map(d=>d.label+': '+money(d.value)+' บาท').join(', ') %></p>
+        </article>
+        <div class="dashboard-highlights">
+          <article class="highlight panel">
+            <h2><i data-lucide="flame"></i> คอร์สยอดนิยมอันดับ 1</h2>
+            <% if(popular) { %><div class="highlight-body">
+              <% if(popular.image) { %><img src="<%= popular.image %>" alt="<%= popular.title %>" loading="lazy"><% } %>
+              <div class="highlight-info">
+                <h3><%= popular.title %></h3>
+                <div class="highlight-meta"><span><%= money(popular.students) %> ผู้ซื้อ</span><strong>฿<%= money(popular.price) %></strong></div>
+              </div>
+            </div><% } else { %><p class="muted">ยังไม่มีการซื้อคอร์ส</p><% } %>
+          </article>
+          <article class="highlight panel">
+            <h2><i data-lucide="star"></i> สูตรที่มีรีวิวมากที่สุด</h2>
+            <% if(topRecipe) { %><div class="highlight-body">
+              <% if(topRecipe.image) { %><img src="<%= topRecipe.image %>" alt="<%= topRecipe.title %>" loading="lazy"><% } %>
+              <div class="highlight-info">
+                <h3><%= topRecipe.title %></h3>
+                <div class="highlight-meta"><span class="rating">★ <b><%= topRecipe.rating.toFixed(1) %></b></span><span><%= money(topRecipe.reviews) %> รีวิว</span></div>
+              </div>
+            </div><% } else { %><p class="muted">ยังไม่มีรีวิวสูตรอาหาร</p><% } %>
+          </article>
+        </div>
+      </section>
+      <section class="orders-panel panel" aria-labelledby="orders-heading">
+        <div class="panel-heading">
+          <h2 id="orders-heading"><i data-lucide="shopping-basket"></i> รายการคำสั่งซื้อล่าสุด (Recent Orders)</h2><button id="toggle-orders" type="button" aria-expanded="false" aria-controls="orders-body">ดูเพิ่ม (สูงสุด 50 รายการ) →</button>
+        </div>
+        <div class="orders-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">ผู้ซื้อ</th>
+                <th scope="col">คอร์ส / สูตรอาหาร</th>
+                <th scope="col">วันที่สั่งซื้อ</th>
+                <th scope="col">ยอดชำระ</th>
+                <th scope="col">สถานะ</th>
+              </tr>
+            </thead>
+            <tbody id="orders-body">
+              <% if(!orders.length) { %><tr>
+                <td colspan="5">ยังไม่มีรายการซื้อ</td>
+              </tr><% } %>
+              <% orders.forEach((o,i)=> { %><tr <%- i>=4?'class="extra-order" hidden':'' %>>
+                <td>
+                  <div class="order-student"><% if(o.avatar) { %><img class="student-avatar" src="<%= o.avatar %>" alt="" loading="lazy"><% } else { %><span class="student-avatar" aria-hidden="true"><%= o.name.charAt(0) %></span><% } %><div><strong><%= o.name %></strong><small><%= o.email %></small></div>
+                  </div>
+                </td>
+                <td><%= o.title %><small class="muted"> (<%= o.type %>)</small></td>
+                <td class="order-date"><%= o.date %></td>
+                <td class="order-amount">+฿<%= money(o.amount) %></td>
+                <td><span class="order-status">สำเร็จ</span></td>
+              </tr><% }); %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+  <%- include('../partials/footer') %>
+  <script id="dashboard-data" type="application/json">
+    <%- JSON.stringify({periods,chartMax,comparison}).replace(/</g, '\u003c') %>
+  </script>
+  <script src="/javascripts/dashboard.js"></script>
+</body>
+
+</html>

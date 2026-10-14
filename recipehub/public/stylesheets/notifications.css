@@ -1,0 +1,25 @@
+html body .cookhub-toast,html body .ck-toast,html body .site-notices{position:fixed;left:auto;right:24px;top:var(--cookhub-toast-top,92px);bottom:auto;margin:0;width:420px;max-width:calc(100vw - 48px);text-align:left;z-index:2100}
+html body .cookhub-toast,html body .ck-toast,html body .site-notice{box-sizing:border-box;background:#fff;color:#292524;border:1px solid #e9e5e1;border-radius:16px;box-shadow:0 5px 20px rgba(55,35,22,.09);font-family:Prompt,sans-serif;font-size:14px;line-height:1.6;padding:16px 18px;overflow:hidden}
+html body .cookhub-toast,html body .ck-toast{display:flex;align-items:center;gap:12px}
+html body .cookhub-toast[hidden]{display:none}
+html body .ck-toast{transform:translateY(-8px)}
+html body .ck-toast.show{transform:translateY(0)}
+html body .ck-toast.is-error{background:#fff;color:#b42318}
+.site-notices{display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.site-notices:empty{display:none}
+html body .site-notice{position:relative;display:flex;align-items:center;gap:12px;width:100%;margin:0;pointer-events:auto;animation:site-notice-enter .2s ease-out}
+.site-notice-copy,html body .cookhub-toast-copy{flex:1;min-width:0}
+.site-notice-copy strong{font-size:14px;font-weight:500;line-height:1.6;overflow-wrap:anywhere}
+.site-notice-copy > span,html body .cookhub-toast-copy > strong{display:none}
+html body .cookhub-toast-message{font-size:14px;line-height:1.6;color:#292524}
+.site-notice-icon,html body .cookhub-toast-icon{display:flex;align-items:center;justify-content:center;width:26px;height:26px;flex-shrink:0;background:transparent;color:#f26b2a;border-radius:0}
+.site-notice-icon svg,html body .cookhub-toast-icon svg{width:23px;height:23px}
+.site-notice[data-kind="error"] .site-notice-icon,html body .cookhub-toast[data-kind="error"] .cookhub-toast-icon{color:#d92d20;background:transparent}
+.site-notice-close,html body .cookhub-toast-close{display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:auto;border:0;background:transparent;color:#918981;width:30px;height:30px;padding:6px;border-radius:8px;cursor:pointer}
+.site-notice-close svg{width:16px;height:16px}
+.site-notice-close:hover,html body .cookhub-toast-close:hover{background:#f5f4f2}
+.toast-progress{position:absolute;left:14px;right:14px;bottom:0;height:2px;background:#f4f2ef;pointer-events:none}
+.toast-progress > span{display:block;height:100%;background:#ff6925;transform-origin:left}
+@keyframes site-notice-enter{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){html body .cookhub-toast,html body .ck-toast,html body .site-notices{left:16px;right:16px;width:auto;max-width:none}html body .site-notice,html body .cookhub-toast,html body .ck-toast{padding:14px 16px}.site-notice-copy strong,html body .cookhub-toast-message{font-size:13px}}
+@media(prefers-reduced-motion:reduce){html body .site-notice,html body .cookhub-toast{animation:none}}

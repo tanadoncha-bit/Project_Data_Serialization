@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <%- include('../partials/head', { title: 'คอร์สเรียน' }) %>
+  <link rel="stylesheet" href="/stylesheets/recipes.css">
+  <link rel="stylesheet" href="/stylesheets/cookhub.css">
+  <link rel="stylesheet" href="/stylesheets/catalog-cards.css">
+</head>
+
+<body class="recipe-site public-recipe-site course-browse-site" data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
+  <%- include('../partials/navbar', { active: 'courses', recipePublicNav: true }) %>
+
+  <main class="cookhub">
+
+
+    <section class="hero hero--list hero--courses">
+      <div class="hero__content">
+        <h1 class="hero__title">
+          <span class="l1">Find Your</span>
+          <span class="l2">Perfect Course</span>
+        </h1>
+        <p class="hero__desc">
+          เลือกคอร์สที่ใช่ แล้วเริ่มทำเมนูที่ชอบ<br>
+          เรียนรู้จากเชฟผู้เชี่ยวชาญ ตั้งแต่พื้นฐานจนถึงมืออาชีพ<br>
+          ครบทุกสไตล์อาหาร ทั้งคาว หวาน และอาหารนานาชาติ
+        </p>
+      </div>
+    </section>
+
+    <div class="container container--wide course-list public-recipe-page">
+
+
+      <form method="get" action="/courses" id="recipe-browse-form">
+        <%- include('../partials/browse-controls', {
+            filters: filters,
+            browseConfig: {
+              showSource: true,
+              sortOptions: [['popular', 'ยอดนิยม'], ['rating', 'คะแนนสูงสุด'], ['latest', 'ใหม่ล่าสุด']]
+            }
+          }) %>
+      </form>
+
+      <p class="recipe-results-count">ผลลัพธ์ <strong><%= total %></strong> คอร์ส</p>
+
+      <% if (!courses.length) { %>
+      <section class="empty-state">
+        <i data-lucide="book-open" class="ic-30"></i>
+        <h2>ยังไม่มีคอร์สที่ตรงกับเงื่อนไข</h2>
+        <p>ลองเปลี่ยนระดับหรือตัวกรองดูนะ</p>
+        <a href="/courses" class="btn btn--outline">ล้างตัวกรอง</a>
+      </section>
+      <% } %>
+
+
+      <div class="course-grid">
+        <% courses.forEach(c => { %>
+
+        <%- include('_courseCard', { c }) %>
+        <% }) %>
+      </div>
+
+
+      <nav class="recipe-pagination" aria-label="หน้ารายการคอร์ส">
+        <% if (page > 1) { %><a href="/courses?<%= pageQuery %>&amp;page=<%= page - 1 %>" aria-label="หน้าก่อนหน้า">‹</a><% } %>
+        <span aria-current="page"><%= page %></span><span class="recipe-pagination-total">/ <%= totalPages %></span>
+        <% if (page < totalPages) { %><a href="/courses?<%= pageQuery %>&amp;page=<%= page + 1 %>" aria-label="หน้าถัดไป">›</a><% } %>
+      </nav>
+    </div>
+  </main>
+
+
+  <%- include('../partials/browse-filter', {
+        filters: filters,
+        countryOptions: countryOptions,
+        countryLabel: countryLabel,
+        filterConfig: { title: 'ตัวกรองคอร์สเรียน', durationTitle: 'ระยะเวลาเรียน (นาที)' }
+      }) %>
+
+  <%- include('../partials/footer') %>
+
+  <script src="/javascripts/userFavorites.js"></script>
+  <script src="/javascripts/recipeModals.js" defer></script>
+</body>
+
+</html>

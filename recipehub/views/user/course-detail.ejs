@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <%- include('../partials/head', { title: course.title }) %>
+  <link rel="stylesheet" href="/stylesheets/recipes.css">
+  <link rel="stylesheet" href="/stylesheets/cookhub.css">
+</head>
+
+<body class="recipe-site public-recipe-site" data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
+  <%- include('../partials/navbar', { active: 'courses', recipePublicNav: true }) %>
+  <%
+    const videos = [];
+    sections.forEach(s => s.videos.forEach(v => videos.push(Object.assign({ section: s.title }, v))));
+    const firstPlayable = canWatch ? videos.find(v => v.youtube) : null;
+    const cover = (course.images || []).find(Boolean) || '';
+  %>
+  <main class="recipe-page recipe-single-page">
+    <a class="recipe-back" href="/courses">← คอร์สเรียนทั้งหมด</a>
+
+    <div class="recipe-detail recipe-external-detail recipe-local-detail course-page">
+      <header class="recipe-external-hero">
+        <div class="recipe-external-media">
+          <% if (firstPlayable) { %>
+          <iframe class="recipe-video" id="course-player" src="https://www.youtube-nocookie.com/embed/<%= firstPlayable.youtube %>" title="<%= firstPlayable.title %>" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+          <% } else if (/^(https?:\/\/|\/uploads\/|\/images\/)/i.test(cover)) { %>
+          <img class="recipe-image" src="<%= cover %>" alt="<%= course.title %>" loading="lazy" referrerpolicy="no-referrer">
+          <% } else { %>
+          <div class="recipe-image recipe-placeholder" role="img" aria-label="ยังไม่มีรูปคอร์ส"><i data-lucide="utensils"></i></div>
+          <% } %>
+        </div>
+
+        <div class="recipe-external-intro">
+          <span class="recipe-tag recipe-tag-chef"><%= course.tag %></span>
+          <% if (course.isPack) { %><span class="recipe-tag course-tag-pack">แพ็กคอร์ส</span><% } %>
+          <div class="recipe-local-intro-grid">
+            <div class="recipe-local-title">
+              <h1><%= course.title %></h1>
+              <% if (course.description) { %><p class="recipe-description recipe-muted"><%= course.description %></p><% } %>
+            </div>
+            <div class="recipe-author-strip">
+              <span class="recipe-author-avatar">
+                <% if (chefInfo.avatar) { %><img src="<%= chefInfo.avatar %>" alt=""><% } else { %><i data-lucide="user-round" aria-hidden="true"></i><% } %>
+              </span>
+              <div>
+                <span class="recipe-author-caption">ผู้สอน</span>
+                <strong><%= chefInfo.name %></strong>
+                <% if (chefInfo.institution) { %><small><%= chefInfo.institution %></small><% } %>
+                <% if (chefInfo.bio) { %><p class="recipe-author-bio"><%= chefInfo.bio %></p><% } %>
+              </div>
+            </div>
+          </div>
+          <div class="recipe-external-summary">
+            <span><i data-lucide="circle-play"></i><%= lessonCount %> บทเรียน</span>
+            <span><i data-lucide="clock-3"></i><%= course.duration %></span>
+            <span><i data-lucide="users"></i><%= course.students %> คนเรียน</span>
+            <span><i data-lucide="star"></i><%= course.rating == null ? 'ยังไม่มีรีวิว' : course.rating.toFixed(1) %></span>
+          </div>
+          <% if (canWatch) { %>
+          <p class="course-owned">
+            <i data-lucide="<%= purchased ? 'circle-check' : isOwner ? 'chef-hat' : 'gift' %>"></i>
+            <%= purchased ? 'คุณซื้อคอร์สนี้แล้ว' : isOwner ? 'คอร์สของคุณ' : 'คอร์สฟรี เรียนได้เลย' %>
+          </p>
+          <% } %>
+        </div>
+      </header>
+
+      <% if (canWatch) { %>
+      <div class="recipe-detail-grid">
+        <section class="recipe-detail-panel">
+          <h2><i data-lucide="square-play"></i> บทเรียน</h2>
+          <% if (!videos.length) { %><p class="recipe-muted">ยังไม่มีบทเรียน</p><% } %>
+          <ol class="recipe-external-steps course-lessons">
+            <% videos.forEach((v, i) => { %>
+            <li class="<%= firstPlayable && v === firstPlayable ? 'is-playing' : '' %>">
+              <span class="recipe-external-step-number"><%= i + 1 %></span>
+              <div class="course-lesson">
+                <% if (course.isPack) { %><small class="recipe-muted"><%= v.section %></small><% } %>
+                <% if (v.youtube) { %>
+                <button type="button" class="course-lesson__play" data-play-video="<%= v.youtube %>" data-title="<%= v.title %>"><%= v.title %></button>
+                <% } else if (v.videoUrl) { %>
+                <a class="course-lesson__play" href="<%= v.videoUrl %>" target="_blank" rel="noopener"><%= v.title %></a>
+                <% } else { %>
+                <span><%= v.title %></span>
+                <% } %>
+                <small class="recipe-muted"><%= v.durationText %></small>
+              </div>
+            </li>
+            <% }) %>
+          </ol>
+        </section>
+        <section class="recipe-detail-panel">
+          <h2><i data-lucide="chef-hat"></i> รายละเอียดคอร์ส</h2>
+          <% if (course.isPack) { %>
+          <p class="recipe-muted">แพ็กนี้รวม <%= sections.length %> คอร์ส</p>
+          <ul class="course-pack-list">
+            <% sections.forEach(s => { %><li><a href="<%= s.url %>"><%= s.title %></a></li><% }) %>
+          </ul>
+          <% } else if (course.description) { %>
+          <p class="course-detail-text"><%= course.description %></p>
+          <% } else { %>
+          <p class="recipe-muted">ยังไม่มีรายละเอียด</p>
+          <% } %>
+          <% if (learnPoints.length) { %>
+          <h3 class="course-subtitle">สิ่งที่คุณจะได้เรียนรู้</h3>
+          <ul class="course-learn"><% learnPoints.forEach(p => { %><li><i data-lucide="circle-check"></i><%= p %></li><% }) %></ul>
+          <% } %>
+        </section>
+      </div>
+      <% } else { %>
+      <section class="recipe-locked">
+        <div class="recipe-locked-placeholder" aria-hidden="true">
+          <div>
+            <h2>บทเรียน</h2>
+            <% for (let i = 0; i < 5; i++) { %><div class="recipe-skeleton-line"></div><% } %>
+          </div>
+          <div>
+            <h2>รายละเอียดคอร์ส</h2>
+            <% for (let i = 0; i < 3; i++) { %><div class="recipe-skeleton-step"></div><% } %>
+          </div>
+        </div>
+        <div class="recipe-lock-overlay"><i data-lucide="lock-keyhole"></i>
+          <h2>ปลดล็อกคอร์สเพื่อดูบทเรียนทั้งหมด</h2>
+          <button class="recipe-btn recipe-primary" type="button" data-buy-course data-kind="<%= course.kind %>" data-id="<%= course.id %>"><i data-lucide="shopping-cart"></i> ซื้อคอร์ส ฿<%= course.price.toLocaleString('th-TH') %></button>
+        </div>
+      </section>
+      <% } %>
+      <% const recipeSections = sections.filter(s => s.recipe); if (recipeSections.length) { %>
+      <section class="course-recipes" aria-label="สูตรประกอบคอร์ส">
+        <h2><i data-lucide="notebook-tabs" aria-hidden="true"></i> สูตรประกอบคอร์ส</h2>
+        <p class="recipe-muted course-recipes-caption"><%= canWatch ? 'เตรียมวัตถุดิบและทำตามขั้นตอนควบคู่กับวิดีโอได้เลย' : 'รวมสูตรประกอบพร้อมวัตถุดิบและขั้นตอน เมื่อปลดล็อกคอร์ส' %></p>
+        <% recipeSections.forEach((s, index) => { const r = s.recipe; %>
+        <details class="course-recipe" <%= canWatch && recipeSections.length === 1 ? 'open' : '' %>>
+          <summary>
+            <% if (r.image) { %><img src="<%= r.image %>" alt="" loading="lazy"><% } %>
+            <span><strong><%= r.title %></strong><% if (course.isPack) { %><small><%= s.title %></small><% } %></span>
+            <i data-lucide="<%= canWatch ? 'chevron-down' : 'lock-keyhole' %>" aria-hidden="true"></i>
+          </summary>
+          <div class="course-recipe-content">
+            <% if (canWatch) { %>
+            <div class="course-recipe-columns">
+              <section>
+                <h3>วัตถุดิบ</h3>
+                <ul class="course-recipe-ingredients">
+                  <% (r.ingredients || []).forEach(ingredient => { %><li><span><%= ingredient.name %></span><span><%= ingredient.amount %></span></li><% }) %>
+                </ul><% if (!(r.ingredients || []).length) { %><p class="recipe-muted">ยังไม่ได้ระบุวัตถุดิบ</p><% } %>
+              </section>
+              <section>
+                <h3>วิธีทำ</h3>
+                <ol class="course-recipe-steps">
+                  <% [...(r.steps || [])].sort((a,b) => a.stepNumber - b.stepNumber).forEach(step => { %><li><%= step.description %></li><% }) %>
+                </ol><% if (!(r.steps || []).length) { %><p class="recipe-muted">ยังไม่ได้ระบุขั้นตอน</p><% } %>
+              </section>
+            </div>
+            <% } else { %><p class="recipe-muted">ซื้อคอร์สเพื่อดูวัตถุดิบและวิธีทำทั้งหมด</p><% } %>
+          </div>
+        </details>
+        <% }) %>
+      </section>
+      <% } %>
+    </div>
+    <section class="recipe-review-section course-review-section" data-recipe-reviews="/api/course-reviews/<%= course.kind %>/<%= course.id %>" aria-label="รีวิวคอร์ส">
+      <p>กำลังโหลดรีวิว…</p>
+    </section>
+  </main>
+
+  <%- include('../partials/footer') %>
+  <script src="/javascripts/userUi.js"></script>
+  <script src="/javascripts/coursePurchase.js"></script>
+  <script src="/javascripts/recipeModals.js" defer></script>
+</body>
+
+</html>

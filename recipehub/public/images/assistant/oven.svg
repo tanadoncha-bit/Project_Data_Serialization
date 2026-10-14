@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 132" fill="none">
+<style>@media(prefers-reduced-motion:no-preference){.eyes{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}.wave{transform-origin:94px 67px;animation:wave 4s ease-in-out infinite}.warm{animation:warm 3s ease-in-out infinite}@keyframes blink{0%,43%,47%,100%{transform:scaleY(1)}45%{transform:scaleY(.08)}}@keyframes wave{0%,60%,100%{transform:rotate(0)}70%,90%{transform:rotate(-16deg)}80%{transform:rotate(8deg)}}@keyframes warm{0%,100%{opacity:.45}50%{opacity:1}}}</style>
+<ellipse cx="59" cy="124" rx="35" ry="5" fill="#B8743D" opacity=".16"/>
+<g stroke="#713F2B" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+<rect x="23" y="26" width="73" height="84" rx="17" fill="#FF9B50"/>
+<path d="M24 46h71" stroke="#A85830"/>
+<path d="M35 36h13" stroke="#FFF4D8" stroke-width="4"/>
+<circle cx="74" cy="36" r="4" fill="#FFF3D9"/><circle cx="85" cy="36" r="4" fill="#FFF3D9"/>
+<rect x="30" y="51" width="59" height="46" rx="12" fill="#FFF1D6"/>
+<path d="M38 57h43" stroke="#925132" stroke-width="5"/>
+<path d="M39 57h40" stroke="#FFD8A1" stroke-width="2"/>
+<path d="M38 103h44" stroke="#E47939"/>
+</g>
+<g class="eyes" fill="#653823"><ellipse cx="46" cy="70" rx="3.5" ry="4.5"/><ellipse cx="72" cy="70" rx="3.5" ry="4.5"/><circle cx="47" cy="68.5" r="1.2" fill="white"/><circle cx="73" cy="68.5" r="1.2" fill="white"/></g>
+<ellipse cx="39" cy="78" rx="5.5" ry="3.5" fill="#F7A180"/><ellipse cx="79" cy="78" rx="5.5" ry="3.5" fill="#F7A180"/>
+<path d="M51 79q8 4 16 0c-1 12-14 12-16 0z" fill="#713F2B"/><path d="M54 80h10q-5 4-10 0" fill="white"/><path d="M55 87q4-4 8-1" stroke="#F69E8B" stroke-width="2.5" stroke-linecap="round"/>
+<g class="warm" stroke="#EFA149" stroke-width="2.5" stroke-linecap="round"><path d="M43 18q-6-5 0-10M58 16q-6-5 0-10M73 18q-6-5 0-10"/></g>
+<path d="m14 33 2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#FFD064"/>
+</svg>

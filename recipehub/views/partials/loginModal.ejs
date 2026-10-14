@@ -1,0 +1,44 @@
+<dialog class="auth-modal" id="loginModal" aria-labelledby="loginTitle">
+  <button type="button" class="auth-close" data-close-auth aria-label="ปิด"><i data-lucide="x"></i></button>
+
+  <div class="auth-logo"><i data-lucide="chef-hat"></i></div>
+  <h2 id="loginTitle">ยินดีต้อนรับกลับสู่ CookHub!</h2>
+  <p class="auth-sub">เข้าสู่ระบบเพื่อค้นหาเมนูโปรด และจัดการสูตรอาหารของคุณ</p>
+
+  <form id="loginForm" class="auth-form" novalidate>
+    <p class="auth-error" role="alert" hidden></p>
+    <p class="auth-success" role="status" hidden></p>
+
+    <button type="button" class="auth-resend" data-resend-verify hidden>ส่งลิงก์ยืนยันอีเมลอีกครั้ง</button>
+
+    <label for="loginId">Username หรือ Email</label>
+    <input type="text" id="loginId" name="login" placeholder="enter your username or email" autocomplete="username" required>
+
+    <label for="loginPassword">Password</label>
+    <input type="password" id="loginPassword" name="password" placeholder="enter your password" autocomplete="current-password" required>
+    <a href="#" class="auth-forgot" data-open-forgot>ลืมรหัสผ่าน?</a>
+
+    <button type="submit" class="auth-submit">Continue</button>
+  </form>
+
+  <p class="auth-switch">ยังไม่มีบัญชี CookHub? <a href="/register" data-open-register>สมัครสมาชิก</a></p>
+</dialog>
+
+
+<dialog class="auth-modal" id="forgotModal" aria-labelledby="forgotTitle">
+  <button type="button" class="auth-close" data-close-auth aria-label="ปิด"><i data-lucide="x"></i></button>
+
+  <div class="auth-logo"><i data-lucide="key-round"></i></div>
+  <h2 id="forgotTitle">ลืมรหัสผ่าน?</h2>
+  <p class="auth-sub">กรอกอีเมลที่ใช้สมัคร เราจะส่งลิงก์ตั้งรหัสผ่านใหม่ไปให้</p>
+
+  <form id="forgotForm" class="auth-form" novalidate>
+    <p class="auth-error" role="alert" hidden></p>
+    <p class="auth-success" role="status" hidden></p>
+    <label for="forgotEmail">Email</label>
+    <input type="email" id="forgotEmail" name="email" placeholder="enter your email" autocomplete="email" required>
+    <button type="submit" class="auth-submit">ส่งลิงก์</button>
+  </form>
+
+  <p class="auth-switch">นึกออกแล้ว? <a href="#" data-open-login>กลับไปเข้าสู่ระบบ</a></p>
+</dialog>

@@ -1,0 +1,5 @@
+<% if (src && /^(https?:\/\/|data:image\/|\/uploads\/)/i.test(src)) { %>
+<img class="chef-thumb" src="<%= src %>" alt="<%= alt %>" loading="lazy" referrerpolicy="no-referrer">
+<% } else { %>
+<span class="chef-thumb chef-thumb-empty" role="img" aria-label="ไม่มีรูป"><i data-lucide="utensils"></i></span>
+<% } %>

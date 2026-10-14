@@ -1,0 +1,54 @@
+<% const favOn = typeof favoriteKeys !== 'undefined' && favoriteKeys.has(c.kind + ':' + c.id); %>
+<a href="<%= c.url %>" class="card course-card" <%= typeof currentUser === 'undefined' || !currentUser ? 'data-open-login' : '' %>>
+  <div class="card__img">
+    <% (c.images && c.images.length ? c.images : ['']).forEach(img => { %>
+    <%- include('_image', { src: img, alt: c.title, cls: 'half' }) %>
+    <% }) %>
+    <div class="tags">
+      <span class="tag tag--<%= c.tagType %> <%= c.source === 'chef' ? 'tag--chef' : '' %>"><%= c.tag %></span>
+
+    </div>
+    <% if (c.isPack) { %><span class="course-pack-overlay"><i data-lucide="layers" aria-hidden="true"></i>แพ็ก · <%= c.courseCount || 0 %> คอร์ส</span><% } %>
+    <button class="fav <%= favOn ? 'on' : '' %>" type="button" data-fav-url="/courses/favorites/<%= c.kind %>/<%= c.id %>" aria-pressed="<%= favOn %>" aria-label="รายการโปรด">
+      <i data-lucide="heart" class="ic-14"></i>
+    </button>
+  </div>
+
+  <div class="card__body">
+    <div class="card__row">
+      <h3 class="card__title">
+        <% if (c.isPack) { %>
+        <i data-lucide="package" class="ic-13 pack-icon"></i>
+        <% } %>
+        <%= c.title %>
+      </h3>
+      <span class="card__rating"><%= c.rating == null ? 'ใหม่' : '★ ' + c.rating.toFixed(1) %></span>
+    </div>
+    <p class="card__desc"><%= c.description %></p>
+
+    <div class="chef-mini">
+      <%- include('_image', { src: c.chefAvatar, alt: '', cls: 'chef-mini__avatar', icon: 'user' }) %>
+      <%= c.chef %>
+    </div>
+
+    <div class="card__meta">
+      <span>
+        <i data-lucide="circle-play" class="ic-12"></i>
+        <%= c.lessons %> บทเรียน
+      </span>
+      <span>
+        <i data-lucide="clock-3" class="ic-12"></i>
+        <%= c.duration %>
+      </span>
+      <span>
+        <i data-lucide="users" class="ic-12"></i>
+        <%= c.students %> คนเรียน
+      </span>
+    </div>
+
+    <div class="card__foot">
+      <span class="price">฿<%= c.price.toLocaleString('en-US') %></span>
+      <span class="more">ดูรายละเอียด →</span>
+    </div>
+  </div>
+</a>
