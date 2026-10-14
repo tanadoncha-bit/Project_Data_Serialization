@@ -260,3 +260,11 @@ npm run audit:production
 CI นี้ยังไม่ใช่การทดสอบฟีเจอร์ครบระบบ ไม่ครอบคลุมการรับส่งอีเมล การชำระเงิน และการเชื่อมต่อฐานข้อมูลจริง
 
 render.yaml กำหนดให้ติดตาม main และ deploy หลัง CI ผ่าน สำหรับบริการ Render ที่สร้างผ่านหน้า Web Service ให้ตั้ง Settings → Build & Deploy → Auto-Deploy เป็น After CI Checks Pass ด้วยตนเอง การเปลี่ยน YAML อย่างเดียวไม่อัปเดตบริการที่ไม่ได้เชื่อม Blueprint
+
+## ประวัติการเผยแพร่บน GitHub
+
+Workflow Sync Render Deployment ตรวจ /healthz ของเว็บจริงทุกประมาณ 30 นาที หรือกด Run workflow เองได้ แล้วบันทึก GitHub Deployment ใน environment production ตามรหัส commit ที่ Render รันอยู่จริง ไม่ใช้เพียงผล CI เพื่อสรุปว่า deploy แล้ว
+
+งานนี้แยกจาก CI และไม่ trigger ตอน push เพื่อไม่ให้ Render ซึ่งรอ CI ต้องรอ workflow ที่กำลังรอการ deploy อีกทอด ใช้ GITHUB_TOKEN ของ Actions ที่มีสิทธิ์เขียน deployments โดยไม่ต้องเพิ่ม Render API key หรือ Deploy Hook
+
+หากเว็บไม่พร้อมหรือยังไม่ส่งรหัส revision ระบบจะไม่บันทึกว่า deploy สำเร็จ ตารางเวลาของ GitHub อาจมีความล่าช้า และการตรวจเว็บอาจปลุกบริการ Render Free ที่พักอยู่
