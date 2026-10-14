@@ -1,4 +1,4 @@
-// Public browsing groups API areas into five cuisines and International.
+
 const countryOptions = ['Thai', 'British', 'Chinese', 'Japanese', 'Korean', 'International'];
 const localCategories = {
   Thai: ['Thai', 'อาหารไทย'], British: ['British', 'English', 'อาหารอังกฤษ'],

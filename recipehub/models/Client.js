@@ -22,6 +22,8 @@ const clientSchema = new Schema({
   mailSentAt:     { type: Date, default: null },
 }, { timestamps: true });
 
+clientSchema.pre('validate', function () { this.isVerifiedChef = this.role === 'chef' && Boolean(this.institution?.trim()); });
+
 clientSchema.plugin(autoIncrement, { name: 'client' });
 
 module.exports = model('Client', clientSchema);

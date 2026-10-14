@@ -1,9 +1,9 @@
-// middleware/errorHandler.js — จัดการ error ทั้งเว็บที่เดียว
+
 const createError = require('http-errors');
 
 const DB_DOWN = /^(MongoNetworkError|MongoServerSelectionError|MongooseServerSelectionError|MongoNotConnectedError)$/;
 
-/** แปลง error ทุกชนิดให้มี status กับข้อความภาษาไทยที่ผู้ใช้อ่านเข้าใจ */
+
 function toHttpError(err) {
   if (err.status && err.status < 500) return err;
 
@@ -27,17 +27,17 @@ function toHttpError(err) {
   return createError(500, 'เกิดข้อผิดพลาดในระบบ กรุณาลองใหม่อีกครั้ง');
 }
 
-/** request ที่ส่งมาจาก fetch (ขอ JSON) ให้ตอบเป็น JSON แทนหน้า error */
+
 function wantsJson(req) {
   return req.is('application/json') || req.accepts(['html', 'json']) === 'json';
 }
 
-/** ไม่มี route ไหนรับ → 404 */
+
 function notFound(req, res, next) {
   next(createError(404, 'ไม่พบหน้าที่คุณต้องการ'));
 }
 
-/** ตัวจัดการ error ตัวสุดท้าย: log error ฝั่ง server แล้วตอบ JSON หรือหน้า error ตามชนิด request */
+
 function errorHandler(err, req, res, next) {
   if (res.headersSent) return next(err);
 

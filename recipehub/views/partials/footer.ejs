@@ -1,4 +1,3 @@
-<%# Footer: ใช้ร่วมกันทุกหน้า และสั่งวาดไอคอน Lucide ทั้งหน้า %>
 <footer class="footer">
   <div class="footer-top">
     <div class="footer-brand">
@@ -48,8 +47,8 @@
 </footer>
 
 <% if (typeof currentUser === 'undefined' || !currentUser) { %>
-  <%- include('loginModal') %>
-  <%- include('registerModal') %>
+<%- include('loginModal') %>
+<%- include('registerModal') %>
 <% } %>
 
 <script>

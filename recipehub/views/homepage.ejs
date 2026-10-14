@@ -2,17 +2,17 @@
 <html lang="th">
 
 <head>
-  <!-- 1. ดึง head ส่วนกลาง (มี Meta, Fonts, style.css, layout.css ของเพื่อน) -->
+
   <%- include('partials/head') %>
 
-  <!-- 2. ดึง CSS เฉพาะหน้า Homepage -->
+
   <link rel="stylesheet" href="/stylesheets/homepage.css">
   <link rel="stylesheet" href="/stylesheets/recipes.css">
-  <link rel="stylesheet" href="/stylesheets/card-tags.css">
+  <link rel="stylesheet" href="/stylesheets/catalog-cards.css">
 </head>
 
-<body class="recipe-site public-recipe-site">
-  <!-- 3. ดึง Navbar ส่วนกลาง -->
+<body class="catalog-cards-site recipe-site public-recipe-site" data-logged-in="<%= Boolean(typeof currentUser !== 'undefined' && currentUser) %>">
+
   <%- include('partials/navbar', { active: 'home', recipePublicNav: true }) %>
 
   <section class="hero">
@@ -25,7 +25,7 @@
     </div>
   </section>
 
-  <!-- Features Section -->
+
   <section class="features">
     <div class="feature-card">
       <div class="feature-icon">
@@ -48,10 +48,10 @@
       <h3>สร้างรายได้จากสูตรลับ</h3>
       <p>เปิดโอกาสให้คุณแชร์สูตรอาหารและสร้างรายได้จากสิ่งที่คุณรัก</p>
     </div>
-    
+
   </section>
 
-  <!-- Popular Courses Section -->
+
   <section class="popular-courses home-catalog-section">
     <div class="section-header">
       <div>
@@ -62,57 +62,19 @@
     </div>
 
     <div class="course-grid">
-      <!-- ดึงข้อมูลคอร์สจาก Controller -->
+
       <% if (courses.length === 0) { %>
-        <p>ยังไม่มีคอร์สเรียนในขณะนี้</p>
+      <p>ยังไม่มีคอร์สเรียนในขณะนี้</p>
       <% } %>
       <% const guest = typeof currentUser === 'undefined' || !currentUser; %>
       <% courses.forEach(c => { %>
-      <%# ยังไม่ login: กดการ์ดแล้วเปิดหน้าต่าง login แทนการเข้าดูรายละเอียด %>
-      <a href="<%= c.url %>" class="card course-card" <%= guest ? 'data-open-login' : '' %>>
-        <div class="card__img">
-          <% (c.images && c.images.length ? c.images : ['']).forEach(img => { %>
-            <%- include('user/_image', { src: img, alt: c.title, cls: 'half' }) %>
-          <% }) %>
-          <div class="tags">
-            <span class="tag tag--<%= c.tagType %>"><%= c.tag %></span>
-            <% if (c.isPack) { %><span class="tag tag--pack">แพ็กเกจ</span><% } %>
-          </div>
-          <span class="fav" aria-hidden="true"><i data-lucide="heart" class="ic-14"></i></span>
-        </div>
 
-        <div class="card__body">
-          <div class="card__row">
-            <h3 class="card__title">
-              <% if (c.isPack) { %><i data-lucide="package" class="ic-13 pack-icon"></i><% } %>
-              <%= c.title %>
-            </h3>
-            <span class="card__rating"><%= c.rating == null ? 'ใหม่' : '★ ' + c.rating.toFixed(1) %></span>
-          </div>
-          <p class="card__desc"><%= c.description %></p>
-
-          <div class="chef-mini">
-            <%- include('user/_image', { src: c.chefAvatar, alt: '', cls: 'chef-mini__avatar', icon: 'user' }) %>
-            <%= c.chef %>
-          </div>
-
-          <div class="card__meta">
-            <span><i data-lucide="circle-play" class="ic-12"></i> <%= c.lessons %> บทเรียน</span>
-            <span><i data-lucide="clock-3" class="ic-12"></i> <%= c.duration %></span>
-            <span><i data-lucide="users" class="ic-12"></i> <%= c.students %> คนเรียน</span>
-          </div>
-
-          <div class="card__foot">
-            <span class="price">฿<%= c.price.toLocaleString('en-US') %></span>
-            <span class="more">ดูรายละเอียด →</span>
-          </div>
-        </div>
-      </a>
+      <%- include('user/_courseCard', { c }) %>
       <% }) %>
     </div>
   </section>
 
-  <!-- Categories Section -->
+
   <section class="categories-section home-catalog-section">
     <div class="section-header-left">
       <h2>เลือกเรียนตามหมวดหมู่</h2>
@@ -131,7 +93,7 @@
     </div>
   </section>
 
-  <!-- 3 Steps Section -->
+
   <section class="steps-section">
     <h2>เริ่มต้นเรียนกับ CookHub ง่ายๆ ใน 3 ขั้นตอน</h2>
     <div class="steps-grid">
@@ -159,7 +121,7 @@
     </div>
   </section>
 
-  <!-- CTA Banner Section -->
+
   <section class="cta-section">
     <div class="cta-banner">
       <div class="cta-content">
@@ -174,13 +136,8 @@
   </section>
 
 
-
-  <!-- ==================== MAIN CONTENT ==================== -->
-
-  <!-- ====================================================== -->
-
-  <!-- 4. ดึง Footer ส่วนกลาง -->
   <%- include('partials/footer') %>
+  <script src="/javascripts/userFavorites.js" defer></script>
 </body>
 
 </html>

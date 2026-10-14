@@ -1,0 +1,118 @@
+:root {
+    --cookhub-cursor-default: url("/images/cursors/cursor-default.png?v=9") 8 18, url("/images/cursors/cursor-default.svg?v=9");
+    --cookhub-cursor-hover: url("/images/cursors/cursor-pointer.png?v=9") 18 4, url("/images/cursors/cursor-pointer.svg?v=9");
+    --cookhub-cursor-click: url("/images/cursors/cursor-click.png?v=11") 10 22, url("/images/cursors/cursor-click.svg?v=11");
+    --cookhub-cursor-text: url("/images/cursors/cursor-text.png?v=13") 16 24, url("/images/cursors/cursor-text.svg?v=13");
+    --cookhub-cursor-pointer: url("/images/cursors/cursor-pointer.png?v=9") 18 4, url("/images/cursors/cursor-pointer.svg?v=9");
+    --cookhub-cursor-drag: url("/images/cursors/cursor-drag.png?v=15") 32 24, url("/images/cursors/cursor-drag.svg?v=15");
+    --cookhub-cursor-loading: url("/images/cursors/cursor-loading.png?v=12") 20 30, url("/images/cursors/cursor-loading.svg?v=12");
+    --cookhub-cursor-not-allowed: url("/images/cursors/cursor-not-allowed.png") 8 18, url("/images/cursors/cursor-not-allowed.svg");
+    --cookhub-cursor-resize: url("/images/cursors/cursor-resize.png") 20 20, url("/images/cursors/cursor-resize.svg");
+}
+
+@media(hover:hover) and (pointer:fine) {
+
+    html:root,
+    :root body,
+    :root body *,
+    :root body *::before,
+    :root body *::after {
+        cursor: var(--cookhub-cursor-default) 8 18, auto !important
+    }
+
+    :root body :where(a[href], button, summary, [role="button"], input[type="submit"], input[type="button"], input[type="file"], input[type="checkbox"], input[type="radio"], select, label[for], .clickable, [data-open-login], [data-open-register], [data-href], [data-url], [onclick], .recipe-difficulty-option, .recipe-check, .chef-select-list li, [role="option"]),
+    :root body :where(a[href], button, summary, [role="button"], label[for], .clickable, [data-href], [data-url], [onclick], .recipe-difficulty-option, .recipe-check, .chef-select-list li, [role="option"]) * {
+        cursor: var(--cookhub-cursor-hover) 18 4, pointer !important
+    }
+
+    :root body :where(.recipe-card, .course-card, .public-recipe-card):has(a[href]) {
+        cursor: var(--cookhub-cursor-hover) 18 4, pointer !important
+    }
+
+    :root body :where(.recipe-card, .course-card, .public-recipe-card):has(a[href]) * {
+        cursor: var(--cookhub-cursor-hover) 18 4, pointer !important
+    }
+
+    :root body :is([data-cursor="pointer"], .cursor-pointer, [data-favorite-recipe], [data-fav-url], .nav-avatar, .nav-mobile-toggle),
+    :root body :is([data-cursor="pointer"], .cursor-pointer) * {
+        cursor: var(--cookhub-cursor-pointer) 18 4, pointer !important
+    }
+
+    :root body input:not([type="submit"]):not([type="button"]):not([type="file"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    :root body textarea,
+    :root body [contenteditable="true"],
+    :root body [contenteditable="true"] *,
+    :root body [data-cursor="text"] {
+        cursor: var(--cookhub-cursor-text) 16 24, text !important
+    }
+
+    html:root.cookhub-cursor-pressed body,
+    html:root.cookhub-cursor-pressed body * {
+        cursor: var(--cookhub-cursor-click) 10 22, pointer !important
+    }
+
+    :root body [data-cursor="ew-resize"],
+    :root body [data-cursor="col-resize"] {
+        cursor: var(--cookhub-cursor-resize) 20 20, ew-resize !important
+    }
+
+    :root body [data-cursor="ns-resize"],
+    :root body [data-cursor="row-resize"] {
+        cursor: url('/images/cursors/cursor-resize-vertical.png') 20 20, url('/images/cursors/cursor-resize-vertical.svg') 20 20, ns-resize !important
+    }
+
+    :root body [data-cursor="nwse-resize"] {
+        cursor: url('/images/cursors/cursor-resize-diagonal.png') 20 20, url('/images/cursors/cursor-resize-diagonal.svg') 20 20, nwse-resize !important
+    }
+
+    html:root.cookhub-dragging body,
+    html:root.cookhub-dragging body * {
+        cursor: var(--cookhub-cursor-drag) 32 24, grabbing !important
+    }
+
+    :root body :is(button:disabled, input:disabled, select:disabled, textarea:disabled, [aria-disabled="true"]),
+    :root body :is(button:disabled, [aria-disabled="true"]) * {
+        cursor: var(--cookhub-cursor-not-allowed) 8 18, not-allowed !important
+    }
+
+    html:root.cookhub-cursor-loading body,
+    html:root.cookhub-cursor-loading body *,
+    :root body [aria-busy="true"],
+    :root body [aria-busy="true"] * {
+        cursor: var(--cookhub-loading-frame, var(--cookhub-cursor-loading)) 20 30, progress !important
+    }
+}
+
+@media(hover:hover) and (pointer:fine) {
+
+    :root body *::before,
+    :root body *::after {
+        cursor: inherit !important
+    }
+}
+
+@media(hover:hover) and (pointer:fine) {
+    :root body input[type="range"] {
+        cursor: var(--cookhub-cursor-pointer) 18 4, pointer !important
+    }
+
+    :root body input[type="range"]::-webkit-slider-thumb {
+        cursor: inherit !important
+    }
+
+    :root body input[type="range"]::-moz-range-thumb {
+        cursor: inherit !important
+    }
+
+    html:root.cookhub-dragging body input[type="range"] {
+        cursor: var(--cookhub-cursor-drag) 32 24, grabbing !important
+    }
+
+    :root body input[type="range"]:disabled {
+        cursor: var(--cookhub-cursor-not-allowed) 8 18, not-allowed !important
+    }
+
+    html:root.cookhub-cursor-loading body input[type="range"] {
+        cursor: var(--cookhub-loading-frame, var(--cookhub-cursor-loading)) 20 30, progress !important
+    }
+}

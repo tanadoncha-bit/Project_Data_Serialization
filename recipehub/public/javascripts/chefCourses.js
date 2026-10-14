@@ -1,5 +1,5 @@
-// chefCourses.js — หน้าจัดการคอร์สของเชฟ: modal รายละเอียด / สร้าง-แก้ไข / ลบ และช่องค้นหา
-// ข้อมูลคอร์สทั้งหมดมาจาก <script id="course-data"> ที่เซิร์ฟเวอร์ใส่ไว้ในหน้า (ดึงจาก MongoDB)
+
+
 (() => {
   const page = JSON.parse(document.getElementById('course-data').textContent);
   const courses = new Map(page.courses.map(c => [`${c.type}:${c.id}`, c]));
@@ -9,10 +9,9 @@
   const baht = n => '฿' + Number(n || 0).toLocaleString('en-US');
   const isImage = src => /^(https?:\/\/|data:image\/|\/uploads\/)/i.test(src || '');
 
-  /* ---------- เปิด/ปิด dialog ---------- */
 
-  /** เปิด dialog และล็อกการเลื่อนหน้าหลัง */
   function openDialog(dialog) {
+    if (dialog.tagName !== 'DIALOG') { dialog.hidden = false; return; }
     if (!dialog.open) dialog.showModal();
     document.body.classList.add('chef-modal-open');
   }
@@ -20,7 +19,7 @@
     dialog.addEventListener('close', () => {
       if (!$('dialog[open]')) document.body.classList.remove('chef-modal-open');
     });
-    // คลิกพื้นหลังมืดนอกกล่อง = ปิด
+
     dialog.addEventListener('click', e => {
       if (e.target === dialog) {
         const r = dialog.getBoundingClientRect();
@@ -30,7 +29,7 @@
     });
   });
 
-  /** สร้างรูปย่อ (หรือไอคอนแทนเมื่อไม่มีรูป) */
+
   function thumb(src, alt, cls = 'chef-thumb') {
     if (isImage(src)) {
       const img = document.createElement('img');
@@ -43,10 +42,10 @@
     return span;
   }
 
-  /* ---------- Modal รายละเอียดคอร์ส ---------- */
+
   const detail = $('#course-detail');
 
-  /** เติมข้อมูลคอร์สลง modal รายละเอียด แล้วเปิด */
+
   function showDetail(course) {
     const images = $('#detail-images');
     images.replaceChildren();
@@ -68,12 +67,13 @@
 
     const tags = $('#detail-tags');
     tags.replaceChildren();
-    [[course.category, 'chef-tag'], course.type === 'package' && ['แพ็กคอร์ส', 'chef-tag chef-tag-gold']]
+    [[({Thai:'อาหารไทย',British:'อาหารอังกฤษ',Chinese:'อาหารจีน',Japanese:'อาหารญี่ปุ่น',Korean:'อาหารเกาหลี',International:'อาหารนานาชาติ'})[course.category] || course.category, 'chef-tag'], course.type === 'package' && ['แพ็กคอร์ส', 'chef-tag chef-tag-gold']]
       .filter(Boolean).forEach(([label, cls]) => {
         const t = document.createElement('span'); t.className = cls; t.textContent = label; tags.append(t);
       });
 
     $('#detail-title').textContent = course.title;
+    $('#detail-edit-link').href = '/chef/courses/' + course.type + '/' + course.id + '/edit';
     $('#detail-sub').textContent = course.type === 'package'
       ? `แพ็กเกจรวม ${course.menus.length} คอร์ส: ${course.menus.map(m => m.name).join(', ')}`
       : `อิงสูตร "${course.recipeTitle}"`;
@@ -82,7 +82,7 @@
     $('#detail-students').textContent = `${course.students.toLocaleString('en-US')} คน`;
     $('#detail-desc').textContent = course.description || 'ยังไม่มีคำอธิบายคอร์ส';
 
-    // สิ่งที่จะได้เรียนรู้ = รายชื่อบทเรียน (แพ็กเกจแสดงชื่อเมนูนำหน้า)
+
     const learn = $('#detail-learn');
     learn.replaceChildren();
     const items = course.type === 'package'
@@ -95,14 +95,14 @@
     openDialog(detail);
   }
 
-  /* ---------- Modal สร้าง / แก้ไขคอร์ส ---------- */
+
   const formDialog = $('#course-form-dialog');
   const form = $('#course-form');
   const errorsBox = $('#course-form-errors');
   const lessonsBox = $('[data-panel="single"] [data-lessons]', form);
   let mode = { type: 'single', editing: null };
 
-  /** เพิ่มแถวบทเรียน 1 แถว (ชื่อ / ลิงก์วิดีโอ / นาที) */
+
   function addLesson(video = { title: '', videoUrl: '', duration: '' }) {
     const row = $('#tpl-lesson').content.firstElementChild.cloneNode(true);
     $('[data-video-title]', row).value = video.title || '';
@@ -113,7 +113,7 @@
     return row;
   }
 
-  /** เรียงเลขบทเรียนใหม่ และซ่อนปุ่มลบเมื่อเหลือบทเดียว */
+
   function renumber() {
     const rows = $$('.chef-lesson', lessonsBox);
     rows.forEach((row, i) => {
@@ -122,7 +122,7 @@
     });
   }
 
-  /** อัปเดตจำนวนคอร์สที่เลือก + ราคารวม เพื่อช่วยตั้งราคาแพ็กเกจ */
+
   function updatePackSummary() {
     const picked = $$('[name=includedCourses]:checked', form);
     const count = $('#pack-count');
@@ -135,7 +135,7 @@
   }
   form.addEventListener('change', e => { if (e.target.name === 'includedCourses') updatePackSummary(); });
 
-  /** สลับแท็บคอร์สเดี่ยว/แพ็กเกจ และปิดช่องของแท็บที่ซ่อน (ไม่ให้ติด required) */
+
   function setType(type) {
     mode.type = type;
     $$('[data-tab]', form).forEach(tab => tab.setAttribute('aria-selected', String(tab.dataset.tab === type)));
@@ -145,15 +145,18 @@
       $$('input, button', panel).forEach(el => { el.disabled = !on; });
     });
     const editing = !!mode.editing;
-    $('#course-form-title').textContent = editing ? 'แก้ไขคอร์สเรียน' : type === 'package' ? 'สร้างคอร์สแพ็กเกจ' : 'สร้างคอร์สเรียนใหม่';
+    const submit = $('#course-submit');
+    submit.disabled = type === 'package' && page.courses.filter(c => c.type === 'single').length < 2;
+    submit.textContent = editing ? 'บันทึกการแก้ไข' : type === 'package' ? 'สร้างแพ็กคอร์ส' : 'สร้างคอร์สเรียน';
+    $('#course-form-title').textContent = editing ? (type === 'package' ? 'แก้ไขแพ็กคอร์ส' : 'แก้ไขคอร์สเรียน') : type === 'package' ? 'สร้างแพ็กคอร์ส' : 'สร้างคอร์สเรียนใหม่';
   }
 
-  /** เปิดฟอร์ม: course = null คือสร้างใหม่, มีค่าคือแก้ไข */
+
   function openForm(type, course = null) {
     mode = { type, editing: course };
     form.reset();
     errorsBox.hidden = true;
-    lessonsBox.replaceChildren();
+    if (lessonsBox) lessonsBox.replaceChildren();
 
     const f = form.elements;
     f.title.value = course ? course.title : '';
@@ -161,15 +164,15 @@
     f.description.value = course ? course.description : '';
     setRecipe(course && course.type === 'single' ? course.recipeId : '');
 
-    (course && course.type === 'single' && course.videos.length ? course.videos : [undefined]).forEach(v => addLesson(v));
+    if (type === 'single') (course && course.videos.length ? course.videos : [undefined]).forEach(v => addLesson(v));
 
     const picked = new Set(course && course.type === 'package' ? course.includedIds.map(String) : []);
     $$('[name=includedCourses]', form).forEach(c => { c.checked = picked.has(c.value); });
     updatePackSummary();
 
-    // ตอนแก้ไขเปลี่ยนประเภทคอร์สไม่ได้ จึงซ่อนแท็บอีกฝั่ง
+
     $$('[data-tab]', form).forEach(tab => { tab.hidden = !!course && tab.dataset.tab !== type; });
-    $('.chef-tabs', form).classList.toggle('single-tab', !!course);
+
     $('#course-form-sub').textContent = course ? 'แก้ไขรายละเอียดคอร์สและจัดการบทเรียนของคุณ' : 'กรอกรายละเอียดคอร์ส และสร้างบทเรียนให้ครบตามเมนูอาหาร';
     $('#course-submit').textContent = course ? 'บันทึกการแก้ไข' : 'สร้างคอร์สเรียน';
     $('#course-submit').disabled = false;
@@ -177,7 +180,9 @@
     icons();
     openDialog(formDialog);
     formDialog.scrollTop = 0;
-    f.title.focus({ preventScroll: true });
+    form.elements.title.placeholder = type === 'package' ? 'เช่น แพ็กอาหารไทย ทำได้ครบมื้อ' : 'เช่น คอร์สข้าวมันปลา';
+    $('#course-form-sub').textContent = type === 'package' ? 'เลือกคอร์สที่ต้องการรวม แล้วกำหนดราคาแพ็ก' : 'เลือกสูตรต้นทาง แล้วเพิ่มวิดีโอบทเรียน';
+    if (formDialog.tagName === 'DIALOG') f.title.focus({ preventScroll: true });
   }
 
   form.addEventListener('click', e => {
@@ -187,10 +192,10 @@
     if (e.target.closest('[data-remove-lesson]')) { e.target.closest('.chef-lesson').remove(); renumber(); }
   });
 
-  /* ---------- dropdown แบบกำหนดเอง (หมวดหมู่ / ระดับความยาก) ให้หน้าตาเหมือนกันทุกเบราว์เซอร์ ---------- */
+
   const selects = $$('.chef-select', form);
 
-  /** ตั้งค่าที่เลือกของ dropdown: เก็บใน hidden input + ติ๊กถูก + แสดงชื่อบนปุ่ม */
+
   function setSelect(box, value) {
     const items = $$('li', box);
     const item = items.find(li => li.dataset.value === String(value)) || items[0];
@@ -198,7 +203,7 @@
     items.forEach(li => li.classList.toggle('selected', li === item));
     $('.chef-select-btn > span', box).textContent = item.dataset.label;
   }
-  /** เลือกสูตรตั้งต้น ('' = ยังไม่เลือก) */
+
   function setRecipe(value) {
     const box = $('#recipe-select');
     if (!box) return;
@@ -209,7 +214,7 @@
     } else setSelect(box, String(value));
   }
 
-  /** เปิด/ปิดรายการตัวเลือก (เปิดอันหนึ่งจะปิดอันอื่นให้) */
+
   function toggleSelect(box, open) {
     const list = $('.chef-select-list', box);
     if (open) selects.filter(other => other !== box).forEach(other => toggleSelect(other, false));
@@ -238,12 +243,12 @@
       }
     });
   });
-  // คลิกนอก dropdown = ปิด
+
   document.addEventListener('click', e => {
     selects.forEach(box => { if (!box.contains(e.target)) toggleSelect(box, false); });
   });
 
-  /** รวมค่าจากฟอร์มเป็น JSON ตามที่ routes/chef.js ต้องการ */
+
   function collect() {
     const f = form.elements;
     const data = { _csrf: page.csrfToken, type: mode.type, title: f.title.value, price: f.price.value, description: f.description.value };
@@ -260,7 +265,7 @@
     return data;
   }
 
-  /** แสดงข้อความ error จากเซิร์ฟเวอร์ด้านบนฟอร์ม */
+
   function showErrors(list) {
     errorsBox.replaceChildren(...list.map(msg => { const d = document.createElement('div'); d.textContent = msg; return d; }));
     errorsBox.hidden = false;
@@ -279,7 +284,7 @@
       });
       if (res.status === 422) { showErrors((await res.json()).errors); submit.disabled = false; return; }
       if (!res.ok) {
-        // แสดงสาเหตุจาก server (errorHandler ตอบ { error }) ถ้าไม่มีค่อยใช้ข้อความกลาง
+
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || (res.status === 403 ? 'ฟอร์มหมดอายุ กรุณารีเฟรชหน้าแล้วลองใหม่' : `บันทึกไม่สำเร็จ (รหัส ${res.status}) กรุณาลองใหม่`));
       }
@@ -290,7 +295,7 @@
     }
   });
 
-  /* ---------- Modal ยืนยันการลบ ---------- */
+
   const del = $('#course-delete');
   let pendingDelete = null;
 
@@ -304,7 +309,7 @@
     $('#delete-name').textContent = course.title;
     $('#delete-desc').textContent = course.description || '';
     $('#delete-rating').textContent = course.rating == null ? '' : `★ ${Number(course.rating).toFixed(1)}`;
-    // กันลบไว้ 2 กรณี (เซิร์ฟเวอร์ก็เช็คซ้ำ): มีผู้ซื้อแล้ว / คอร์สเดี่ยวที่ยังอยู่ในแพ็กเกจ
+
     const packs = course.type === 'single'
       ? page.courses.filter(c => c.type === 'package' && c.includedIds.includes(course.id)).map(c => c.title)
       : [];
@@ -324,7 +329,7 @@
     pendingDelete.submit();
   });
 
-  /* ---------- ปุ่มต่างๆ บนหน้า ---------- */
+
   document.addEventListener('click', e => {
     const view = e.target.closest('[data-view-course]');
     if (view) showDetail(courses.get(view.dataset.viewCourse));
@@ -334,7 +339,7 @@
     if (create) openForm(create.dataset.newCourse);
   });
 
-  /* ---------- ค้นหาคอร์สในหน้า ---------- */
+
   const search = $('#course-search');
   if (search) {
     search.addEventListener('input', () => {
@@ -349,10 +354,12 @@
     });
   }
 
-  // ลิงก์ /chef/courses?new=single หรือ ?new=package (เช่นปุ่มจาก Dashboard) เปิดฟอร์มทันที
-  const params = new URLSearchParams(location.search);
-  if (['single', 'package'].includes(params.get('new'))) {
-    openForm(params.get('new'));
-    history.replaceState(null, '', '/chef/courses');
+  document.addEventListener('click', e => { if (page.pageMode && e.target.closest('[data-close]') && !e.target.closest('dialog')) location.assign('/chef/courses?type=' + page.pageMode.type); });
+  if (page.pageMode) {
+    if (page.pageMode.mode === 'show') showDetail(courses.get(page.pageMode.type + ':' + page.pageMode.id));
+    else openForm(page.pageMode.type, page.pageMode.mode === 'edit' ? courses.get(page.pageMode.type + ':' + page.pageMode.id) : null);
+  } else {
+    const type = new URLSearchParams(location.search).get('new');
+    if (['single', 'package'].includes(type)) location.replace('/chef/courses/' + type + '/create');
   }
 })();

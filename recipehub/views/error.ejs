@@ -1,20 +1,24 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <%- include('partials/head', { title }) %>
 </head>
+
 <body>
   <%- include('partials/navbar') %>
 
-  <!-- ===== หน้า error ===== -->
+
   <main class="error-page">
     <img class="error-chef" src="/images/error/chef.gif" alt="เชฟกำลังทำอาหาร">
     <p class="error-code"><%= status %></p>
     <h1><%= message %></h1>
     <a href="/home" class="error-home">กลับหน้าแรก</a>
-    <% if (stack) { %><pre class="error-stack"><%= stack %></pre><% } %>
+    <% if (stack) { %>
+    <pre class="error-stack"><%= stack %></pre><% } %>
   </main>
 
   <%- include('partials/footer') %>
 </body>
+
 </html>

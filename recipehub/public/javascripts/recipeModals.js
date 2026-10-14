@@ -2,7 +2,7 @@
   const dialog = document.getElementById('recipe-content-dialog');
   const content = document.getElementById('recipe-modal-content') || document.getElementById('recipe-page-content');
   const filter = document.getElementById('recipe-filter-dialog');
-  // Shared dropdown behavior, including forms loaded into a modal.
+
   document.addEventListener('click',event=>{
     const current=event.target.closest('.recipe-difficulty-control');
     document.querySelectorAll('.recipe-difficulty-control[open]').forEach(picker=>{if(picker!==current)picker.open=false;});
@@ -67,13 +67,14 @@
   toast.innerHTML = '<span class="cookhub-toast-icon" aria-hidden="true"></span><div class="cookhub-toast-copy"><strong></strong><span class="cookhub-toast-message" role="status" aria-live="polite" aria-atomic="true"></span></div><button type="button" class="cookhub-toast-close" aria-label="ปิดการแจ้งเตือน">×</button>';
   document.body.append(toast);
   function hideToast() { clearTimeout(toastTimer); toast.hidden = true; }
-  function resumeToast() { clearTimeout(toastTimer); toastStarted = Date.now(); toastTimer = setTimeout(hideToast, Math.max(0, toastRemaining)); }
-  function pauseToast() { clearTimeout(toastTimer); toastRemaining = Math.max(0, toastRemaining - (Date.now() - toastStarted)); }
+  function resumeToast() { toast._toastProgress?.play(); clearTimeout(toastTimer); toastStarted = Date.now(); toastTimer = setTimeout(hideToast, Math.max(0, toastRemaining)); }
+  function pauseToast() { toast._toastProgress?.pause(); clearTimeout(toastTimer); toastRemaining = Math.max(0, toastRemaining - (Date.now() - toastStarted)); }
   toast.querySelector('button').addEventListener('click', hideToast);
   toast.addEventListener('mouseenter', pauseToast);
   toast.addEventListener('mouseleave', () => { if (!toast.contains(document.activeElement)) resumeToast(); });
   toast.addEventListener('focusin', pauseToast);
   toast.addEventListener('focusout', event => { if (!toast.contains(event.relatedTarget)) resumeToast(); });
+  window.CookHubShowToast = (message, kind = 'success') => showToast(message, kind);
   function showToast(message, kind = 'success') {
     clearTimeout(toastTimer);
     toast.dataset.kind = kind;
@@ -83,6 +84,7 @@
     toast.hidden = false;
     icons();
     toastRemaining = kind === 'success' ? 4000 : 6000;
+    window.CookHubToastProgress?.(toast, toastRemaining);
     resumeToast();
   }
   function wizardStep(form, index) {
@@ -154,7 +156,7 @@
     });
     if (dialog.dataset.initialModal === 'true') { dialog.showModal(); opened(); }
   }
-  // Keep slider feedback synchronized with its range and numeric fields.
+
   function updateRange(slider) {
     const high = slider.querySelector('[data-range-max]');
     const span = Number(high.max) - Number(high.min);

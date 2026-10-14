@@ -1,4 +1,4 @@
-// models/CoursePaymentOrder.js — คำสั่งซื้อคอร์สผ่าน QR PromptPay (Omise)
+
 const { Schema, model } = require('mongoose');
 
 const schema = new Schema({

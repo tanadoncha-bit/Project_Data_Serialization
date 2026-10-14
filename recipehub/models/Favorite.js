@@ -11,7 +11,7 @@ const favoriteSchema = new Schema({
   image: { type: String, maxlength: 2000 },
 }, { timestamps: { createdAt: true, updatedAt: false } });
 
-// กดโปรดรายการเดิมซ้ำไม่ได้เด้อ
+
 favoriteSchema.index({ client: 1, itemType: 1, itemId: 1 }, { unique: true });
 favoriteSchema.plugin(autoIncrement, { name: 'favorite' });
 

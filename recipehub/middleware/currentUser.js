@@ -1,4 +1,4 @@
-// middleware/currentUser.js — โหลดผู้ใช้ที่ login อยู่ ให้ทุกหน้าใช้ผ่าน currentUser
+
 const mongoose = require('mongoose');
 const Client = require('../models/Client');
 

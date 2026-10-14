@@ -1,4 +1,4 @@
-// auth.js — เปิด/ปิด modal Login + Register และส่งฟอร์มไปเซิร์ฟเวอร์
+
 
 const modals = {
   login: document.getElementById('loginModal'),
@@ -6,13 +6,13 @@ const modals = {
   forgot: document.getElementById('forgotModal'),
 };
 
-/** ปิด modal ที่เปิดอยู่ แล้วเปิดตัวที่ต้องการ (ใช้ตอนสลับ login ↔ register) */
+
 function openModal(name) {
   Object.values(modals).forEach((m) => m && m.open && m.close());
   modals[name].showModal();
 }
 
-/** ส่งข้อมูลฟอร์มเป็น JSON ไปที่ url ผ่านแล้วไปหน้าที่เซิร์ฟเวอร์บอก หรือโชว์ข้อความสำเร็จ ไม่ผ่านโชว์ error */
+
 function handleSubmit(form, url, { onError, onSuccess } = {}) {
   const errorBox = form.querySelector('.auth-error');
   const successBox = form.querySelector('.auth-success');
@@ -29,7 +29,7 @@ function handleSubmit(form, url, { onError, onSuccess } = {}) {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(Object.fromEntries(new FormData(form))),
       });
-      const data = await res.json().catch(() => ({})); // เซิร์ฟเวอร์ตอบไม่ใช่ JSON ก็ไม่พัง
+      const data = await res.json().catch(() => ({}));                                      
       if (!res.ok) {
         errorBox.textContent = data.error || 'เกิดข้อผิดพลาด ลองใหม่อีกครั้ง';
         errorBox.hidden = false;
@@ -75,7 +75,7 @@ if (modals.login && modals.register) {
     });
   });
 
-  // login แล้วบัญชียังไม่ยืนยันอีเมล → โชว์ปุ่มส่งลิงก์ยืนยันใหม่
+
   const loginForm = document.getElementById('loginForm');
   const resendBtn = loginForm.querySelector('[data-resend-verify]');
   let resendEmail = '';

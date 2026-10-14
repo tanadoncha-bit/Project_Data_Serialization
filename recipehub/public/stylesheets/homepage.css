@@ -1,18 +1,14 @@
-/* =========================================
-   1. ตั้งค่าพื้นฐานและตัวแปร (Base & Variables)
-   - กำหนดฟอนต์ Prompt, สีหลักแบรนด์ (สีส้ม) และ Reset ค่า Margin/Padding
-   ========================================= */
 @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
 
 :root {
-    --primary-color: #F05A28; /* สีส้มหลักของแบรนด์ */
-    --primary-hover: #D94A1D; /* สีส้มเข้มเมื่อเอาเมาส์ชี้ */
-    --text-main: #333333;     /* สีข้อความหลัก */
-    --text-gray: #777777;     /* สีข้อความเทา/คำอธิบาย */
-    --border-color: #EBEBEB;   /* สีเส้นขอบ */
-    --bg-light: #FAFAFA;       /* สีพื้นหลังสีเทาอ่อน */
-    --white: #FFFFFF;          /* สีขาว */
-    --footer-bg: #1A1A1A;      /* สีพื้นหลัง Footer */
+    --primary-color: #F05A28;
+    --primary-hover: #D94A1D;
+    --text-main: #333333;
+    --text-gray: #777777;
+    --border-color: #EBEBEB;
+    --bg-light: #FAFAFA;
+    --white: #FFFFFF;
+    --footer-bg: #1A1A1A;
 }
 
 * {
@@ -21,7 +17,6 @@
     box-sizing: border-box;
     font-family: 'Prompt', sans-serif;
 }
-/* เมนูใช้สี hover และ active จาก layout.css ร่วมกับหน้าสูตรอาหาร */
 
 body {
     color: var(--text-main);
@@ -32,12 +27,6 @@ body {
 a {
     text-decoration: none;
 }
-
-
-/* =========================================
-   2. ปุ่มและโลโก้ (Buttons & Logo)
-   - สไตล์สำหรับโลโก้ ปุ่มแบบมีขอบ (Outline) และปุ่มทึบ (Solid/CTA)
-   ========================================= */
 .logo {
     font-size: 24px;
     font-weight: 700;
@@ -49,8 +38,6 @@ a {
 .logo-icon {
     color: var(--primary-color);
 }
-
-/* ปุ่มแบบมีขอบโปร่งใส */
 .btn-outline {
     border: 1px solid var(--primary-color);
     color: var(--primary-color);
@@ -63,9 +50,7 @@ a {
 .btn-outline:hover {
     background-color: #FFF0EB;
 }
-
-/* ปุ่มสีทึบพื้นหลังส้ม */
-.btn-solid, 
+.btn-solid,
 .btn-cta {
     background-color: var(--primary-color);
     color: var(--white);
@@ -76,16 +61,10 @@ a {
     border: 1px solid var(--primary-color);
 }
 
-.btn-solid:hover, 
+.btn-solid:hover,
 .btn-cta:hover {
     background-color: var(--primary-hover);
 }
-
-
-/* =========================================
-   3. สไตล์โครงสร้างทั่วไป (General Section Styles)
-   - ระยะขอบของ Section, หัวข้อประจำส่วน, และลิงก์ "ดูทั้งหมด"
-   ========================================= */
 section {
     max-width: 1115px;
     margin: 0 auto;
@@ -99,7 +78,7 @@ section {
     margin-bottom: 24px;
 }
 
-.section-header h2, 
+.section-header h2,
 .section-header-left h2 {
     font-size: 24px;
     font-weight: 700;
@@ -120,12 +99,6 @@ section {
 .see-all:hover {
     color: var(--primary-color);
 }
-
-
-/* =========================================
-   4. ส่วนแบนเนอร์หลัก (Hero Section)
-   - ข้อความต้อนรับด้านซ้าย และรูปภาพพาสต้า/อาหารด้านขวา
-   ========================================= */
 .hero {
     display: flex;
     align-items: center;
@@ -161,12 +134,6 @@ section {
     border-radius: 24px;
     object-fit: cover;
 }
-
-
-/* =========================================
-   5. ส่วนจุดเด่นบริการ (Features Section)
-   - การ์ด 3 ใบแสดงจุดเด่น และสไตล์ของไอคอน Lucide
-   ========================================= */
 .features {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -190,15 +157,11 @@ section {
     font-size: 12px;
     color: var(--text-gray);
 }
-
-/* สไตล์ไอคอนแบบรูปภาพเดิม */
 .feature-icon img {
     width: 40px;
     height: 40px;
     margin-bottom: 15px;
 }
-
-/* สไตล์ไอคอนแบบ Lucide Icon (SVG / i Tag) */
 .feature-icon svg,
 .feature-icon i {
     width: 40px;
@@ -207,19 +170,11 @@ section {
     stroke-width: 0.75px;
     margin-bottom: 15px;
 }
-
-
-/* =========================================
-   6. ส่วนคอร์สเรียนยอดนิยม (Popular Courses)
-   - ตารางการ์ดคอร์ส 3 คอลัมน์, ป้าย Badge หมวดหมู่, และข้อมูลรายละเอียดคอร์ส
-   ========================================= */
 .course-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
 }
-
-/* สองส่วนใช้ขนาด container และขอบแนวนอนเดียวกัน */
 .home-catalog-section {
     box-sizing: border-box;
     width: 100%;
@@ -228,10 +183,10 @@ section {
     padding-inline: 20px;
 }
 
-.home-catalog-section > .section-header,
-.home-catalog-section > .section-header-left,
-.home-catalog-section > .course-grid,
-.home-catalog-section > .category-grid {
+.home-catalog-section>.section-header,
+.home-catalog-section>.section-header-left,
+.home-catalog-section>.course-grid,
+.home-catalog-section>.category-grid {
     width: 100%;
     min-width: 0;
     margin-inline: 0;
@@ -243,8 +198,15 @@ section {
     overflow-wrap: anywhere;
 }
 
-.popular-courses { padding-top: 20px; padding-bottom: 30px; }
-.categories-section { padding-top: 0; padding-bottom: 40px; }
+.popular-courses {
+    padding-top: 20px;
+    padding-bottom: 30px;
+}
+
+.categories-section {
+    padding-top: 0;
+    padding-bottom: 40px;
+}
 
 .course-card {
     border: 1px solid var(--border-color);
@@ -255,7 +217,7 @@ section {
 
 .course-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
 }
 
 .course-image {
@@ -325,12 +287,6 @@ section {
     font-size: 10px;
     color: #777D8C;
 }
-
-
-/* =========================================
-   7. ส่วนหมวดหมู่คอร์สเรียน (Categories Section)
-   - ตารางหมวดหมู่แบบ 6 คอลัมน์
-   ========================================= */
 .section-header-left {
     margin-bottom: 24px;
 }
@@ -379,23 +335,38 @@ section {
 }
 
 @media (max-width: 1024px) {
-    .category-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .home-catalog-section .course-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .category-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .home-catalog-section .course-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 600px) {
-    .home-catalog-section { padding-inline: 16px; }
-    .home-catalog-section .course-grid { grid-template-columns: minmax(0, 1fr); }
-    .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .course-grid, .features { grid-template-columns: 1fr; }
-    .course-image { height: auto; aspect-ratio: 2.55 / 1; }
+    .home-catalog-section {
+        padding-inline: 16px;
+    }
+
+    .home-catalog-section .course-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .course-grid,
+    .features {
+        grid-template-columns: 1fr;
+    }
+
+    .course-image {
+        height: auto;
+        aspect-ratio: 2.55 / 1;
+    }
 }
-
-
-/* =========================================
-   8. ส่วนขั้นตอนการเรียนรู้ (3 Steps Section)
-   - บล็อกบอกขั้นตอนการใช้งาน 1-2-3
-   ========================================= */
 .steps-section {
     box-sizing: border-box;
     width: calc(100% - 40px);
@@ -453,20 +424,26 @@ section {
 }
 
 @media (max-width: 720px) {
-    .steps-section { padding: 24px 20px 30px; }
-    .steps-section h2 { font-size: 20px; margin-bottom: 28px; }
-    .steps-grid { grid-template-columns: 1fr; gap: 24px; }
+    .steps-section {
+        padding: 24px 20px 30px;
+    }
+
+    .steps-section h2 {
+        font-size: 20px;
+        margin-bottom: 28px;
+    }
+
+    .steps-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
 }
 
 @media (max-width: 600px) {
-    .steps-section { width: calc(100% - 32px); }
+    .steps-section {
+        width: calc(100% - 32px);
+    }
 }
-
-
-/* =========================================
-   9. ส่วนแบนเนอร์ชวนสมัครสมาชิก (CTA Banner Section)
-   - กล่องส้มอ่อนเชิญชวนสมัครสมาชิกพร้อมปุ่ม และรูปมะเขือเทศ
-   ========================================= */
 .cta-section {
     width: 100%;
     max-width: 1115px;
@@ -504,7 +481,7 @@ section {
     margin-bottom: 0;
 }
 
-.cta-banner > .btn-cta {
+.cta-banner>.btn-cta {
     padding: 12px 22px;
     display: inline-flex;
     align-items: center;
@@ -537,31 +514,55 @@ section {
 }
 
 @media (max-width: 1024px) {
-    .cta-banner { grid-template-columns: minmax(0, 1fr) auto; padding-right: 180px; }
-    .cta-image { width: 180px; }
+    .cta-banner {
+        grid-template-columns: minmax(0, 1fr) auto;
+        padding-right: 180px;
+    }
+
+    .cta-image {
+        width: 180px;
+    }
 }
 
 @media (max-width: 720px) {
-    .cta-banner { grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 24px 140px 24px 24px; }
-    .cta-content h2 { font-size: 20px; }
-    .cta-banner > .btn-cta { justify-self: start; white-space: normal; }
-    .cta-image { width: 140px; }
+    .cta-banner {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+        padding: 24px 140px 24px 24px;
+    }
+
+    .cta-content h2 {
+        font-size: 20px;
+    }
+
+    .cta-banner>.btn-cta {
+        justify-self: start;
+        white-space: normal;
+    }
+
+    .cta-image {
+        width: 140px;
+    }
 }
 
 @media (max-width: 600px) {
-    .cta-section { padding-inline: 16px; }
+    .cta-section {
+        padding-inline: 16px;
+    }
 }
 
 @media (max-width: 420px) {
-    .cta-banner { padding-right: 24px; padding-bottom: 110px; }
-    .cta-image { top: auto; height: 100px; width: 180px; }
+    .cta-banner {
+        padding-right: 24px;
+        padding-bottom: 110px;
+    }
+
+    .cta-image {
+        top: auto;
+        height: 100px;
+        width: 180px;
+    }
 }
-
-
-/* =========================================
-   10. ส่วนท้ายของเว็บ (Footer)
-   - ลิงก์เมนูด้านล่าง, ลิงก์ โซเชียล มีเดีย และ ลิขสิทธิ์
-   ========================================= */
 .footer {
     background-color: var(--footer-bg);
     color: var(--white);
@@ -634,98 +635,388 @@ section {
     color: #666;
     font-size: 13px;
 }
-
-/* No extra spacer before the shared footer. */
-body:has(.steps-section) .footer{margin-top:0}
-
-/* Compact homepage spacing with a cream hero surface. */
-body > .hero{background:transparent;border-radius:24px;width:calc(100% - 40px);max-width:1115px;margin:28px auto 0;padding:32px;gap:36px;box-sizing:border-box}
-body > .features{padding-top:24px;padding-bottom:28px;margin-top:0;margin-bottom:0}
-body > .popular-courses{padding-top:8px;padding-bottom:28px}
-body > .categories-section{padding-bottom:28px}
-@media(max-width:600px){
- body > .hero{width:calc(100% - 32px);margin-top:16px;padding:24px 20px;border-radius:18px;gap:24px}
- body > .features{padding-top:20px;padding-bottom:20px}
- body > .popular-courses{padding-top:8px;padding-bottom:24px}
+body:has(.steps-section) .footer {
+    margin-top: 0
+}
+body>.hero {
+    background: transparent;
+    border-radius: 24px;
+    width: calc(100% - 40px);
+    max-width: 1115px;
+    margin: 28px auto 0;
+    padding: 32px;
+    gap: 36px;
+    box-sizing: border-box
 }
 
-/* Larger homepage elements on desktop. */
-@media(min-width:1025px){
- body > .hero{max-width:1280px;padding:32px 20px;gap:48px}
- body > .hero .hero-text h1{font-size:clamp(48px,3.3vw,62px);line-height:1.2}
- body > .hero .hero-text p{font-size:18px;line-height:1.75}
- body > .hero .hero-image img{display:block;min-height:320px}
- body > .features,.home-catalog-section{max-width:1280px;width:calc(100% - 40px);margin-inline:auto;padding-inline:20px}
- .feature-card{padding:28px;border-radius:16px}
- .feature-card h3{font-size:19px}
- .feature-card p{font-size:14px;line-height:1.7}
- .feature-icon svg,.feature-icon i{width:46px;height:46px}
- .home-catalog-section .section-header h2,.home-catalog-section .section-header-left h2{font-size:28px}
- .home-catalog-section .subtitle{font-size:14px}
- .home-catalog-section .see-all{font-size:14px}
- .steps-section{max-width:1240px}
+body>.features {
+    padding-top: 24px;
+    padding-bottom: 28px;
+    margin-top: 0;
+    margin-bottom: 0
 }
 
-.home-catalog-section .category-card,.home-catalog-section .category-card:hover{border-color:#e5e5e5;cursor:default;transform:none;box-shadow:none}
-.steps-section{border-color:#e5e5e5}
+body>.popular-courses {
+    padding-top: 8px;
+    padding-bottom: 28px
+}
 
-@media(min-width:1025px){.cta-section{max-width:1280px;width:calc(100% - 40px);padding-inline:20px;box-sizing:border-box}}
+body>.categories-section {
+    padding-bottom: 28px
+}
 
+@media(max-width:600px) {
+    body>.hero {
+        width: calc(100% - 32px);
+        margin-top: 16px;
+        padding: 24px 20px;
+        border-radius: 18px;
+        gap: 24px
+    }
 
-/* =========================================
-   การ์ดคอร์สยอดนิยม — หน้าตาเดียวกับหน้า /courses
-   (คัดลอกจาก cookhub.css แบบจำกัดไว้ใต้ .popular-courses
-    เพราะโหลด cookhub.css ทั้งไฟล์จะไปทับ .hero / .see-all ของหน้านี้)
-   ========================================= */
-.popular-courses .course-grid { gap: 26px 34px; }
+    body>.features {
+        padding-top: 20px;
+        padding-bottom: 20px
+    }
+
+    body>.popular-courses {
+        padding-top: 8px;
+        padding-bottom: 24px
+    }
+}
+@media(min-width:1025px) {
+    body>.hero {
+        max-width: 1280px;
+        padding: 32px 20px;
+        gap: 48px
+    }
+
+    body>.hero .hero-text h1 {
+        font-size: clamp(48px, 3.3vw, 62px);
+        line-height: 1.2
+    }
+
+    body>.hero .hero-text p {
+        font-size: 18px;
+        line-height: 1.75
+    }
+
+    body>.hero .hero-image img {
+        display: block;
+        min-height: 320px
+    }
+
+    body>.features,
+    .home-catalog-section {
+        max-width: 1280px;
+        width: calc(100% - 40px);
+        margin-inline: auto;
+        padding-inline: 20px
+    }
+
+    .feature-card {
+        padding: 28px;
+        border-radius: 16px
+    }
+
+    .feature-card h3 {
+        font-size: 19px
+    }
+
+    .feature-card p {
+        font-size: 14px;
+        line-height: 1.7
+    }
+
+    .feature-icon svg,
+    .feature-icon i {
+        width: 46px;
+        height: 46px
+    }
+
+    .home-catalog-section .section-header h2,
+    .home-catalog-section .section-header-left h2 {
+        font-size: 28px
+    }
+
+    .home-catalog-section .subtitle {
+        font-size: 14px
+    }
+
+    .home-catalog-section .see-all {
+        font-size: 14px
+    }
+
+    .steps-section {
+        max-width: 1240px
+    }
+}
+
+.home-catalog-section .category-card,
+.home-catalog-section .category-card:hover {
+    border-color: #e5e5e5;
+    cursor: default;
+    transform: none;
+    box-shadow: none
+}
+
+.steps-section {
+    border-color: #e5e5e5
+}
+
+@media(min-width:1025px) {
+    .cta-section {
+        max-width: 1280px;
+        width: calc(100% - 40px);
+        padding-inline: 20px;
+        box-sizing: border-box
+    }
+}
+.popular-courses .course-grid {
+    gap: 26px 34px;
+}
+
 .popular-courses .card {
-  display: block; background: #fff; border: 1px solid #ececec; border-radius: 10px;
-  overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.04); transition: box-shadow .2s, transform .2s;
-  color: inherit; text-decoration: none;
+    display: block;
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+    transition: box-shadow .2s, transform .2s;
+    color: inherit;
+    text-decoration: none;
 }
-.popular-courses .card:hover { box-shadow: 0 8px 22px rgba(0,0,0,.08); transform: translateY(-2px); }
-.popular-courses .card__img { position: relative; aspect-ratio: 2.55 / 1; overflow: hidden; display: flex; background: var(--orange-soft); }
-.popular-courses .card__img .half { flex: 1; min-width: 0; height: 100%; }
-.popular-courses .card__img .half + .half { border-left: 2px solid #fff; }
-.popular-courses img.half, .popular-courses img.chef-mini__avatar { display: block; object-fit: cover; background: var(--orange-soft); }
-.popular-courses .img-placeholder { display: flex; align-items: center; justify-content: center; background: var(--orange-soft); color: var(--orange); }
-.popular-courses .img-placeholder svg { width: 32px; height: 32px; opacity: .7; }
-/* รูปโหลดได้  ซ่อนกรอบแทนรูป / โหลดไม่ได้  ซ่อนรูป */
-.popular-courses img[hidden], .popular-courses .img-placeholder[hidden] { display: none !important; }
 
-/* ===== ป้ายสัญชาติ สีเดียวกับ cookhub.css ===== */
-.popular-courses .tags { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; }
-.popular-courses .tag { font-size: 10px; font-weight: 500; line-height: 1; padding: 6px 11px; border-radius: 999px; }
-.popular-courses .tag--thai    { background: #f4672f; color: #fff; }
-.popular-courses .tag--inter   { background: #fdf1cf; color: #9a6b12; }
-.popular-courses .tag--japan   { background: #e6f2ff; color: #2b6cb0; }
-.popular-courses .tag--chinese { background: #fde2e2; color: #c0392b; }
-.popular-courses .tag--british { background: #e8ecf8; color: #34495e; }
-.popular-courses .tag--korean  { background: #f3e8fb; color: #7d3c98; }
-.popular-courses .tag--pack    { background: #c9a227; color: #fff; }
+.popular-courses .card:hover {
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .08);
+    transform: translateY(-2px);
+}
+
+.popular-courses .card__img {
+    position: relative;
+    aspect-ratio: 2.55 / 1;
+    overflow: hidden;
+    display: flex;
+    background: var(--orange-soft);
+}
+
+.popular-courses .card__img .half {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+}
+
+.popular-courses .card__img .half+.half {
+    border-left: 2px solid #fff;
+}
+
+.popular-courses img.half,
+.popular-courses img.chef-mini__avatar {
+    display: block;
+    object-fit: cover;
+    background: var(--orange-soft);
+}
+
+.popular-courses .img-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--orange-soft);
+    color: var(--orange);
+}
+
+.popular-courses .img-placeholder svg {
+    width: 32px;
+    height: 32px;
+    opacity: .7;
+}
+.popular-courses img[hidden],
+.popular-courses .img-placeholder[hidden] {
+    display: none !important;
+}
+.popular-courses .tags {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    gap: 6px;
+}
+
+.popular-courses .tag {
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1;
+    padding: 6px 11px;
+    border-radius: 999px;
+}
+
+.popular-courses .tag--thai {
+    background: #f4672f;
+    color: #fff;
+}
+
+.popular-courses .tag--inter {
+    background: #fdf1cf;
+    color: #9a6b12;
+}
+
+.popular-courses .tag--japan {
+    background: #e6f2ff;
+    color: #2b6cb0;
+}
+
+.popular-courses .tag--chinese {
+    background: #fde2e2;
+    color: #c0392b;
+}
+
+.popular-courses .tag--british {
+    background: #e8ecf8;
+    color: #34495e;
+}
+
+.popular-courses .tag--korean {
+    background: #f3e8fb;
+    color: #7d3c98;
+}
+
+.popular-courses .tag--pack {
+    background: #c9a227;
+    color: #fff;
+}
 
 .popular-courses .fav {
-  position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 50%;
-  background: #fff; display: grid; place-items: center; color: #ef4b4b; box-shadow: 0 1px 3px rgba(0,0,0,.12);
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    color: #ef4b4b;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
 }
-.popular-courses .fav svg { fill: none; }
 
-/* ===== เนื้อหาการ์ด ===== */
-.popular-courses .card__body { padding: 12px 14px; }
-.popular-courses .card__row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-.popular-courses .card__title { flex: 1; min-width: 0; margin: 0; font-size: 13px; font-weight: 600; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.popular-courses .card__rating { font-size: 12px; font-weight: 500; color: var(--orange); white-space: nowrap; }
-.popular-courses .card__desc { margin: 3px 0 8px; font-size: 10.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.popular-courses .chef-mini { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; font-size: 10px; color: #555; }
-.popular-courses .chef-mini__avatar { width: 18px; height: 18px; border-radius: 50%; border: 1px solid #f2d2c0; flex-shrink: 0; }
-.popular-courses .chef-mini__avatar.img-placeholder svg { width: 11px; height: 11px; }
-.popular-courses .card__meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); }
-.popular-courses .card__meta span { display: flex; align-items: center; gap: 4px; }
-.popular-courses .card__foot { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 8px; }
-.popular-courses .price { font-size: 20px; font-weight: 500; line-height: 1; color: var(--orange); }
-.popular-courses .more { font-size: 10px; color: var(--orange); }
-.popular-courses .card:hover .more { text-decoration: underline; }
-.popular-courses .pack-icon { display: inline-block; vertical-align: -2px; margin-right: 4px; }
-.popular-courses .ic-12 { width: 12px; height: 12px; }
-.popular-courses .ic-13 { width: 13px; height: 13px; }
-.popular-courses .ic-14 { width: 14px; height: 14px; }
+.popular-courses .fav svg {
+    fill: none;
+}
+.popular-courses .card__body {
+    padding: 12px 14px;
+}
+
+.popular-courses .card__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.popular-courses .card__title {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.popular-courses .card__rating {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--orange);
+    white-space: nowrap;
+}
+
+.popular-courses .card__desc {
+    margin: 3px 0 8px;
+    font-size: 10.5px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.popular-courses .chef-mini {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-size: 10px;
+    color: #555;
+}
+
+.popular-courses .chef-mini__avatar {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid #f2d2c0;
+    flex-shrink: 0;
+}
+
+.popular-courses .chef-mini__avatar.img-placeholder svg {
+    width: 11px;
+    height: 11px;
+}
+
+.popular-courses .card__meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.popular-courses .card__meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.popular-courses .card__foot {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+.popular-courses .price {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--orange);
+}
+
+.popular-courses .more {
+    font-size: 10px;
+    color: var(--orange);
+}
+
+.popular-courses .card:hover .more {
+    text-decoration: underline;
+}
+
+.popular-courses .pack-icon {
+    display: inline-block;
+    vertical-align: -2px;
+    margin-right: 4px;
+}
+
+.popular-courses .ic-12 {
+    width: 12px;
+    height: 12px;
+}
+
+.popular-courses .ic-13 {
+    width: 13px;
+    height: 13px;
+}
+
+.popular-courses .ic-14 {
+    width: 14px;
+    height: 14px;
+}

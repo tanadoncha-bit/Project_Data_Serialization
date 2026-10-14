@@ -1,4 +1,4 @@
-// routes/profile.js — หน้าโปรไฟล์ (ผู้เรียนและเชฟใช้หน้าเดียวกัน เชฟมีช่องสถาบันเพิ่ม)
+
 const express = require('express');
 const multer = require('multer');
 const bcrypt = require('bcryptjs');
@@ -21,17 +21,21 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 *
 const itemModels = { Recipe, SingleCourse, MultiCourse };
 const itemLabels = { Recipe: 'สูตรอาหาร', SingleCourse: 'คอร์สเรียน', MultiCourse: 'แพ็กคอร์ส' };
 
-/** แปลงรายการ { itemType, itemId } เป็นข้อมูลที่ใช้แสดง (ชื่อ ราคา รูป ลิงก์) ตัดรายการที่ถูกลบไปแล้วทิ้ง */
+
 async function loadItems(rows) {
   const items = await Promise.all(rows.map(async (row) => {
     if (row.itemType === 'ExternalRecipe') return { type: row.itemType, label: 'สูตรทั่วไป', title: row.title || 'สูตรจาก TheMealDB', image: row.image || '', price: 0, date: row.createdAt, url: '/recipes/external/' + row.itemId };
-    const doc = await itemModels[row.itemType].findById(row.itemId).lean();
+    const query = itemModels[row.itemType].findById(row.itemId);
+    if (row.itemType === 'SingleCourse') query.populate('baseRecipe', 'image');
+    if (row.itemType === 'MultiCourse') query.populate({ path: 'includedCourses', select: 'baseRecipe', populate: { path: 'baseRecipe', select: 'image' } });
+    const doc = await query.lean();
     if (!doc) return null;
     return {
       type: row.itemType,
       label: itemLabels[row.itemType],
       title: doc.title,
-      image: doc.image || '',
+      image: doc.image || doc.baseRecipe?.image || doc.includedCourses?.find(course => course.baseRecipe?.image)?.baseRecipe.image || '',
+      images: row.itemType === 'MultiCourse' ? (doc.includedCourses || []).slice(0, 2).map(course => course.baseRecipe?.image || '') : [],
       price: row.amountPaid ?? doc.price ?? 0,
       date: row.purchasedAt || row.createdAt,
       url: row.itemType === 'Recipe' ? `/recipes/${doc._id}` : row.itemType === 'MultiCourse' ? `/courses/pack/${doc._id}` : `/courses/${doc._id}`,
@@ -40,7 +44,7 @@ async function loadItems(rows) {
   return items.filter(Boolean);
 }
 
-/** ดึงข้อมูลทั้งหมดของหน้าโปรไฟล์ แล้ว render ใช้ทั้งตอนเปิดหน้าและตอนบันทึกไม่ผ่าน */
+
 async function renderProfile(req, res, { form, error, saved, status = 200 } = {}) {
   const user = await Client.findById(req.user._id).lean();
   const isChef = user.role === 'chef';
@@ -86,7 +90,7 @@ router.post('/', async (req, res, next) => {
       institution: String(req.body.institution || '').trim(),
     };
     const isChef = req.user.role === 'chef';
-    const others = { _id: { $ne: req.user._id } }; // ไม่นับตัวเองตอนเช็คซ้ำ
+    const others = { _id: { $ne: req.user._id } };                          
 
     let error = null;
     if (!form.name || !form.username || !form.email) error = 'กรุณากรอกชื่อ, username และอีเมล';
@@ -98,10 +102,10 @@ router.post('/', async (req, res, next) => {
     else if (await Client.exists({ ...others, email: form.email })) error = 'อีเมลนี้ถูกใช้แล้ว';
     if (error) return renderProfile(req, res, { form, error, status: 400 });
 
-    // เปลี่ยนอีเมล → ยังไม่เปลี่ยนทันที เก็บไว้รอยืนยันจากลิงก์ในเมลใหม่
+
     const emailChanged = form.email !== req.user.email;
     const update = { name: form.name, username: form.username, bio: form.bio, pendingEmail: emailChanged ? form.email : null };
-    if (isChef) update.institution = form.institution;
+    if (isChef) { update.institution = form.institution; update.isVerifiedChef = Boolean(form.institution); }
     try {
       await Client.updateOne({ _id: req.user._id }, update);
     } catch (err) {
@@ -142,7 +146,7 @@ router.post('/avatar', (req, res, next) => {
   });
 });
 
-/** POST /profile/password  เช็ครหัสเดิม แล้วเปลี่ยนเป็นรหัสใหม่ */
+
 router.post('/password', async (req, res, next) => {
   try {
     const { currentPassword = '', newPassword = '', confirmPassword = '' } = req.body;

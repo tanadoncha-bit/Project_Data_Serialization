@@ -15,7 +15,7 @@ async function loadDashboard(publisher, now = new Date()) {
     throw error;
   }
   const [chef, recipes, singles, bundles] = await Promise.all([
-    Client.findById(publisher).select('name avatar bio isVerifiedChef').lean(),
+    Client.findById(publisher).select('name avatar bio role institution isVerifiedChef').lean(),
     Recipe.find({publisher}).select('title image createdAt price').lean(),
     SingleCourse.find({publisher}).select('title baseRecipe price createdAt').lean(),
     MultiCourse.find({publisher}).select('title includedCourses price createdAt').lean()
@@ -25,31 +25,37 @@ async function loadDashboard(publisher, now = new Date()) {
     error.status = 404;
     throw error;
   }
+  chef.isVerifiedChef = chef.role === 'chef' && Boolean(chef.institution?.trim());
   const recipeMap = new Map(recipes.map(r => [r._id,r]));
   const singleMap = new Map(singles.map(c => [c._id,c]));
   const courses = [...singles.map(c => ({...c,type:'SingleCourse',image:recipeMap.get(c.baseRecipe)?.image || ''})), ...bundles.map(c => ({...c,type:'MultiCourse',image:recipeMap.get(singleMap.get(c.includedCourses[0])?.baseRecipe)?.image || ''}))];
   const courseMap = new Map(courses.map(c => [c.type+':'+c._id,c]));
-  const [transactions, reviews] = await Promise.all([
-    Transaction.find({paymentMode:'real',$or:[{itemType:'Recipe',itemId:{$in:recipes.map(r=>r._id)}},{itemType:'SingleCourse',itemId:{$in:singles.map(c=>c._id)}},{itemType:'MultiCourse',itemId:{$in:bundles.map(c=>c._id)}}]}).sort({purchasedAt:-1}).lean(),
+  const [accessTransactions, reviews] = await Promise.all([
+    Transaction.find({...(process.env.NODE_ENV === 'production' ? {paymentMode:{$nin:['demo','gateway-test']}} : {}),$or:[{itemType:'Recipe',itemId:{$in:recipes.map(r=>r._id)}},{itemType:'SingleCourse',itemId:{$in:singles.map(c=>c._id)}},{itemType:'MultiCourse',itemId:{$in:bundles.map(c=>c._id)}}]}).sort({purchasedAt:-1}).lean(),
     RecipeReview.aggregate([{$match:{recipeType:'Recipe',recipeId:{$in:recipes.map(r=>r._id)}}},{$group:{_id:'$recipeId',count:{$sum:1},rating:{$avg:'$rating'},total:{$sum:'$rating'}}}])
   ]);
-  const courseSales = transactions.filter(t=>t.itemType!=='Recipe');
+  const transactions = accessTransactions;
+  const hasTestPurchases = transactions.some(t => t.paymentMode !== 'real');
+  const dataNote = hasTestPurchases ? 'แสดงรายการซื้อรวมโหมดทดสอบ/จำลอง ยอดดังกล่าวไม่ใช่รายได้จริงทั้งหมด' : 'แสดงรายการซื้อและยอดชำระเงินจริง';
+  const courseSales = accessTransactions.filter(t=>t.itemType!=='Recipe');
   const buyers = new Set(courseSales.map(t=>t.buyer));
   const reviewCount = reviews.reduce((n,r)=>n+r.count,0);
   const average = reviewCount ? reviews.reduce((n,r)=>n+r.total,0)/reviewCount : null;
   const monthStart = new Date(dateKey(now).slice(0,7)+'-01T00:00:00+07:00');
   const newCourses = courses.filter(c=>c.createdAt && c.createdAt >= monthStart && c.createdAt <= now).length;
-  const previousBuyers = new Set(courseSales.filter(t=>t.purchasedAt < monthStart).map(t=>t.buyer)).size;
-  const buyerGrowth = previousBuyers
-    ? '+ '+money((buyers.size-previousBuyers)/previousBuyers*100)+'% จากเดือนที่แล้ว'
-    : buyers.size ? '+ '+money(buyers.size)+' คนจากเดือนที่แล้ว' : 'ยังไม่มีผู้เรียน';
+  const [year, month] = dateKey(now).slice(0,7).split('-').map(Number);
+  const previousMonthStart = new Date(Date.UTC(year, month-2, 1)-7*60*60*1000);
+  const currentBuyers = new Set(courseSales.filter(t=>t.purchasedAt >= monthStart && t.purchasedAt <= now).map(t=>t.buyer)).size;
+  const previousBuyers = new Set(courseSales.filter(t=>t.purchasedAt >= previousMonthStart && t.purchasedAt < monthStart).map(t=>t.buyer)).size;
+  const change = previousBuyers ? (currentBuyers-previousBuyers)/previousBuyers*100 : null;
+  const buyerGrowth = change === null ? 'ผู้ซื้อเดือนนี้ '+money(currentBuyers)+' คน' : (change>0?'+':'')+money(change)+'% เทียบเดือนก่อน';
   const latestSale = transactions[0]?.purchasedAt;
-  const updated = latestSale ? 'อัปเดตล่าสุด '+new Intl.DateTimeFormat('th-TH-u-ca-gregory',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'numeric'}).format(latestSale) : 'ยังไม่มีรายการชำระเงินจริง';
+  const updated = latestSale ? 'อัปเดตล่าสุด '+new Intl.DateTimeFormat('th-TH-u-ca-gregory',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'numeric'}).format(latestSale) : 'ยังไม่มีรายการซื้อ';
   const stats = [
-    ['book-open','คอร์สทั้งหมด',money(courses.length)+' คอร์ส','+ '+money(newCourses)+' คอร์สจากเดือนที่แล้ว','positive'],
+    ['book-open','คอร์สทั้งหมด',money(courses.length)+' คอร์ส',money(newCourses)+' คอร์สสร้างในเดือนนี้','positive'],
     ['chef-hat','สูตรอาหาร',money(recipes.length)+' เมนู',average === null ? 'ยังไม่มีรีวิว' : 'คะแนนเฉลี่ย '+average.toFixed(1)+' ★','orange'],
     ['users-round','ผู้เรียนทั้งหมด',money(buyers.size)+' คน',buyerGrowth,'positive'],
-    ['wallet','รายได้สะสม','฿'+money(transactions.reduce((n,t)=>n+t.amountPaid,0)),updated,'muted']
+    ['wallet','ยอดซื้อสะสม','฿'+money(transactions.reduce((n,t)=>n+t.amountPaid,0)),updated,'muted']
   ];
   const end = new Date(dateKey(now)+'T00:00:00+07:00');
   const periods = {};
@@ -68,9 +74,9 @@ async function loadDashboard(publisher, now = new Date()) {
   const bestReview=reviews.sort((a,b)=>b.count-a.count || b.rating-a.rating)[0];
   const topRecipe=bestReview ? {...recipeMap.get(bestReview._id),rating:bestReview.rating,reviews:bestReview.count} : null;
   const recent=transactions.slice(0,50);
-  const clients=await Client.find({_id:{$in:[...new Set(recent.map(t=>t.buyer))]}}).select('name email').lean();
+  const clients=await Client.find({_id:{$in:[...new Set(recent.map(t=>t.buyer))]}}).select('name email avatar').lean();
   const clientMap=new Map(clients.map(c=>[c._id,c]));
-  const orders=recent.map(t=>({name:clientMap.get(t.buyer)?.name || 'บัญชีที่ถูกลบ',email:clientMap.get(t.buyer)?.email || '',title:t.itemType==='Recipe'?recipeMap.get(t.itemId).title:courseMap.get(t.itemType+':'+t.itemId).title,type:t.itemType==='Recipe'?'สูตรอาหาร':'คอร์ส',date:new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'numeric'}).format(t.purchasedAt),amount:t.amountPaid}));
-  return {chef,stats,periods,chartMax,comparison,popular,topRecipe,orders,money};
+  const orders=recent.map(t=>({name:clientMap.get(t.buyer)?.name || 'บัญชีที่ถูกลบ',email:clientMap.get(t.buyer)?.email || '',avatar:clientMap.get(t.buyer)?.avatar || '',title:t.itemType==='Recipe'?recipeMap.get(t.itemId).title:courseMap.get(t.itemType+':'+t.itemId).title,type:t.itemType==='Recipe'?'สูตรอาหาร':'คอร์ส',date:new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'numeric'}).format(t.purchasedAt),amount:t.amountPaid,paymentMode:t.paymentMode}));
+  return {chef,stats,periods,chartMax,comparison,popular,topRecipe,orders,money,hasTestPurchases,dataNote};
 }
 module.exports = {loadDashboard};

@@ -1,4 +1,4 @@
-// routes/auth.js — สมัครสมาชิก / เข้าสู่ระบบ / ออกจากระบบ
+
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const Client = require('../models/Client');
@@ -6,26 +6,25 @@ const mailer = require('../services/mailer');
 
 const router = express.Router();
 
-/** query หา username แบบตรงตัวพิมพ์ (Preem กับ preem เป็นคนละชื่อ) */
+
 const usernameQuery = (username) => ({ username });
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SENT_MESSAGE = 'ถ้าไม่เจอเมล ลองดูในโฟลเดอร์ Spam';
 
-/** หน้าแสดงผลของลิงก์จากเมล (ยืนยันอีเมล / ตั้งรหัสใหม่) */
+
 function renderLinkPage(res, status, data) {
   res.status(status).render('email-link', { title: 'CookHub', form: false, error: null, detail: '', ...data });
 }
 
-/** ส่งเมลเบื้องหลัง ไม่ให้เวลาตอบต่างกันจนเดาได้ว่าอีเมลไหนมีบัญชี */
+
 function sendInBackground(promise) {
   promise.catch((err) => console.error('[mailer] ส่งเมลไม่สำเร็จ:', err.message));
 }
 
 
-/** เก็บ userId ลง session ใหม่ แล้วตอบหน้าที่ต้องไปต่อ (เชฟ → dashboard, ผู้เรียน → home) */
 function startSession(req, res, next, user) {
-  // สร้าง session ใหม่ทุกครั้ง กันการขโมย session เดิม
+
   req.session.regenerate((err) => {
     if (err) return next(err);
     req.session.userId = user._id;
@@ -33,11 +32,11 @@ function startSession(req, res, next, user) {
   });
 }
 
-/** GET /login, /register → กลับหน้าแรกแล้วเปิด modal ให้เลย (ใช้กับลิงก์ธรรมดา) */
+
 router.get('/login', (req, res) => res.redirect('/home?login=1'));
 router.get('/register', (req, res) => res.redirect('/home?register=1'));
 
-/** POST /register → ตรวจข้อมูลให้ครบ แล้วสร้าง Client ใหม่ (role chef ได้ทันทีถ้ากรอกสถาบัน) */
+
 router.post('/register', async (req, res, next) => {
   try {
     const role = req.body.role === 'chef' ? 'chef' : 'user';
@@ -80,9 +79,10 @@ router.post('/register', async (req, res, next) => {
       role,
       passwordHash: await bcrypt.hash(password, 10),
       institution: role === 'chef' ? institution : null,
+      isVerifiedChef: role === 'chef' && Boolean(institution),
     });
 
-    // ยังไม่ login ให้ ต้องกดยืนยันจากเมลก่อน
+
     try {
       await mailer.sendVerifyMail(user);
     } catch (err) {
@@ -91,7 +91,7 @@ router.post('/register', async (req, res, next) => {
     }
     res.json({ message: `สมัครสำเร็จ! เราส่งลิงก์ยืนยันไปที่ ${email} แล้ว กรุณากดยืนยันก่อนเข้าสู่ระบบ (${SENT_MESSAGE})` });
   } catch (err) {
-    // กดสมัครพร้อมกัน 2 ครั้ง unique index ของ email/username จะกันไว้ให้
+
     if (err.code === 11000) {
       const field = err.keyPattern && err.keyPattern.username ? 'username' : 'อีเมล';
       return res.status(409).json({ error: `${field}นี้ถูกใช้แล้ว` });
@@ -100,7 +100,7 @@ router.post('/register', async (req, res, next) => {
   }
 });
 
-/** POST /login → รับ username หรืออีเมล + รหัสผ่าน ถ้าถูกเก็บ userId ไว้ใน session */
+
 router.post('/login', async (req, res, next) => {
   try {
     const login = String(req.body.login || '').trim();
@@ -109,10 +109,10 @@ router.post('/login', async (req, res, next) => {
       return res.status(400).json({ error: 'กรุณากรอก username/อีเมล และรหัสผ่าน' });
     }
 
-    // มี @ ถือว่าเป็นอีเมล ไม่มี @ ถือว่าเป็น username
+
     const query = login.includes('@') ? { email: login.toLowerCase() } : usernameQuery(login);
     const user = await Client.findOne(query);
-    // ตอบข้อความเดียวกันทั้งกรณีไม่มีบัญชีและรหัสผิด จะได้เดาไม่ได้ว่าบัญชีไหนมีในระบบ
+
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
       return res.status(401).json({ error: 'username/อีเมล หรือรหัสผ่านไม่ถูกต้อง' });
     }
@@ -126,7 +126,7 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
-/** POST /verify-email/resend → ส่งลิงก์ยืนยันใหม่ ตอบข้อความเดียวกันเสมอ */
+
 router.post('/verify-email/resend', async (req, res, next) => {
   try {
     const email = String(req.body.email || '').trim().toLowerCase();
@@ -138,7 +138,7 @@ router.post('/verify-email/resend', async (req, res, next) => {
   }
 });
 
-/** GET /verify-email/:token → ยืนยันอีเมล (หรือเปลี่ยนเป็นอีเมลใหม่ที่รอยืนยัน) แล้ว login ให้เลย */
+
 router.get('/verify-email/:token', async (req, res, next) => {
   try {
     const user = await Client.findOne({ verifyToken: mailer.hashToken(req.params.token), verifyExpires: { $gt: new Date() } });
@@ -169,7 +169,7 @@ router.get('/verify-email/:token', async (req, res, next) => {
   }
 });
 
-/** POST /forgot-password → ส่งลิงก์ตั้งรหัสใหม่ ตอบข้อความเดียวกันไม่ว่าจะมีบัญชีหรือไม่ */
+
 router.post('/forgot-password', async (req, res, next) => {
   try {
     const email = String(req.body.email || '').trim().toLowerCase();
@@ -187,7 +187,7 @@ const findByResetToken = (token) =>
 
 const RESET_INVALID = { message: 'ลิงก์ตั้งรหัสผ่านไม่ถูกต้องหรือหมดอายุแล้ว', detail: 'กด "ลืมรหัสผ่าน?" ในหน้าเข้าสู่ระบบเพื่อขอลิงก์ใหม่' };
 
-/** GET /reset-password/:token → ฟอร์มตั้งรหัสใหม่ */
+
 router.get('/reset-password/:token', async (req, res, next) => {
   try {
     if (!(await findByResetToken(req.params.token))) return renderLinkPage(res, 400, RESET_INVALID);
@@ -197,7 +197,7 @@ router.get('/reset-password/:token', async (req, res, next) => {
   }
 });
 
-/** POST /reset-password/:token → บันทึกรหัสใหม่ ลิงก์ใช้ซ้ำไม่ได้ */
+
 router.post('/reset-password/:token', async (req, res, next) => {
   try {
     const user = await findByResetToken(req.params.token);
@@ -213,7 +213,7 @@ router.post('/reset-password/:token', async (req, res, next) => {
     user.passwordHash = await bcrypt.hash(password, 10);
     user.resetToken = null;
     user.resetExpires = null;
-    user.emailVerified = true; // กดลิงก์จากเมลได้ แปลว่าเป็นเจ้าของอีเมลจริง
+    user.emailVerified = true;                                               
     await user.save();
     renderLinkPage(res, 200, { message: 'ตั้งรหัสผ่านใหม่เรียบร้อยแล้ว', detail: 'เข้าสู่ระบบด้วยรหัสผ่านใหม่ได้เลย', loginLink: true });
   } catch (err) {
@@ -221,7 +221,7 @@ router.post('/reset-password/:token', async (req, res, next) => {
   }
 });
 
-/** GET /logout → ลบ session แล้วกลับหน้าแรก */
+
 router.get('/logout', (req, res, next) => {
   req.session.destroy((err) => {
     if (err) return next(err);

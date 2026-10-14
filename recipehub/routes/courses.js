@@ -1,10 +1,6 @@
-/* ===========================================================
-   หน้าคอร์สเรียน
-     GET /courses?source=&sort=&country=&maxDuration=&maxPrice=&minRating=&page=
-     PUT /courses/favorites/:kind/:id   (kind = single | multi, body: { favorite: true/false })
-     ซื้อคอร์ส: /courses/checkout/... และ /courses/payments/...  (ดูด้านล่าง)
-   ข้อมูลมาจาก MongoDB: SingleCourse + MultiCourse (+ Recipe, Client, Transaction, Favorite)
-   =========================================================== */
+
+
+
 const express = require('express');
 const router = express.Router();
 
@@ -17,32 +13,25 @@ const { randomBytes } = require('node:crypto');
 const payments = require('../services/coursePayments');
 const gateway = require('../services/omiseGateway');
 const { requireLogin } = require('../middleware/requireRole');
-/* รายการคอร์ส */
+
 router.get('/', databaseReady, asyncRoute(async (req, res) => {
   const [courses, favorites] = await Promise.all([
     catalog.loadCourses(),
     catalog.favoriteKeys(req.user && req.user._id),
   ]);
-  const data = buildListPage(req, courses, { level: 'level', minutes: 'durMin', country: 'country' });
+  const data = buildListPage(req, courses, { source: 'source', minutes: 'durMin', country: 'country' });
 
   res.render('user/courses', Object.assign(data, {
     title: 'คอร์สเรียน',
     active: 'courses',
-    courses: data.list,
-    sourceOptions: catalog.levelOptions.map(l => [l.value, l.label]),
-    countryOptions: countries.countryOptions,
+    courses: data.list,    countryOptions: countries.countryOptions,
     countryLabel: countries.countryLabel,
     favoriteKeys: favorites,
     loggedIn: Boolean(req.user),
   }));
 }));
 
-/* ===================== ซื้อคอร์ส (แบบเดียวกับระบบซื้อสูตร) =====================
-   GET  /courses/checkout/:kind/:id        ข้อมูลก่อนซื้อ  → { owned } | { gateway:'omise', ... } | { demo:true, ... }
-   POST /courses/checkout/:kind/:id        ยืนยันซื้อจำลอง (ใช้เมื่อไม่มี Omise key และ RECIPE_DEMO_PAYMENTS=true)
-   POST /courses/checkout/:kind/:id/qr     สร้าง QR PromptPay (Omise)
-   GET  /courses/payments/:orderId         ตรวจสถานะการจ่ายเงิน
-   ตอบเป็น JSON ทั้งหมด — หน้าเว็บเรียกจาก public/javascripts/coursePurchase.js */
+
 const checkout = express.Router();
 checkout.use(databaseReady);
 checkout.use((req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
@@ -51,7 +40,7 @@ checkout.use((req, res, next) => {
   next();
 });
 
-/** ตรวจ :kind/:id แล้วเก็บคอร์สไว้ใน req.course */
+
 const loadCourse = asyncRoute(async (req, res, next) => {
   const id = numericId(req.params.id);
   const course = id && ['single', 'multi'].includes(req.params.kind) ? await payments.findCourse(req.params.kind, id) : null;
@@ -102,14 +91,14 @@ checkout.get('/payments/:orderId', asyncRoute(async (req, res) => {
   res.json(payments.view(order));
 }));
 
-// error ของการจ่ายเงิน → JSON (แบบเดียวกับ routes/promptpay.js)
+
 checkout.use((error, req, res, next) => {
   res.status(error.status || 502).json({ error: error.status ? error.message : 'ตรวจสอบการจ่ายเงินไม่สำเร็จ กรุณาลองใหม่' });
 });
 
 router.use((req, res, next) => (/^\/(checkout|payments)\//.test(req.path) ? checkout(req, res, next) : next()));
 
-/* รายละเอียดคอร์ส  GET /courses/:id (คอร์สเดี่ยว)  และ  GET /courses/pack/:id (แพ็กคอร์ส) */
+
 async function showDetail(kind, req, res, next) {
   const id = numericId(req.params.id);
   if (!id) return next();
@@ -119,7 +108,7 @@ async function showDetail(kind, req, res, next) {
 }
 router.get('/pack/:id', requireLogin, databaseReady, asyncRoute((req, res, next) => showDetail('multi', req, res, next)));
 router.get('/:id', requireLogin, databaseReady, asyncRoute((req, res, next) => showDetail('single', req, res, next)));
-/* กดใจ / เลิกกดใจ (เรียกจาก JavaScript ในหน้า) */
+
 router.put('/favorites/:kind/:id', databaseReady, asyncRoute(async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'กรุณาเข้าสู่ระบบก่อนเพิ่มรายการโปรด' });
   const id = numericId(req.params.id);

@@ -1,6 +1,7 @@
-// services/mailer.js — ส่งเมลยืนยันอีเมล / ลิงก์ตั้งรหัสผ่านใหม่ ผ่าน Gmail (MAIL_USER, MAIL_PASS ใน .env)
+
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const axios = require('axios');
 
 const VERIFY_MS = 24 * 60 * 60 * 1000;
 const RESET_MS = 30 * 60 * 1000;
@@ -20,31 +21,32 @@ function getTransporter() {
   return transporter;
 }
 
-// ลิงก์ในเมลต้องใช้ APP_URL ห้ามใช้ Host จาก request ไม่งั้นคนอื่นปลอม Host ให้ลิงก์ชี้ไปเว็บตัวเองได้
-const appUrl = () => (process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/$/, '');
+
+const appUrl = () => (process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/$/, '');
 
 const escapeHtml = (text) => String(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const hashToken = (token) => crypto.createHash('sha256').update(String(token)).digest('hex');
 
-/** สร้าง token สุ่มสำหรับใส่ในลิงก์ ใน DB เก็บแค่ hash */
+
 function newToken() {
   const token = crypto.randomBytes(32).toString('hex');
   return { token, hash: hashToken(token) };
 }
 
-/** กันกดส่งเมลรัวๆ ส่งได้ 1 ครั้งต่อนาทีต่อบัญชี */
+
 const sentRecently = (user) => Boolean(user.mailSentAt && Date.now() - user.mailSentAt.getTime() < RESEND_GAP_MS);
 
-/** ส่งเมลที่มีปุ่มลิงก์ ถ้ายังไม่ได้ตั้ง MAIL_USER/MAIL_PASS จะพิมพ์ลิงก์ใน Terminal แทน */
+
 async function sendLinkMail(to, subject, intro, buttonText, link) {
-  const t = getTransporter();
-  if (!t) {
+  const t = process.env.RESEND_API_KEY ? null : getTransporter();
+  if (!t && !process.env.RESEND_API_KEY) {
+    if (process.env.NODE_ENV === 'production') throw new Error('Email provider is not configured');
     console.log(`[mailer] ยังไม่ได้ตั้ง MAIL_USER/MAIL_PASS → ${subject} (${to}): ${link}`);
     return;
   }
-  await t.sendMail({
-    from: `"CookHub" <${process.env.MAIL_USER}>`,
+  const mail = {
+    from: process.env.MAIL_FROM || `"CookHub" <${process.env.MAIL_USER}>`,
     to,
     subject,
     text: `${intro}\n\n${link}\n\nถ้าคุณไม่ได้ทำรายการนี้ ไม่ต้องทำอะไร`,
@@ -55,10 +57,18 @@ async function sendLinkMail(to, subject, intro, buttonText, link) {
       <p style="font-size:12px;color:#777">ถ้าปุ่มกดไม่ได้ ก๊อปลิงก์นี้ไปเปิด: <br>${link}</p>
       <p style="font-size:12px;color:#777">ถ้าคุณไม่ได้ทำรายการนี้ ไม่ต้องทำอะไร</p>
     </div>`,
-  });
+  };
+  if (process.env.RESEND_API_KEY) {
+    if (!process.env.MAIL_FROM) throw new Error('MAIL_FROM is required for Resend');
+    try {
+      await axios.post('https://api.resend.com/emails', { ...mail, to: [to] }, {
+        headers: { Authorization: 'Bearer ' + process.env.RESEND_API_KEY }, timeout: 15000,
+      });
+    } catch (_) { throw new Error('ส่งอีเมลไม่สำเร็จ กรุณาตรวจการตั้งค่าผู้ให้บริการอีเมล'); }
+  } else { await t.sendMail(mail); }
 }
 
-/** ส่งลิงก์ยืนยันอีเมล ไปที่อีเมลใหม่ที่รอยืนยัน (ถ้ามี) หรืออีเมลปัจจุบัน */
+
 async function sendVerifyMail(user) {
   const { token, hash } = newToken();
   user.verifyToken = hash;
@@ -70,7 +80,7 @@ async function sendVerifyMail(user) {
     'ยืนยันอีเมล', `${appUrl()}/verify-email/${token}`);
 }
 
-/** ส่งลิงก์ตั้งรหัสผ่านใหม่ */
+
 async function sendResetMail(user) {
   const { token, hash } = newToken();
   user.resetToken = hash;

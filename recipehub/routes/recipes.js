@@ -22,7 +22,7 @@ router.use((req, res, next) => {
 router.use('/reviews', require('./recipeReviews'));
 
 router.get('/inspiration', (req, res) => res.render('user/recipes/inspiration', { title: 'ไอเดียจาก TheMealDB' }));
-// External IDs have their own namespace so they cannot collide with MongoDB recipe IDs.
+
 router.get('/external/:id', support.asyncRoute(async (req, res) => {
   if (!/^[1-9]\d{0,9}$/.test(req.params.id)) throw createError(400, 'รหัสเมนูไม่ถูกต้อง');
   let meal;
@@ -83,7 +83,7 @@ router.get('/', support.asyncRoute(async (req, res) => {
   const page = req.query.page === undefined ? 1 : support.numericId(req.query.page);
   if (!page || page > 100000) throw createError(400, 'หมายเลขหน้าไม่ถูกต้อง');
   const pageSize = 12;
-  // Keep local recipes available even if the external service fails.
+
   let externalError = '';
   const hasUnsupportedFilter = Number(filters.minDuration) > 0 || filters.maxDuration || Number(filters.minPrice) > 0;
   const externalRequest = (filters.source === 'chef' || hasUnsupportedFilter ? Promise.resolve([]) : filters.search ? mealApi.search(filters.search) : mealApi.browse())
@@ -138,7 +138,7 @@ router.get('/:id', support.asyncRoute(async (req, res) => {
   const userId = support.numericId(req.session && req.session.userId);
   const demoChefId = support.numericId(req.session && req.session.recipeDemoChefId);
   let canAccess = recipe.price === 0 || (recipe.publisher && [userId, demoChefId].includes(recipe.publisher._id));
-  // Transaction is the existing purchase integration point; payment stays with the team's purchase system.
+
   if (!canAccess && userId) canAccess = !!(await Transaction.exists({ buyer: userId, itemType: 'Recipe', itemId: id, ...(process.env.NODE_ENV === 'production' ? {paymentMode:{$nin:['demo','gateway-test']}} : {}) }));
   if (!canAccess) {
     delete recipe.ingredients;

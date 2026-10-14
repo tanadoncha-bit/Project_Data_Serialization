@@ -18,30 +18,30 @@
       <%- include('../../partials/browse-controls', { filters }) %>
     </form>
     <div id="recipe-browse-results" aria-live="polite">
-    <p class="recipe-results-count">ผลลัพธ์ <strong>
-        <%= total %>
-      </strong> สูตร</p>
-    <% if (typeof cataloguePending !== 'undefined' && cataloguePending) { %><p class="recipe-alert" role="status">กำลังโหลดสูตรทั่วไปเพิ่มเติม จำนวนผลลัพธ์เป็นสูตรที่โหลดแล้วในขณะนี้ <a href="/recipes?<%= pageQuery %>">อัปเดตรายการ</a></p><% } %>
-    <% if (externalError) { %><p class="recipe-alert" role="status"><%= externalError %></p><% } %>
-    <% if (!recipes.length && !externalMeals.length) { %>
-    <section class="recipe-empty">
-      <h2>ไม่พบสูตรอาหาร</h2>
-      <p>ลองเปลี่ยนคำค้นหาหรือตัวกรอง</p><a href="/recipes" class="recipe-btn">ล้างตัวกรอง</a>
-    </section>
-    <% } %>
-    <div class="recipe-grid">
-      <% orderedCards.forEach(item=> { %><%- item.type==='Recipe' ? include('_localCard',{recipe:item.value}) : include('_externalCard',{meal:item.value}) %><% }); %>
-    </div>
-    <nav class="recipe-pagination" aria-label="หน้ารายการสูตร">
-      <% if (page> 1) { %><a href="/recipes?<%= pageQuery %>&amp;page=<%= page - 1 %>" aria-label="หน้าก่อนหน้า">‹</a>
+      <p class="recipe-results-count">ผลลัพธ์ <strong>
+          <%= total %>
+        </strong> สูตร</p>
+      <% if (typeof cataloguePending !== 'undefined' && cataloguePending) { %><p class="recipe-alert" role="status">กำลังโหลดสูตรทั่วไปเพิ่มเติม จำนวนผลลัพธ์เป็นสูตรที่โหลดแล้วในขณะนี้ <a href="/recipes?<%= pageQuery %>">อัปเดตรายการ</a></p><% } %>
+      <% if (externalError) { %><p class="recipe-alert" role="status"><%= externalError %></p><% } %>
+      <% if (!recipes.length && !externalMeals.length) { %>
+      <section class="recipe-empty">
+        <h2>ไม่พบสูตรอาหาร</h2>
+        <p>ลองเปลี่ยนคำค้นหาหรือตัวกรอง</p><a href="/recipes" class="recipe-btn">ล้างตัวกรอง</a>
+      </section>
       <% } %>
-      <% if (pages) { %><span aria-current="page">
-        <%= page %>
-      </span><span class="recipe-pagination-total">/ <%= pages %></span>
-      <% } %>
-      <% if (page < pages) { %><a href="/recipes?<%= pageQuery %>&amp;page=<%= page + 1 %>" aria-label="หน้าถัดไป">›</a>
-      <% } %>
-    </nav>
+      <div class="recipe-grid">
+        <% orderedCards.forEach(item=> { %><%- item.type==='Recipe' ? include('_localCard',{recipe:item.value}) : include('_externalCard',{meal:item.value}) %><% }); %>
+      </div>
+      <nav class="recipe-pagination" aria-label="หน้ารายการสูตร">
+        <% if (page> 1) { %><a href="/recipes?<%= pageQuery %>&amp;page=<%= page - 1 %>" aria-label="หน้าก่อนหน้า">‹</a>
+        <% } %>
+        <% if (pages) { %><span aria-current="page">
+          <%= page %>
+        </span><span class="recipe-pagination-total">/ <%= pages %></span>
+        <% } %>
+        <% if (page < pages) { %><a href="/recipes?<%= pageQuery %>&amp;page=<%= page + 1 %>" aria-label="หน้าถัดไป">›</a>
+        <% } %>
+      </nav>
     </div>
   </main>
   <%- include('_filterDialog') %>

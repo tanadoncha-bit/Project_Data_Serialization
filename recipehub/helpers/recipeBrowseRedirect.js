@@ -1,4 +1,4 @@
-// Compatibility for bookmarks pointing to the retired user recipe list.
+
 module.exports = function recipeBrowseRedirect(query) {
   const params = new URLSearchParams();
   const fields = ['source','country','search','category','minPrice','maxPrice','minDuration','maxDuration','minRating','page'];

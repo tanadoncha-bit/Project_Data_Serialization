@@ -1,0 +1,280 @@
+.chef-site .chef-page,.chef-recipe-site .recipe-page{box-sizing:border-box;width:100%;max-width:1200px;margin:0 auto;padding:40px 32px 64px}
+.chef-dashboard .dashboard-content{width:calc(100% - 64px);max-width:1136px;margin:40px auto}
+.chef-site .chef-hero,.chef-dashboard .dashboard-hero{height:clamp(280px,31vw,460px)}
+.chef-site .chef-hero-inner,.chef-dashboard .hero-inner,.chef-recipe-site .recipe-banner-inner{box-sizing:border-box;width:min(1136px,calc(100% - 64px));max-width:1136px;margin:0 auto;padding:0}
+.chef-site .chef-hero h1,.chef-dashboard .hero-inner h1{font-size:clamp(28px,3.5vw,52px);line-height:1.15;margin:0 0 16px}
+.chef-site .chef-hero p,.chef-dashboard .hero-inner p{font-size:16px;line-height:1.5}
+.chef-site .chef-section-title h1{font-size:26px;line-height:1.4}
+.chef-site .chef-section-title h1 small{font-size:14px}
+.chef-site .chef-section-title p{font-size:14px;line-height:1.5}
+.chef-site .chef-page{gap:28px}
+.chef-site .chef-section-head{gap:20px;flex-wrap:wrap}
+.chef-site .chef-section-actions{gap:12px;flex-wrap:wrap}
+.chef-site .chef-btn:not(.chef-btn-xs):not(.chef-btn-sm){font-size:14px;line-height:1.5;min-height:42px;padding:10px 18px;border-radius:8px}
+.chef-site .chef-btn svg{width:16px;height:16px;flex-shrink:0}
+.chef-site .chef-btn-pill{border-radius:999px}
+.chef-site .chef-course-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.chef-site .chef-search{max-width:100%;width:420px}
+@media(max-width:900px){.chef-site .chef-course-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){
+ .chef-site .chef-page,.chef-recipe-site .recipe-page{padding:24px 16px 40px}
+ .chef-dashboard .dashboard-content{width:calc(100% - 32px);margin:24px auto}
+ .chef-site .chef-hero-inner,.chef-dashboard .hero-inner,.chef-recipe-site .recipe-banner-inner{width:calc(100% - 32px)}
+ .chef-site .chef-hero h1,.chef-dashboard .hero-inner h1{font-size:28px;max-width:100%}
+ .chef-site .chef-hero p,.chef-dashboard .hero-inner p{font-size:13px}
+ .chef-site .chef-section-title h1{font-size:22px}
+ .chef-site .chef-section-head{align-items:stretch;flex-direction:column}
+ .chef-site .chef-section-actions{display:flex;width:100%}
+ .chef-site .chef-section-actions .chef-btn{flex:1;min-width:0;padding:10px;font-size:13px}
+ .chef-site .chef-course-grid{grid-template-columns:1fr}
+ .chef-site .chef-search{width:100%}
+}
+
+.chef-course-price-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid #eee;margin-top:auto;font-size:12px;color:#777}
+.chef-course-price-row .chef-price{font-size:18px;color:var(--orange)}
+.chef-site .chef-course-foot{justify-content:space-between;gap:12px}
+.chef-site .chef-course-photo{display:block;text-decoration:none}
+.chef-site .chef-btn,.chef-site .chef-icon-btn{text-decoration:none}
+.chef-course-page section.chef-dialog{position:relative;inset:auto;width:100%;max-width:none;max-height:none;margin:0;padding:28px;border:1px solid #eee;border-radius:16px;box-shadow:none;overflow:visible;background:white}
+.chef-course-page section.chef-dialog[hidden]{display:none}
+.chef-course-page .chef-back{font-size:13px;color:#777;text-decoration:none}
+@media(max-width:600px){.chef-course-page section.chef-dialog{padding:20px 16px}.chef-course-page .chef-detail{grid-template-columns:1fr}.chef-course-price-row .chef-price{font-size:16px}}
+.chef-site .chef-section-title{border-left:0;padding-left:0}
+.chef-site .chef-section-title h1{border-left:4px solid var(--orange);padding-left:14px;font-size:26px;line-height:1.4;margin:0 0 8px}
+.chef-site .chef-section-title h1 small{font-size:14px;margin-left:8px;font-weight:400}
+.chef-site .chef-section-title p{margin:8px 0 0 18px;font-size:13px;color:#85858f;line-height:1.5}
+.chef-site .chef-section-actions .chef-btn{font-size:13px;padding:10px 22px;min-height:42px;border-radius:9px}
+.chef-site .chef-page a.chef-btn-primary{color:#fff}
+.chef-site .chef-page a.chef-btn-primary svg{color:inherit}
+.chef-site .chef-course-foot{margin-top:auto;padding-top:12px}
+@media(max-width:600px){.chef-site .chef-section-title h1{font-size:22px}.chef-site .chef-section-actions .chef-btn{padding:10px 12px;font-size:13px}}
+.chef-site .chef-course-card{border:1px solid #e5e5e5;border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.chef-site .chef-course-photo{position:relative;aspect-ratio:2.6 / 1;width:100%;padding:0;border:0;overflow:hidden;flex-shrink:0}
+.chef-site .chef-course-photo .chef-thumb{width:100%;height:100%;display:block;object-fit:cover;aspect-ratio:auto}
+.chef-site .chef-course-body{padding:14px 14px 4px;display:flex;flex-direction:column;flex:1;gap:0}
+.chef-site .chef-course-title{align-items:baseline;gap:12px;margin:0}
+.chef-site .chef-course-title h2{font-size:15px;line-height:1.5;font-weight:500;margin:0;min-width:0}
+.chef-site .chef-course-rating{font-size:14px;line-height:1.5;flex-shrink:0}
+.chef-site .chef-course-body > p{font-size:11px;line-height:1.5;margin:8px 0 12px;min-height:0}
+.chef-site .chef-course-meta{font-size:11px;line-height:1.5;gap:8px;flex-wrap:wrap;padding:0 0 12px;margin:0}
+.chef-site .chef-course-meta li{gap:4px}
+.chef-site .chef-course-meta svg{width:14px;height:14px;flex-shrink:0}
+.chef-site .chef-course-foot{padding:10px 0;gap:12px;margin-top:auto;border-top:1px solid #eee}
+.chef-site .chef-course-foot .recipe-preview-link{font-size:12px;display:inline-flex;align-items:center;gap:5px;background:none;padding:0;border-radius:0;min-height:32px}
+.chef-site .chef-course-foot .chef-icon-btn{width:32px;height:32px;border-radius:6px;padding:0}
+.chef-site .chef-course-foot .chef-icon-btn svg{width:17px;height:17px}
+.chef-site .chef-course-foot .chef-icon-actions{gap:4px;display:flex;align-items:center}
+.chef-site .chef-tag{font-size:10px;line-height:1;padding:6px 11px;border-radius:999px;background:linear-gradient(115deg,#d2ab53,#f6e6af 43%,#e9ca78 65%,#c69a3e);color:#554018;border:1px solid #c4a04c}
+.chef-site .chef-tag-pack{background:#eee5ff;color:#6941a5;border-color:#d5bff4}
+.chef-site .chef-search{height:42px;border-radius:9px;width:100%;max-width:420px;padding:0 12px}
+.chef-site .chef-search input{font-size:13px;padding:0;min-width:0}
+.chef-site .chef-search svg{width:16px;height:16px;flex-shrink:0}
+.chef-site:not(.chef-course-page) .chef-page{gap:24px}
+@media(max-width:600px){.chef-site .chef-search{max-width:none}.chef-site .chef-course-title h2{font-size:15px}}
+
+.chef-site .chef-course-foot .chef-icon-btn{width:28px;height:28px}
+.chef-site .chef-course-foot .recipe-preview-link{min-height:0;color:var(--orange);font-size:12px}
+.chef-site .chef-hero a.chef-btn-ghost.chef-btn-pill{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;padding:13px 30px;border:1px solid #ffb899;border-radius:999px;background:#fff5ee;color:#262626;font-size:16px;font-weight:500;line-height:1.5;text-decoration:none}
+.chef-site .chef-hero a.chef-btn-ghost.chef-btn-pill svg{width:20px;height:20px;color:var(--orange)}
+.chef-site .chef-course-foot a.recipe-preview-link{display:inline-flex;align-items:center;justify-content:center;background:#ededed;color:#222;border:0;border-radius:999px;padding:8px 18px;min-height:36px;font-size:12px;font-weight:500;line-height:1.5;text-decoration:none}
+.chef-site .chef-course-foot a.recipe-preview-link:hover{background:#e3e3e3}
+@media(max-width:600px){.chef-site .chef-hero a.chef-btn-ghost.chef-btn-pill{min-height:46px;padding:11px 22px;font-size:14px}}
+
+.chef-site .chef-course-card .chef-course-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0}
+.chef-site .chef-course-card .chef-course-foot a.recipe-preview-link{color:#222!important;font-size:12px;line-height:18px;min-height:36px;padding:9px 18px;white-space:nowrap}
+.chef-site .chef-course-card .chef-course-foot .chef-icon-actions{display:flex;align-items:center;gap:6px;margin:0}
+.chef-site .chef-course-card .chef-course-foot .chef-icon-actions form{display:flex;align-items:center;margin:0}
+.chef-site .chef-course-card .chef-course-foot .chef-icon-btn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;color:#85858f}
+.chef-site .chef-course-card .chef-course-foot .chef-icon-btn svg{width:17px;height:17px}
+@media(max-width:360px){.chef-site .chef-course-card .chef-course-foot{gap:8px}.chef-site .chef-course-card .chef-course-foot a.recipe-preview-link{padding:9px 12px}.chef-site .chef-course-card .chef-course-foot .chef-icon-actions{gap:2px}}
+.chef-course-page #course-form-dialog{max-width:960px;margin:0 auto;padding:28px}
+.chef-course-page .chef-form{padding:0;gap:20px}
+.chef-course-page .chef-form-head{padding-right:0;gap:12px}
+.chef-course-page section .chef-dialog-close{display:none}
+.chef-course-page .chef-form-head h2{font-size:22px;line-height:1.4}
+.chef-course-page .chef-form-head p{font-size:13px;line-height:1.5;margin-top:6px}
+.chef-course-page .chef-tabs.single-tab{display:none}
+.chef-course-page .chef-tabs{background:#fafafa;border:1px solid #eee;padding:4px;border-radius:10px}
+.chef-course-page .chef-tabs button{font-size:13px;padding:10px;border-radius:8px}
+.chef-course-page .chef-form-icon{width:20px;height:20px}
+.chef-course-page .chef-form textarea{min-height:110px;resize:vertical}
+.chef-course-page .chef-form input,.chef-course-page .chef-form select,.chef-course-page .chef-form textarea{font-size:14px}
+.chef-course-page .chef-form-head + .chef-tabs{margin:0}
+@media(max-width:600px){.chef-course-page #course-form-dialog{padding:20px 16px}.chef-course-page .chef-form{gap:16px}.chef-course-page .chef-form-head h2{font-size:20px}.chef-course-page .chef-tabs{grid-template-columns:1fr}.chef-course-page .chef-form-grid{grid-template-columns:1fr}}
+
+.chef-site .chef-hero--courses{background:url('/images/recipes/course-management-hero.png') center / cover no-repeat,#fff1e7}
+@media(max-width:600px){.chef-site .chef-hero--courses{background-position:35% center}}
+.chef-site:not(.chef-course-page) .chef-page{display:block}
+.chef-site:not(.chef-course-page) .chef-section-head,.chef-recipe-site .recipe-heading{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:0 0 28px}
+.chef-site .chef-section-title h1,.chef-recipe-site .recipe-section-title h1{font-size:26px;line-height:1.4;margin:0;border-left:4px solid var(--orange);padding-left:14px}
+.chef-site .chef-section-title p,.chef-recipe-site .recipe-section-title p{font-size:13px;line-height:1.5;margin:8px 0 0 18px}
+.chef-site .chef-course-grid,.chef-recipe-site .recipe-grid{margin-top:0;gap:22px}
+.chef-site:not(.chef-course-page) .chef-page > .chef-alert{margin:0 0 20px}
+@media(max-width:600px){
+ .chef-site:not(.chef-course-page) .chef-section-head,.chef-recipe-site .recipe-heading{align-items:stretch;flex-direction:column;gap:16px;margin-bottom:24px}
+ .chef-site .chef-section-title h1,.chef-recipe-site .recipe-section-title h1{font-size:22px}
+}
+
+body.chef-course-page{background:#f4f5f6}
+.chef-course-page .navbar{background:#fff}
+.chef-course-page #course-detail{padding:28px;background:#fff;box-shadow:0 6px 24px rgba(30,35,40,.04)}
+.chef-course-page #course-detail .chef-detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:28px;padding:0;align-items:start}
+.chef-course-page #course-detail .chef-detail-info{padding:0;min-width:0}
+.chef-course-page #course-detail .chef-detail-images{padding:0;min-width:0}
+.chef-course-page #course-detail .chef-detail-figure{margin:0;overflow:hidden;border-radius:12px}
+.chef-course-page #course-detail .chef-detail-figure img{display:block;width:100%;aspect-ratio:4 / 3;object-fit:cover}
+.chef-course-page .chef-detail-price-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;margin:8px 0 16px;border-bottom:1px solid #eee}
+.chef-course-page .chef-detail-price-bar > div{display:flex;flex-direction:column;gap:4px}
+.chef-course-page .chef-detail-price-bar .chef-muted{font-size:12px}
+.chef-course-page .chef-detail-price-bar .chef-detail-price{font-size:26px;line-height:1.2}
+.chef-course-page .chef-detail-sections{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px}
+.chef-course-page .chef-detail-panel{padding:20px;border:1px solid #e9e9e9;border-radius:12px;background:#fafafa;min-width:0}
+.chef-course-page .chef-detail-panel h3{display:flex;align-items:center;gap:8px;font-size:17px;margin:0 0 12px}
+.chef-course-page .chef-detail-panel h3 svg{width:20px;height:20px;color:var(--orange)}
+.chef-course-page .chef-detail-panel p,.chef-course-page .chef-detail-panel li{font-size:14px;line-height:1.7}
+@media(max-width:700px){.chef-course-page #course-detail{padding:20px 16px}.chef-course-page #course-detail .chef-detail,.chef-course-page .chef-detail-sections{grid-template-columns:1fr;gap:20px}.chef-course-page .chef-detail-sections{margin-top:20px}.chef-course-page .chef-detail-panel{padding:16px}.chef-course-page .chef-detail-price-bar .chef-detail-price{font-size:24px}}
+
+.chef-course-list-tabs{display:flex;gap:8px;margin:0 0 24px;padding:5px;border:1px solid #eee;border-radius:12px;background:#fafafa;width:fit-content;max-width:100%}
+.chef-course-list-tabs a{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;color:#666;font-size:13px;text-decoration:none}
+.chef-course-list-tabs a.active{background:white;color:var(--orange);box-shadow:0 1px 5px #0000000d}
+.chef-course-list-tabs a span{font-size:11px;padding:2px 7px;background:#f0f0f0;border-radius:999px;color:#777}
+.chef-course-page .chef-page:has(#course-form-dialog:not([hidden])){max-width:1024px}
+.chef-course-page .chef-form-section{border-top:1px solid #eee;padding-top:20px}
+.chef-course-page .chef-pack-box{background:#fafafa;border:1px solid #e7e7e7;padding:20px;border-radius:12px}
+@media(max-width:600px){.chef-course-list-tabs{width:100%}.chef-course-list-tabs a{flex:1;justify-content:center;padding:10px 8px}.chef-course-page .chef-pack-box{padding:16px}}
+.chef-course-page #course-detail .chef-detail{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:24px}
+.chef-course-page #course-detail .chef-detail-images:has(> .chef-detail-figure:only-child){display:flex;flex-direction:column;height:100%}
+.chef-course-page #course-detail .chef-detail-images > .chef-detail-figure:only-child{position:relative;flex:1;min-height:280px}
+.chef-course-page #course-detail .chef-detail-images > .chef-detail-figure:only-child img{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;object-fit:cover}
+.chef-course-page #course-detail .chef-detail-images > .chef-detail-figure:only-child .chef-thumb-empty{height:100%;min-height:280px}
+.chef-course-page .chef-detail-sections{gap:24px}
+@media(max-width:700px){
+ .chef-course-page #course-detail .chef-detail{grid-template-columns:1fr;gap:20px}
+ .chef-course-page #course-detail .chef-detail-images:has(> .chef-detail-figure:only-child){height:auto}
+ .chef-course-page #course-detail .chef-detail-images > .chef-detail-figure:only-child{min-height:0;flex:auto}
+ .chef-course-page #course-detail .chef-detail-images > .chef-detail-figure:only-child img{position:static;height:auto;aspect-ratio:4 / 3}
+ .chef-course-page .chef-detail-sections{gap:20px}
+}
+
+.course-review-section{background:#fff;border:1px solid #eee;border-radius:14px;padding:24px;margin-top:24px}
+@media(max-width:600px){.course-review-section{padding:18px 16px}}
+.chef-course-page .chef-page > .course-review-section{margin-top:0}
+.chef-course-page .chef-page:has(> .course-review-section){gap:24px}
+@media(max-width:600px){.chef-course-page .chef-page:has(> .course-review-section){gap:20px}}
+.chef-course-page .chef-detail-sections{grid-template-columns:1fr;align-items:start;gap:16px}
+.chef-course-page .chef-detail-panel{padding:18px 20px}
+.chef-course-page .chef-detail-panel p{margin:0}
+.chef-course-page .chef-detail-panel .chef-learn{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 24px}
+.chef-course-page .chef-detail-panel .chef-learn li{margin:0;min-width:0;overflow-wrap:anywhere}
+@media(max-width:600px){.chef-course-page .chef-detail-panel{padding:16px}.chef-course-page .chef-detail-panel .chef-learn{grid-template-columns:1fr;gap:10px}}
+.chef-dashboard .dashboard-content{display:flex;flex-direction:column;gap:24px}
+.chef-dashboard .panel{border-radius:14px;border:1px solid #e8e8e8}
+.chef-dashboard .dashboard-cta{font-size:14px;line-height:1.5;padding:10px 20px;min-height:42px;border-radius:9px}
+.chef-dashboard .hero-inner p{font-size:16px;line-height:1.5}
+.chef-dashboard .chef-summary{padding:22px 24px;min-height:120px;gap:20px}
+.chef-dashboard .chef-identity{gap:16px;min-width:0}
+.chef-dashboard .chef-avatar{width:64px;height:64px;flex-shrink:0}
+.chef-dashboard .chef-name{gap:12px;flex-wrap:wrap}
+.chef-dashboard .chef-name h2{font-size:20px;line-height:1.4}
+.chef-dashboard .chef-role{font-size:11px;padding:4px 10px}
+.chef-dashboard .chef-identity p{font-size:13px;line-height:1.5}
+.chef-dashboard .chef-account{font-size:11px;line-height:1.5;padding:0;gap:8px;background:transparent;border:0;border-radius:0;text-decoration:none;color:#888}
+.chef-dashboard .chef-account strong{font-size:11px;line-height:1.5;font-weight:500;padding:6px 12px;border-radius:20px;min-width:0}
+.chef-dashboard .chef-account:focus-visible{outline:2px solid #ff6828;outline-offset:5px}
+.chef-dashboard .chef-account .account-unverified{background:#f3f3f3;color:#777}
+.chef-dashboard .dashboard-stats{gap:16px}
+.chef-dashboard .stat-card{padding:18px;min-height:124px;gap:12px;min-width:0}
+.chef-dashboard .stat-card > div{min-width:0}
+.chef-dashboard .stat-icon{width:40px;height:40px;flex-shrink:0;border-radius:10px}
+.chef-dashboard .stat-icon svg{width:20px;height:20px}
+.chef-dashboard .stat-card h2{font-size:13px;line-height:1.5}
+.chef-dashboard .stat-value{font-size:24px;line-height:1.4;overflow-wrap:anywhere}
+.chef-dashboard .stat-note{font-size:11px;line-height:1.5}
+.chef-dashboard .dashboard-analytics{gap:20px}
+.chef-dashboard .revenue-panel,.chef-dashboard .orders-panel{padding:20px}
+.chef-dashboard .panel-heading{gap:12px;flex-wrap:wrap}
+.chef-dashboard .panel-heading h2{font-size:18px;line-height:1.4}
+.chef-dashboard .period-picker{padding:8px 10px;gap:6px}
+.chef-dashboard .period-picker select{font-size:12px;max-width:150px}
+.chef-dashboard .chart-summary{font-size:12px}
+.chef-dashboard .revenue-chart{height:260px;gap:16px}
+.chef-dashboard .chart-axis,.chef-dashboard .chart-day{font-size:11px}
+.chef-dashboard .chart-bars{padding:0 8px;gap:8px}
+.chef-dashboard .dashboard-highlights{gap:16px}
+.chef-dashboard .highlight{padding:18px}
+.chef-dashboard .highlight h2{font-size:15px;gap:8px}
+.chef-dashboard .highlight h2 svg{width:18px;height:18px}
+.chef-dashboard .highlight-body{gap:14px}
+.chef-dashboard .highlight-body > img{width:88px;height:88px;flex-shrink:0}
+.chef-dashboard .highlight-info h3{font-size:14px;line-height:1.5}
+.chef-dashboard .highlight-meta{gap:10px;font-size:11px}
+.chef-dashboard .highlight-meta strong{font-size:15px}
+.chef-dashboard .orders-scroll{max-width:100%;overflow-x:auto}
+.chef-dashboard .orders-panel table{font-size:13px;min-width:700px}
+.chef-dashboard .orders-panel th,.chef-dashboard .orders-panel td{padding:14px 16px}
+.chef-dashboard .student-avatar{width:32px;height:32px;flex-shrink:0;font-size:13px}
+.chef-dashboard .order-student{gap:10px}
+.chef-dashboard .order-student strong{font-size:13px}
+.chef-dashboard .order-student small{font-size:11px}
+.chef-dashboard .panel-heading button{font-size:12px}
+.chef-dashboard .dashboard-data-note{font-size:12px;color:#85858f;margin:-8px 0 0;line-height:1.6}
+@media(max-width:700px){
+ .chef-dashboard .dashboard-content{gap:20px}
+ .chef-dashboard .chef-summary{padding:20px;align-items:flex-start;flex-direction:column}
+ .chef-dashboard .chef-avatar{width:56px;height:56px}
+ .chef-dashboard .chef-name h2{font-size:18px}
+ .chef-dashboard .dashboard-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .chef-dashboard .stat-card{flex-direction:column;align-items:flex-start;padding:16px;min-height:0}
+ .chef-dashboard .stat-value{font-size:22px}
+ .chef-dashboard .dashboard-analytics{grid-template-columns:1fr}
+ .chef-dashboard .revenue-panel,.chef-dashboard .orders-panel{padding:16px;min-width:0}
+ .chef-dashboard .revenue-chart{height:220px;gap:10px}
+ .chef-dashboard .chart-bars{padding:0 2px;gap:4px}
+ .chef-dashboard .panel-heading h2{font-size:16px}
+ .chef-dashboard .hero-inner p{font-size:13px}
+}
+
+.chef-dashboard .stat-note.negative{color:#b42318}
+
+.chef-dashboard .hero-inner h1 span{font-size:inherit}
+
+.chef-dashboard .order-status-test{background:#fff3e8;color:#aa531d}
+.chef-dashboard .dashboard-content{gap:20px}
+.chef-dashboard .dashboard-stats,.chef-dashboard .dashboard-analytics,.chef-dashboard .orders-panel{margin-top:0;margin-bottom:0}
+.chef-dashboard .highlight h2{margin-bottom:16px}
+.chef-dashboard .revenue-chart{margin-top:20px}
+.chef-dashboard img.student-avatar{object-fit:cover;display:block}
+@media(max-width:700px){.chef-dashboard .dashboard-content{gap:16px}.chef-dashboard .revenue-chart{margin-top:16px}}
+.chef-recipe-site .recipe-page.chef-recipe-page{min-height:0;padding-bottom:40px}
+@media(max-width:600px){.chef-recipe-site .recipe-page.chef-recipe-page{padding-bottom:32px}}
+
+.chef-dashboard .chef-name{gap:10px;align-items:center}
+.chef-dashboard .chef-verification{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:6px;font-size:11px;font-weight:400;line-height:1.5;text-decoration:none;white-space:nowrap}
+.chef-dashboard .chef-verification.is-verified{background:#e4f7ef;color:#008c58}
+.chef-dashboard .chef-verification.is-unverified{background:#f3f3f3;color:#777}
+.chef-dashboard .chef-verification svg{width:15px;height:15px;flex-shrink:0}
+.chef-dashboard .chef-verification:focus-visible{outline:2px solid #ff6828;outline-offset:3px}
+
+.chef-dashboard .chef-profile-edit{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex-shrink:0;margin-left:auto;padding:9px 14px;border:1px solid #e3e3e3;border-radius:8px;background:#fff;color:#555;font-size:12px;line-height:1.5;text-decoration:none}
+.chef-dashboard .chef-profile-edit svg{width:15px;height:15px}
+.chef-dashboard .chef-profile-edit:hover{border-color:#ffb899;background:#fffaf6;color:#ff6828}
+.chef-dashboard .chef-profile-edit:focus-visible{outline:2px solid #ff6828;outline-offset:3px}
+@media(max-width:600px){.chef-dashboard .chef-profile-edit{margin-left:80px}}
+
+.chef-dashboard .period-picker{position:relative;padding:0;border:0;background:none;display:block}
+.chef-dashboard .period-trigger{display:flex;align-items:center;gap:6px;height:32px;padding:0 10px;border:1px solid #e5e5e5;border-radius:7px;background:#fff;color:#666;font:inherit;font-size:11px;cursor:pointer}
+.chef-dashboard .period-trigger svg{width:14px;height:14px}
+.chef-dashboard .period-trigger svg:last-child{width:12px;height:12px}
+.chef-dashboard .period-trigger:hover{border-color:#ffb899}
+.chef-dashboard .period-menu{position:absolute;right:0;top:calc(100% + 6px);width:155px;z-index:20;padding:5px;background:#fff;border:1px solid #e8e8e8;border-radius:9px;box-shadow:0 6px 20px #00000012}
+.chef-dashboard .period-menu[hidden],.chef-dashboard #revenue-period[hidden]{display:none!important}
+.chef-dashboard .period-menu button{display:block;width:100%;padding:9px 10px;text-align:left;border:0;border-radius:5px;background:#fff;color:#666;font:inherit;font-size:11px;cursor:pointer}
+.chef-dashboard .period-menu button[aria-pressed="true"]{background:#fff3eb;color:#f46627}
+.chef-dashboard .period-menu button:hover{background:#f7f7f7}
+.chef-dashboard .period-trigger:focus-visible,.chef-dashboard .period-menu button:focus-visible{outline:2px solid #ffb899;outline-offset:2px}
+.chef-course-page .chef-lesson{grid-template-columns:30px minmax(0,1fr) minmax(0,1.5fr) 84px 32px}
+.chef-course-page .chef-lesson:has(.chef-lesson-remove[hidden]){grid-template-columns:30px minmax(0,1fr) minmax(0,1.5fr) 84px}
+@media(max-width:700px){.chef-course-page .chef-lesson,.chef-course-page .chef-lesson:has(.chef-lesson-remove[hidden]){grid-template-columns:26px minmax(0,1fr) 32px}}
+
+.chef-site .chef-course-card .chef-course-meta{border-bottom:0}
+.chef-site .chef-course-card .chef-course-foot{border-top:1px solid #efefef;box-shadow:none}

@@ -1,4 +1,4 @@
-// services/chefSupport.js — ฟังก์ชันช่วยของหน้าฝั่งเชฟ (Dashboard / จัดการคอร์ส)
+
 const { randomBytes } = require('crypto');
 const createError = require('http-errors');
 const Client = require('../models/Client');
@@ -15,33 +15,31 @@ const difficulties = [
 ];
 const dayLabels = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
 
-/* ---------- ตัวช่วยทั่วไป ---------- */
 
-/** ครอบ route แบบ async ให้ error ไหลไป error handler ของ Express */
 function asyncRoute(handler) {
   return (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
 }
 
-/** ตัดช่องว่างหัวท้าย ถ้าไม่ใช่ string คืนค่าว่าง */
+
 function text(value) { return typeof value === 'string' ? value.trim() : ''; }
 
-/** เช็คว่าเป็น URL แบบ http/https จริง */
+
 function isHttpUrl(value) {
   try { return ['http:', 'https:'].includes(new URL(value).protocol); } catch (_) { return false; }
 }
 
-/** แปลงวันที่เป็น key รายวันตามเวลาไทย เช่น 2026-10-08 */
+
 function dayKey(date) { return new Date(date).toLocaleDateString('en-CA', { timeZone: TZ }); }
 
-/** วันที่แบบไทยแต่ใช้ปี ค.ศ. เช่น 15 ก.ย. 2026 */
+
 function thaiDate(date) {
   return new Date(date).toLocaleDateString('th-TH-u-ca-gregory', { day: 'numeric', month: 'short', year: 'numeric', timeZone: TZ });
 }
 
-/** ใส่ comma ให้ตัวเลข เช่น 1073280 → 1,073,280 */
+
 function money(n) { return Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 }); }
 
-/** แปลงนาทีเป็นข้อความ เช่น 150 → 2 ชม. 30 นาที */
+
 function durationText(minutes) {
   if (!minutes) return '';
   const h = Math.floor(minutes / 60);
@@ -49,17 +47,12 @@ function durationText(minutes) {
   return [h ? `${h} ชม.` : '', m ? `${m} นาที` : ''].filter(Boolean).join(' ');
 }
 
-/**
- * แปลง object เป็น JSON ที่ฝังใน <script> ได้ปลอดภัย
- * (escape < > & กันการปิดแท็ก script ด้วยข้อมูลที่ผู้ใช้กรอก)
- */
+
 function safeJson(value) {
   return JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
 }
 
-/* ---------- CSRF ของหน้าเชฟ ---------- */
 
-/** สร้าง token ไว้ใน session และตรวจทุก request ที่ไม่ใช่ GET (รองรับทั้งฟอร์มและ JSON) */
 function csrf(req, res, next) {
   req.session.chefCsrf = req.session.chefCsrf || randomBytes(32).toString('hex');
   res.locals.csrfToken = req.session.chefCsrf;
@@ -71,16 +64,15 @@ function csrf(req, res, next) {
   next();
 }
 
-/* ---------- คอร์ส (ใช้ model ของทีม: SingleCourse อิง baseRecipe, MultiCourse รวม includedCourses) ---------- */
 
 const levelToDifficulty = { BEGINNER: 'EASY', INTERMEDIATE: 'MEDIUM', ADVANCED: 'HARD' };
 
-/** ระดับความยากของสูตร (สูตรเก่าอาจมีแค่ level) */
+
 function recipeDifficulty(recipe) {
   return (recipe && (recipe.difficulty || levelToDifficulty[recipe.level])) || 'EASY';
 }
 
-/** สูตรอาหารของเชฟ ให้เลือกเป็นสูตรตั้งต้นของคอร์สเดี่ยว */
+
 async function loadRecipeOptions(chefId) {
   const recipes = await Recipe.find({ publisher: chefId }).select('title category difficulty level image rating').sort({ createdAt: -1 }).lean();
   return recipes.map(r => ({
@@ -89,7 +81,7 @@ async function loadRecipeOptions(chefId) {
   }));
 }
 
-/** รวมคอร์สเดี่ยว + แพ็กเกจของเชฟ พร้อมจำนวนผู้เรียน แปลงเป็นรูปแบบเดียวกันให้หน้าเว็บใช้ */
+
 async function loadCourses(chefId) {
   const [singles, multis] = await Promise.all([
     SingleCourse.find({ publisher: chefId }).populate('baseRecipe', 'title category difficulty level image rating').sort({ createdAt: -1 }).lean(),
@@ -104,7 +96,7 @@ async function loadCourses(chefId) {
       id: c._id, type: 'single', title: c.title,
       recipeId: recipe._id || null, recipeTitle: recipe.title || 'สูตรถูกลบไปแล้ว',
       category: recipe.category || 'ไม่ระบุหมวดหมู่', difficulty: recipeDifficulty(recipe),
-      imageUrl: recipe.image || '', rating: recipe.rating ?? null,
+      imageUrl: recipe.image || '', rating: null,
       price: c.price, description: c.detailedInstruction || '',
       videos: (c.videos || []).map(v => ({ title: v.title, videoUrl: v.videoUrl || '', duration: v.duration ?? '' })),
       lessons: (c.videos || []).map(v => v.title), menus: [], includedIds: [],
@@ -115,16 +107,14 @@ async function loadCourses(chefId) {
   const byId = new Map(singleViews.map(c => [c.id, c]));
 
   const packViews = multis.map(c => {
-    const items = (c.includedCourses || []).map(id => byId.get(id)).filter(Boolean);
-    const rated = items.filter(i => i.rating != null);
-    const minutes = items.reduce((sum, i) => sum + i.minutes, 0);
+    const items = (c.includedCourses || []).map(id => byId.get(id)).filter(Boolean);    const minutes = items.reduce((sum, i) => sum + i.minutes, 0);
     const rank = { EASY: 1, MEDIUM: 2, HARD: 3 };
     return {
       id: c._id, type: 'package', title: c.title,
       category: (items[0] && items[0].category) || 'แพ็กคอร์ส',
       difficulty: items.reduce((max, i) => (rank[i.difficulty] > rank[max] ? i.difficulty : max), 'EASY'),
       imageUrl: (items[0] && items[0].imageUrl) || '',
-      rating: rated.length ? rated.reduce((s, i) => s + i.rating, 0) / rated.length : null,
+      rating: null,
       price: c.price, description: c.description || '',
       videos: [], lessons: [], includedIds: items.map(i => i.id),
       menus: items.map(i => ({ id: i.id, name: i.title, imageUrl: i.imageUrl, lessons: i.lessons })),
@@ -134,10 +124,10 @@ async function loadCourses(chefId) {
     };
   });
 
-  return [...singleViews, ...packViews].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  return require('./courseReviews').applyRatings([...singleViews, ...packViews].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
 }
 
-/** นับผู้ซื้อแยกตามคอร์ส คืน { 'SingleCourse:3': 12, ... } */
+
 async function studentCounts(singleIds, multiIds) {
   if (!singleIds.length && !multiIds.length) return {};
   const rows = await Transaction.aggregate([
@@ -150,10 +140,7 @@ async function studentCounts(singleIds, multiIds) {
   return Object.fromEntries(rows.map(r => [`${r._id.t}:${r._id.i}`, r.n]));
 }
 
-/**
- * ตรวจข้อมูลคอร์สจากฟอร์ม (JSON) และเช็คว่าสูตร/คอร์สที่อ้างถึงเป็นของเชฟคนนี้จริง
- * คืน { type, data, errors } — data บันทึกลง model ของทีมได้ทันที
- */
+
 async function parseCourse(body, chefId, editingId = null) {
   const type = body.type === 'package' ? 'package' : 'single';
   const errors = [];
@@ -192,7 +179,7 @@ async function parseCourse(body, chefId, editingId = null) {
   return { type, errors, data: { title, price, description: description || null, includedCourses: ids } };
 }
 
-/** ใส่ข้อมูลที่ตรวจแล้วลงคอร์สเดี่ยว (บทเดิมลำดับเดียวกันเก็บ videoId ไว้) */
+
 function applySingle(doc, data) {
   const { videos, ...rest } = data;
   Object.assign(doc, rest);
@@ -203,15 +190,12 @@ function applySingle(doc, data) {
   }));
 }
 
-/**
- * บันทึกคอร์สใหม่ ถ้าเลข _id ชนกับของเดิม (counters ใน DB ตามไม่ทัน เช่นเคยเพิ่มข้อมูลด้วยมือ)
- * จะเลื่อนตัวนับไปเท่าเลขสูงสุดที่มีอยู่ แล้วบันทึกใหม่อีกครั้ง
- */
+
 async function saveNew(doc, counterName) {
   try {
     return await doc.save();
   } catch (err) {
-    // คอร์สไม่มี unique index อื่นนอกจาก _id จึงถือว่า 11000 คือเลข _id ชน (บาง driver ไม่ส่ง keyPattern มา)
+
     if (err.code !== 11000 || (err.keyPattern && !err.keyPattern._id)) throw err;
     const Model = doc.constructor;
     const Counter = Model.db.model('Counter');
@@ -223,9 +207,7 @@ async function saveNew(doc, counterName) {
   }
 }
 
-/* ---------- Dashboard ---------- */
 
-/** รวบรวมตัวเลขทั้งหมดของหน้า Dashboard จาก MongoDB */
 async function dashboardData(chef, { range = 7, allOrders = false } = {}) {
   const chefId = chef._id;
   const [courses, recipes] = await Promise.all([
@@ -246,7 +228,7 @@ async function dashboardData(chef, { range = 7, allOrders = false } = {}) {
     : [];
   const courseTxs = txs.filter(t => t.itemType !== 'Recipe');
 
-  // ---- การ์ดสถิติ 4 ใบ ----
+
   const monthKey = dayKey(new Date()).slice(0, 7);
   const inThisMonth = d => d && dayKey(d).slice(0, 7) === monthKey;
   const buyers = new Set(courseTxs.map(t => t.buyer && t.buyer._id).filter(v => v != null));
@@ -266,7 +248,7 @@ async function dashboardData(chef, { range = 7, allOrders = false } = {}) {
     lastSale: txs[0] ? thaiDate(txs[0].purchasedAt) : null,
   };
 
-  // ---- กราฟรายได้ย้อนหลัง N วัน (ตามเวลาไทย) เทียบกับช่วงก่อนหน้า ----
+
   const days = [];
   const now = Date.now();
   for (let i = range - 1; i >= 0; i--) {
@@ -294,11 +276,11 @@ async function dashboardData(chef, { range = 7, allOrders = false } = {}) {
     change: prevTotal ? (((periodTotal - prevTotal) / prevTotal) * 100).toFixed(1) : null,
   };
 
-  // ---- คอร์สขายดีอันดับ 1 / สูตรคะแนนสูงสุด ----
+
   const topCourse = courses.filter(c => c.students > 0).sort((a, b) => b.students - a.students)[0] || null;
   const topRecipe = rated.sort((a, b) => b.rating - a.rating || (b.reviewCount || 0) - (a.reviewCount || 0))[0] || null;
 
-  // ---- คำสั่งซื้อคอร์สล่าสุด ----
+
   const titles = Object.fromEntries(courses.map(c => [`${c.type === 'single' ? 'SingleCourse' : 'MultiCourse'}:${c.id}`, c.title]));
   const orders = courseTxs.slice(0, allOrders ? 100 : 5).map(t => ({
     buyerName: t.buyer ? t.buyer.name : 'ผู้ใช้ที่ถูกลบ',
@@ -312,7 +294,7 @@ async function dashboardData(chef, { range = 7, allOrders = false } = {}) {
   return { stats, chart, topCourse, topRecipe, orders, totalOrders: courseTxs.length };
 }
 
-/** ปัดค่าสูงสุดของแกน Y ให้เป็นเลขกลมๆ หาร 4 ลงตัว เช่น 37,000 → 40,000 */
+
 function niceMax(value) {
   if (!value) return 0;
   const step = Math.pow(10, Math.floor(Math.log10(value / 4)));
@@ -320,7 +302,7 @@ function niceMax(value) {
   return unit * 4;
 }
 
-/** ย่อเลขบนแกน เช่น 40000 → 40K */
+
 function shortMoney(n) {
   if (n >= 1e6) return `${+(n / 1e6).toFixed(1)}M`;
   if (n >= 1e3) return `${+(n / 1e3).toFixed(1)}K`;

@@ -21,7 +21,7 @@ async function ownRecipes(req) {
 }
 
 async function renderList(req, res, initialModal = null, status = 200) {
-  const view = !initialModal ? 'index' : initialModal.kind === 'preview' ? 'show' : initialModal.recipe._id ? 'edit' : 'create';
+  const view = initialModal ? 'page' : 'index';
   res.status(status).render(`chef/recipes/${view}`, { title: 'จัดการสูตรอาหาร', recipes: await ownRecipes(req),
     saved: req.query.saved === '1', deleted: req.query.deleted === '1', initialModal });
 }

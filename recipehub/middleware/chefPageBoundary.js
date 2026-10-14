@@ -1,4 +1,4 @@
-// Page navigation is role-specific; shared APIs retain their own access checks.
+
 module.exports = function chefPageBoundary(req, res, next) {
   if (req.user?.role !== 'chef' || !['GET','HEAD'].includes(req.method)) return next();
   const path = req.path;

@@ -3,9 +3,16 @@
     <div class="recipe-external-media"><% if (canAccess && videoEmbed) { %><iframe class="recipe-video" src="<%= videoEmbed %>" title="วิดีโอสอนทำ <%= recipe.title %>" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe><% } else { %><%- include('_image', { recipe }) %><% } %></div>
     <div class="recipe-external-intro">
       <span class="recipe-tag <%= (recipe.publisher && recipe.publisher.role === 'chef') || typeof chefName !== 'undefined' ? 'recipe-tag-chef' : '' %>"><%= countryLabel(localCountry(recipe.category)) %></span>
-<div class="recipe-local-intro-grid"><div class="recipe-local-title"><h1><%= recipe.title %></h1>
+      <div class="recipe-local-intro-grid">
+        <div class="recipe-local-title">
+          <h1><%= recipe.title %></h1>
 
-      <% if (recipe.description) { %><p class="recipe-description recipe-muted"><%= recipe.description %></p><% } %></div>      <div class="recipe-author-strip"><span class="recipe-author-avatar"><% const author = recipe.publisher && recipe.publisher.name ? recipe.publisher : (typeof recipeChefInfo !== 'undefined' ? recipeChefInfo : {name:typeof chefName !== 'undefined' ? chefName : 'เจ้าของสูตร'}); %><% if (author.avatar) { %><img src="<%= author.avatar %>" alt=""><% } else { %><i data-lucide="user-round" aria-hidden="true"></i><% } %></span><div><span class="recipe-author-caption">ผู้สร้างสูตร</span><strong><%= author.name %></strong><% if(author.institution || author.bio) { %><% if(author.institution) { %><small><%= author.institution %></small><% } %><% if(author.bio) { %><p class="recipe-author-bio"><%= author.bio %></p><% } %><% } %></div></div></div>
+          <% if (recipe.description) { %><p class="recipe-description recipe-muted"><%= recipe.description %></p><% } %>
+        </div>
+        <div class="recipe-author-strip"><span class="recipe-author-avatar"><% const author = recipe.publisher && recipe.publisher.name ? recipe.publisher : (typeof recipeChefInfo !== 'undefined' ? recipeChefInfo : {name:typeof chefName !== 'undefined' ? chefName : 'เจ้าของสูตร'}); %><% if (author.avatar) { %><img src="<%= author.avatar %>" alt=""><% } else { %><i data-lucide="user-round" aria-hidden="true"></i><% } %></span>
+          <div><span class="recipe-author-caption">ผู้สร้างสูตร</span><strong><%= author.name %></strong><% if(author.institution || author.bio) { %><% if(author.institution) { %><small><%= author.institution %></small><% } %><% if(author.bio) { %><p class="recipe-author-bio"><%= author.bio %></p><% } %><% } %></div>
+        </div>
+      </div>
       <div class="recipe-external-summary"><span><i data-lucide="clock-3"></i><%= recipe.duration == null ? 'ไม่ระบุเวลา' : recipe.duration + ' นาที' %></span><span><i data-lucide="shopping-basket"></i><%= (recipe.ingredients || []).length %> วัตถุดิบ</span><span><i data-lucide="list-ordered"></i><%= (recipe.steps || []).length %> ขั้นตอน</span><span><i data-lucide="star"></i><%= recipe.rating == null ? 'ยังไม่มีรีวิว' : recipe.rating.toFixed(1) %></span></div>
     </div>
   </header>
@@ -63,5 +70,7 @@
     </div>
   </section>
   <% } %>
-<section class="recipe-review-section" data-recipe-reviews="/recipes/reviews/local/<%= recipe._id %>"><p role="status">กำลังโหลดรีวิว…</p></section>
+  <section class="recipe-review-section" data-recipe-reviews="/recipes/reviews/local/<%= recipe._id %>">
+    <p role="status">กำลังโหลดรีวิว…</p>
+  </section>
 </div>

@@ -17,7 +17,7 @@ const categoryDefinitions = [
 router.get('/', async function(req, res, next) {
   if (req.user && req.user.role === 'user') return res.redirect('/user');
   try {
-      // นับคอร์สทั้งหมดในแต่ละหมวด ไม่จำกัดเฉพาะคอร์สยอดนิยม 6 รายการ
+
       const categoryCounts = await SingleCourse.aggregate([
           { $lookup: { from: Recipe.collection.name, localField: 'baseRecipe', foreignField: '_id', as: 'recipe' } },
           { $unwind: '$recipe' },
@@ -28,7 +28,7 @@ router.get('/', async function(req, res, next) {
           icon: category.icon,
           count: categoryCounts.reduce((total, row) => total + (category.values.includes(row._id) ? row.count : 0), 0)
       }));
-      // คอร์สยอดนิยม 6 อันดับ ใช้ข้อมูลชุดเดียวกับหน้า /courses การ์ดจะได้เหมือนกัน
+
       const courses = (await catalog.loadCourses())
           .sort((a, b) => b.studentCount - a.studentCount || new Date(b.createdAt) - new Date(a.createdAt))
           .slice(0, 6);

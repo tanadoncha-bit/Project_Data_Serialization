@@ -1,4 +1,4 @@
-// userFavorites.js — ปุ่มหัวใจในหน้าผู้ใช้ (views/user/*) บันทึกลงตาราง Favorite ใน database
+
 (function () {
   const loggedIn = document.body.dataset.loggedIn === 'true';
 
@@ -23,7 +23,7 @@
     if (btn.disabled) return;
 
     const url = btn.dataset.favUrl;
-    const on = !btn.classList.contains('on');
+    const on = btn.getAttribute('aria-pressed') !== 'true';
     setAll(url, on);
     btn.disabled = true;
     try {
@@ -33,6 +33,9 @@
         body: JSON.stringify({ favorite: on }),
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error);
+      const subject = url.startsWith('/courses/') ? 'คอร์สนี้' : 'สูตรนี้';
+      btn.setAttribute('aria-label', on ? 'ยกเลิกรายการโปรด' : 'เพิ่มเป็นรายการโปรด');
+      window.CookHubShowToast?.(on ? 'เพิ่ม' + subject + 'ในรายการโปรดแล้ว' : 'นำ' + subject + 'ออกจากรายการโปรดแล้ว');
       if (!on && btn.hasAttribute('data-fav-remove-card')) {
         const card = btn.closest('.card');
         if (card) card.remove();
@@ -40,6 +43,7 @@
     } catch (err) {
       setAll(url, !on);
       btn.title = err.message || 'บันทึกรายการโปรดไม่สำเร็จ ลองใหม่อีกครั้ง';
+      window.CookHubShowToast?.(btn.title, 'error');
     } finally {
       btn.disabled = false;
     }

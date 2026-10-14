@@ -1,5 +1,5 @@
-// userUi.js — ส่วนโต้ตอบของหน้าผู้ใช้ (views/user/*)
-//  หน้ารายละเอียดคอร์ส: กดชื่อบทเรียน → เปลี่ยนวิดีโอที่เล่นด้านบน
+
+
 (function () {
   const player = document.getElementById('course-player');
   document.addEventListener('click', (e) => {

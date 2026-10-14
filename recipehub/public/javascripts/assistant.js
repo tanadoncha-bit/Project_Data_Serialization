@@ -16,11 +16,11 @@
  form.onsubmit=async event=>{
   event.preventDefault();if(busy)return;const message=input.value.trim();if(!message)return;
   if(!config){await setup();}if(!config?.ready){status.textContent='ผู้ช่วยยังไม่พร้อมตอบ กรุณาตั้งค่าคีย์ AI';return;}
-  busy=true;form.querySelector('button').disabled=true;root.querySelectorAll('[data-ai-prompt]').forEach(b=>b.disabled=true);bubble(message,true);transcript.push({role:'user',content:message});persist();input.value='';status.textContent='';const typing=bubble('');typing.classList.add('cookhub-ai-typing');typing.setAttribute('aria-label','น้องอุ่นกำลังพิมพ์');for(let i=0;i<3;i++)typing.append(document.createElement('span'));
+  busy=true;form.setAttribute('aria-busy','true');form.querySelector('button').disabled=true;root.querySelectorAll('[data-ai-prompt]').forEach(b=>b.disabled=true);bubble(message,true);transcript.push({role:'user',content:message});persist();input.value='';status.textContent='';const typing=bubble('');typing.classList.add('cookhub-ai-typing');typing.setAttribute('aria-label','น้องอุ่นกำลังพิมพ์');for(let i=0;i<3;i++)typing.append(document.createElement('span'));
   try{const response=await fetch('/api/assistant/chat',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':config.csrf},body:JSON.stringify({message,history:history.slice(-8)})});const data=await response.json();if(!response.ok)throw Error(data.error||'ตอบไม่สำเร็จ');typing.parentElement.remove();bubble(data.reply);
    cards(data.recommendations);transcript.push({role:'assistant',content:data.reply,recommendations:data.recommendations||[]});
    history.push({role:'user',content:message.slice(0,1500)},{role:'assistant',content:data.reply.slice(0,1500)});if(history.length>8)history.splice(0,history.length-8);persist();status.textContent='';scroll();
   }catch(error){status.textContent=error.message;input.value=message;}
-  finally{typing.parentElement?.remove();busy=false;form.querySelector('button').disabled=false;root.querySelectorAll('[data-ai-prompt]').forEach(b=>b.disabled=false);if(!panel.hidden)input.focus();}
+  finally{typing.parentElement?.remove();form.removeAttribute('aria-busy');busy=false;form.querySelector('button').disabled=false;root.querySelectorAll('[data-ai-prompt]').forEach(b=>b.disabled=false);if(!panel.hidden)input.focus();}
  };
 })();

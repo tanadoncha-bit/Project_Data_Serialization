@@ -1,4 +1,4 @@
-// profile.js — การทำงานฝั่งเบราว์เซอร์ของหน้าโปรไฟล์
+
 
 const bio = document.getElementById('bio');
 const bioCount = document.getElementById('bioCount');
@@ -12,7 +12,7 @@ if (bio && bioCount) {
   bio.addEventListener('input', updateBioCount);
 }
 
-/* ---------- อัปโหลดรูปโปรไฟล์ ---------- */
+
 const avatarInput = document.getElementById('avatarInput');
 const avatarPreview = document.getElementById('avatarPreview');
 const avatarStatus = document.getElementById('avatarStatus');
@@ -32,7 +32,7 @@ if (avatarInput) {
 
       avatarPreview.src = data.avatar;
       avatarPreview.hidden = false;
-    
+
       document.querySelector('.avatar-placeholder')?.remove();
       avatarStatus.textContent = '';
     } catch (err) {
@@ -43,7 +43,7 @@ if (avatarInput) {
   });
 }
 
-/* ---------- แท็บ ข้อมูลส่วนตัว / รายการโปรด / ประวัติการซื้อ ---------- */
+
 const tabs = document.querySelectorAll('.profile-tab');
 
 tabs.forEach((tab) => {

@@ -13,11 +13,7 @@ async function store(buffer, clientId) {
   const ext = extension(buffer);
   if (!ext || buffer.length > 2 * 1024 * 1024) throw new Error('รูปต้องเป็น JPG, PNG, GIF หรือ WebP ขนาดไม่เกิน 2 MB');
   const url = await cloud.store(buffer, ext, 'avatars');
-  if (url) return url;
-  const dir = path.join(__dirname, '../public/uploads/avatars');
-  await fs.mkdir(dir, {recursive:true});
-  const name = clientId + '-' + randomBytes(16).toString('hex') + '.' + ext;
-  await fs.writeFile(path.join(dir,name),buffer,{flag:'wx'});
-  return '/uploads/avatars/' + name;
+  if (!url) throw new Error('กรุณาตั้งค่า Cloudinary ก่อนอัปโหลดรูป');
+  return url;
 }
 module.exports = {store, extension};

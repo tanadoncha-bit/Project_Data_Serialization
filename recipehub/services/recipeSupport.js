@@ -19,7 +19,7 @@ const demoSession = demoMode ? session({
 }) : null;
 
 function sessionContext(req, res, next) {
-  // TODO: The team's authentication middleware must run before recipe routers and set req.session.userId.
+
   if (req.session || !demoSession) return next();
   demoSession(req, res, next);
 }

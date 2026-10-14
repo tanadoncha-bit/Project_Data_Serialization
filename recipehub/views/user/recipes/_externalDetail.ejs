@@ -4,9 +4,9 @@
   <header class="recipe-external-hero">
     <div class="recipe-external-media">
       <% if (videoEmbed) { %>
-        <iframe class="recipe-video" src="<%= videoEmbed %>" title="วิดีโอสอนทำ <%= meal.title %>" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+      <iframe class="recipe-video" src="<%= videoEmbed %>" title="วิดีโอสอนทำ <%= meal.title %>" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
       <% } else if (/^https?:\/\//i.test(meal.image || '')) { %>
-        <img class="recipe-image" src="<%= meal.image %>" alt="<%= meal.title %>">
+      <img class="recipe-image" src="<%= meal.image %>" alt="<%= meal.title %>">
       <% } %>
     </div>
     <div class="recipe-external-intro">
@@ -24,9 +24,13 @@
     </section>
     <section class="recipe-detail-panel recipe-external-method">
       <h2><i data-lucide="chef-hat"></i> วิธีทำ</h2>
-      <ol class="recipe-external-steps"><% steps.forEach((step, i) => { %><li><span class="recipe-external-step-number"><%= i + 1 %></span><p><%= step %></p></li><% }); %></ol>
+      <ol class="recipe-external-steps"><% steps.forEach((step, i) => { %><li><span class="recipe-external-step-number"><%= i + 1 %></span>
+          <p><%= step %></p>
+        </li><% }); %></ol>
       <% if (!steps.length) { %><p class="recipe-muted">ไม่มีข้อมูลวิธีทำ</p><% } %>
     </section>
   </div>
-<section class="recipe-review-section" data-recipe-reviews="/recipes/reviews/external/<%= meal.id %>"><p role="status">กำลังโหลดรีวิว…</p></section>
+  <section class="recipe-review-section" data-recipe-reviews="/recipes/reviews/external/<%= meal.id %>">
+    <p role="status">กำลังโหลดรีวิว…</p>
+  </section>
 </div>

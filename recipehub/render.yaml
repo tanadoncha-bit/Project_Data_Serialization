@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: cookhub
+    runtime: node
+    region: singapore
+    plan: free
+    rootDir: recipehub
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: RECIPE_DEMO_PAYMENTS
+        value: "false"
+      - key: OMISE_MODE
+        value: test
+      - key: OMISE_LIVE_PAYMENTS
+        value: "false"

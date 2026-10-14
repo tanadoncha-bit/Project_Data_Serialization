@@ -21,7 +21,7 @@ async function request(endpoint, params) {
   return (data.meals || []).map(normalize);
 }
 
-// Fetch the documented letter index with bounded concurrency, then deduplicate IDs.
+
 async function loadCatalogue() {
   const letters = Array.from('abcdefghijklmnopqrstuvwxyz');
   const groups = new Array(letters.length);
@@ -36,7 +36,7 @@ async function loadCatalogue() {
     .sort((a, b) => a.title.localeCompare(b.title, 'en'));
 }
 
-// Serve a small first batch immediately; refresh the complete catalogue in the background.
+
 let discoveryCache;
 let discoveryExpires = 0;
 let discoveryRequest;
@@ -47,14 +47,14 @@ try {
   if (Array.isArray(saved.meals) && saved.meals.every(meal => meal && typeof meal.id === 'string' && typeof meal.title === 'string')) {
     discoveryCache = saved.meals; discoveryExpires = Number(saved.expires) || 0; complete = true;
   }
-} catch (_) { /* A missing cache is expected on first startup. */ }
+} catch (_) {                                                     }
 function refreshCatalogue() {
   if (!discoveryRequest) {
     discoveryRequest = loadCatalogue().then(meals => {
       discoveryCache = meals;
       discoveryExpires = Date.now() + 30 * 60 * 1000;
       complete = true;
-      try { fs.mkdirSync(path.dirname(cacheFile), {recursive:true}); fs.writeFileSync(cacheFile, JSON.stringify({meals,expires:discoveryExpires})); } catch (_) { /* Memory cache still works if disk is unavailable. */ }
+      try { fs.mkdirSync(path.dirname(cacheFile), {recursive:true}); fs.writeFileSync(cacheFile, JSON.stringify({meals,expires:discoveryExpires})); } catch (_) {                                                        }
     }).catch(() => {}).finally(() => { discoveryRequest = undefined; });
   }
 }

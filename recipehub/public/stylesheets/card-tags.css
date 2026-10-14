@@ -1,9 +1,11 @@
-/* Country badges share the gold finish used on recipe cards. */
-.card .card__img .tag:not(.tag--pack) {
-    background: linear-gradient(115deg, #d2ab53 0%, #f6e6af 43%, #e9ca78 65%, #c69a3e 100%);
-    color: #554018;
-    border: 1px solid #c4a04c;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), 0 2px 5px rgba(73, 49, 10, .12);
-    font-weight: 600;
-    letter-spacing: .15px;
-}
+
+:is(.recipe-tag,.card .card__img .tag){display:inline-block;box-sizing:border-box;background:var(--orange,#ff6828);color:#fff;border-radius:20px;padding:4px 12px;font-size:11px;line-height:1.5}
+.recipe-card-photo .recipe-tag,.card .card__img .tags{position:absolute;left:12px;top:12px;pointer-events:none}
+.card .card__img .tags{display:flex;gap:6px}
+:is(.recipe-tag.recipe-tag-chef,.card .card__img .tag.tag--chef:not(.tag--pack)){background:linear-gradient(115deg,#d2ab53 0%,#f6e6af 43%,#e9ca78 65%,#c69a3e 100%);color:#554018;border:1px solid #c4a04c;box-shadow:inset 0 1px 0 #ffffff8c,0 2px 5px #49310a1f;font-weight:600;letter-spacing:.15px}
+.card .card__img .tag.tag--pack{background:#eee5ff;color:#6941a5;border:1px solid #d5bff4;box-shadow:none;font-weight:600}
+:is(.recipe-favorite,.card .card__img .fav){position:absolute;right:10px;top:10px;width:36px;height:36px;padding:0;background:#fff;color:#ff6573;border:0;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px #00000026;z-index:2}
+:is(.recipe-favorite,.card .card__img .fav) svg{width:19px;height:19px;stroke-width:1.5;fill:none}
+:is(.recipe-favorite,.card .card__img .fav)[aria-pressed="true"]{color:#f45738}
+:is(.recipe-favorite,.card .card__img .fav)[aria-pressed="true"] svg{fill:currentColor}
+:is(.recipe-favorite,.card .card__img .fav):disabled{opacity:.5}

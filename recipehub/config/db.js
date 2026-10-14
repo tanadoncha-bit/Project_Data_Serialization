@@ -6,7 +6,7 @@ const connectDB = async () => {
     console.log('MongoDB Connected');
   } catch (error) {
     console.error('MongoDB Connection Error:', error.message);
-    // Keep the server available; recipe routes return 503 until MongoDB is connected.
+
     return false;
   }
 };
