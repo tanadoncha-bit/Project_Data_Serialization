@@ -4,6 +4,7 @@ const vm = require('node:vm');
 const { createRequire } = require('node:module');
 const ejs = require('ejs');
 const root = path.resolve(__dirname, '..');
+const devDependencies = require('../package.json').devDependencies || {};
 const failures = [];
 let checked = 0;
 function walk(directory) {
@@ -25,7 +26,11 @@ for (const file of files) {
       new vm.Script(source, { filename: file });
       if (!file.startsWith(path.join(root, 'public') + path.sep)) {
         const resolve = createRequire(file).resolve;
-        for (const match of source.matchAll(/require\(\s*['"]([^'"]+)['"]\s*\)/g)) resolve(match[1]);
+        for (const match of source.matchAll(/require\(\s*['"]([^'"]+)['"]\s*\)/g)) {
+          const name = match[1].startsWith('@') ? match[1].split('/').slice(0, 2).join('/') : match[1].split('/')[0];
+          if (file.startsWith(path.join(root, 'scripts') + path.sep) && Object.hasOwn(devDependencies, name)) continue;
+          resolve(match[1]);
+        }
       }
     }
     if (file.endsWith('.ejs')) {
