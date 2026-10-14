@@ -4,6 +4,8 @@ services:
     runtime: node
     region: singapore
     plan: free
+    branch: main
+    autoDeployTrigger: checksPass
     rootDir: recipehub
     buildCommand: npm ci --omit=dev
     startCommand: npm start
