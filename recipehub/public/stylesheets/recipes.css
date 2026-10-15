@@ -4281,3 +4281,8 @@ body.recipe-site:has(.recipe-single-page) .navbar {
 .recipe-category-field .recipe-form-dropdown summary [data-dropdown-value]{flex:1;text-align:left}
 .recipe-category-field .recipe-form-dropdown summary>svg{width:16px;height:16px;flex-shrink:0}
 .recipe-category-field .recipe-difficulty-option span{text-align:left}
+
+.recipe-delete-text{flex:1;min-width:0}
+.recipe-delete-text strong{display:block;line-height:1.4}
+.recipe-delete-rating{flex-shrink:0;align-self:flex-start;margin-top:4px;color:var(--orange);font-size:11px;font-weight:500}
+.recipe-delete-dialog #delete-warning{font-size:12px;line-height:1.6;padding:12px;margin:0 0 20px}

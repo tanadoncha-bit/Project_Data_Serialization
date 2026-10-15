@@ -1555,66 +1555,6 @@
   font-size: 15px;
   padding: 12px 30px;
 }
-.chef-delete-dialog {
-  width: 700px;
-  padding: 52px 40px 56px;
-  text-align: center;
-}
-
-.chef-delete-dialog h2 {
-  margin: 0 0 8px;
-  font-size: 28px;
-  font-weight: 600;
-}
-
-.chef-delete-dialog>p {
-  margin: 0;
-  font-size: 15px;
-  line-height: 1.7;
-}
-
-.chef-delete-summary {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin: 36px 0 20px;
-  padding: 14px;
-  border-radius: 14px;
-  background: #FFF8F3;
-  text-align: left;
-}
-
-.chef-delete-summary .chef-thumb {
-  width: 130px;
-  height: 82px;
-  border-radius: 8px;
-}
-
-.chef-delete-summary strong {
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.chef-delete-summary p {
-  margin: 6px 0 0;
-  font-size: 14px;
-}
-
-.chef-delete-dialog .chef-alert {
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.chef-delete-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 30px;
-}
-
-.chef-delete-actions .chef-btn {
-  padding: 14px;
-}
 @media (max-width: 1200px) {
   .chef-stats {
     grid-template-columns: repeat(2, 1fr);
@@ -1736,14 +1676,6 @@
   .chef-form-row2 {
     grid-template-columns: 1fr;
     gap: 14px;
-  }
-
-  .chef-delete-dialog {
-    padding: 48px 18px 28px;
-  }
-
-  .chef-delete-actions {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -1979,71 +1911,11 @@
 }
 .chef-detail-figure .chef-thumb,
 .chef-pick .chef-thumb,
-.chef-recipe-option .chef-thumb,
-.chef-delete-summary .chef-thumb {
+.chef-recipe-option .chef-thumb {
   object-fit: cover;
 }
-.chef-delete-dialog {
-  width: 640px;
-  padding: 48px 48px 44px;
-}
 
-.chef-delete-dialog h2 {
-  font-size: 26px;
-}
 
-.chef-delete-summary {
-  margin: 30px 0 18px;
-  padding: 12px 18px 12px 12px;
-  border-radius: 14px;
-  background: #FFF6EF;
-}
-
-.chef-delete-summary .chef-thumb {
-  width: 120px;
-  height: 76px;
-  border-radius: 8px;
-}
-
-.chef-delete-text {
-  flex: 1;
-  min-width: 0;
-}
-
-.chef-delete-text strong {
-  display: block;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-.chef-delete-rating {
-  flex-shrink: 0;
-  align-self: flex-start;
-  margin-top: 4px;
-  color: var(--orange);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.chef-delete-actions {
-  grid-template-columns: 1fr 1.4fr;
-  margin-top: 26px;
-}
-
-.chef-delete-actions .chef-btn {
-  border-radius: 10px;
-}
-
-@media (max-width: 820px) {
-  .chef-delete-dialog {
-    padding: 52px 20px 26px;
-  }
-
-  .chef-delete-actions {
-    grid-template-columns: 1fr;
-  }
-}
 .chef-btn-soft {
   background: #fff;
   color: var(--orange);

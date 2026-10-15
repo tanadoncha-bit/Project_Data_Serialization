@@ -230,23 +230,23 @@
     </section>
 
 
-    <dialog id="course-delete" class="chef-dialog chef-delete-dialog" aria-labelledby="delete-title">
-      <button type="button" class="chef-dialog-close" data-close aria-label="ปิด"><i data-lucide="x"></i></button>
+    <dialog id="course-delete" class="recipe-dialog recipe-delete-dialog" aria-labelledby="delete-title">
+      <button type="button" class="recipe-modal-close" data-close aria-label="ปิด"><i data-lucide="x"></i></button>
 
       <%- include('../partials/deleteIllustration', { idPrefix: 'course-delete' }) %>
       <h2 id="delete-title">ลบคอร์สเรียนนี้?</h2>
       <p class="chef-muted">เมื่อทำการลบแล้ว ข้อมูลทั้งหมดของคอร์สนี้<br>จะหายไป และไม่สามารถกู้คืนได้</p>
-      <div class="chef-delete-summary">
+      <div class="recipe-delete-summary">
         <span id="delete-thumb"></span>
-        <div class="chef-delete-text"><strong id="delete-name"></strong>
+        <div class="recipe-delete-text"><strong id="delete-name"></strong>
           <p class="chef-muted chef-clamp" id="delete-desc"></p>
         </div>
-        <span class="chef-delete-rating" id="delete-rating"></span>
+        <span class="recipe-delete-rating" id="delete-rating"></span>
       </div>
       <p class="chef-alert err" id="delete-warning" hidden></p>
-      <div class="chef-delete-actions">
-        <button type="button" class="chef-btn chef-btn-outline" data-close>ยกเลิก</button>
-        <button type="button" class="chef-btn chef-btn-primary" id="delete-confirm">ลบคอร์สเรียน</button>
+      <div class="recipe-delete-actions">
+        <button type="button" class="recipe-btn" data-close>ยกเลิก</button>
+        <button type="button" class="recipe-btn recipe-primary" id="delete-confirm">ลบคอร์สเรียน</button>
       </div>
     </dialog>
 
