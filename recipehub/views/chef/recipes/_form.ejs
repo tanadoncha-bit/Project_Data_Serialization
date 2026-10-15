@@ -1,4 +1,4 @@
-<% const editing = !!recipe._id; const ingredients = recipe.ingredients && recipe.ingredients.length ? recipe.ingredients : [{ name: '', amount: '' }]; const steps = recipe.steps && recipe.steps.length ? recipe.steps : [{ description: '' }]; const categoryOptions = recipeCategories; const selectedCategory = localCountry(recipe.category || 'Thai'); %>
+<% const editing = !!recipe._id; const ingredients = recipe.ingredients && recipe.ingredients.length ? recipe.ingredients : [{ name: '', amount: '' }]; const steps = recipe.steps && recipe.steps.length ? recipe.steps : [{ description: '' }]; const categoryOptions = recipeCategories; const categoryLabels = { Thai: 'อาหารไทย', British: 'อาหารอังกฤษ', Chinese: 'อาหารจีน', Japanese: 'อาหารญี่ปุ่น', Korean: 'อาหารเกาหลี', International: 'อาหารนานาชาติ' }; const categoryLabel = value => categoryLabels[value] || countryLabel(value); const selectedCategory = localCountry(recipe.category || 'Thai'); %>
 <div class="recipe-modal-heading">
   <div>
     <h2><i data-lucide="<%= editing ? 'pencil-line' : 'chef-hat' %>"></i> <%= editing ? 'แก้ไขสูตรอาหาร' : 'สร้างสูตรอาหารของคุณ' %></h2>
@@ -18,8 +18,8 @@
         <label>ชื่ออาหาร / เมนู <span class="recipe-required">*</span><input name="title" value="<%= recipe.title || '' %>" maxlength="200" placeholder="เช่น ต้มยำกุ้งน้ำข้นสูตรโบราณ" required></label>
         <div class="recipe-category-field"><span id="recipe-category-label">หมวดหมู่</span>
           <details class="recipe-difficulty-control recipe-form-dropdown">
-            <summary aria-labelledby="recipe-category-label recipe-category-value"><span id="recipe-category-value" data-dropdown-value><%= countryLabel(selectedCategory) %></span><i data-lucide="chevron-down" aria-hidden="true"></i></summary>
-            <div class="recipe-difficulty-menu" role="group" aria-labelledby="recipe-category-label"><% categoryOptions.forEach(category=>{ %><label class="recipe-difficulty-option"><input type="radio" name="category" value="<%= category %>" <%= selectedCategory===category ? 'checked' : '' %> required><span><%= countryLabel(category) %></span></label><% }); %></div>
+            <summary aria-labelledby="recipe-category-label recipe-category-value"><span id="recipe-category-value" data-dropdown-value><%= categoryLabel(selectedCategory) %></span><i data-lucide="chevron-down" aria-hidden="true"></i></summary>
+            <div class="recipe-difficulty-menu" role="group" aria-labelledby="recipe-category-label"><% categoryOptions.forEach(category=>{ %><label class="recipe-difficulty-option"><input type="radio" name="category" value="<%= category %>" <%= selectedCategory===category ? 'checked' : '' %> required><span><%= categoryLabel(category) %></span></label><% }); %></div>
           </details>
         </div>
         <label>ราคา (บาท)<input type="number" name="price" value="<%= Number.isFinite(recipe.price) ? recipe.price : '' %>" min="0" step="0.01" required></label>
