@@ -4310,3 +4310,8 @@ body.recipe-site:has(.recipe-single-page) .navbar {
 .recipe-pagination{gap:10px;line-height:1;margin-top:32px}
 .recipe-pagination a,.recipe-pagination [aria-current]{box-sizing:border-box;width:30px;height:30px;font-size:12px}
 .recipe-pagination-total{display:inline-flex;align-items:center;height:30px;font-size:12px;line-height:1}
+
+.recipe-category-field .recipe-form-dropdown summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;text-align:left}
+.recipe-category-field .recipe-form-dropdown summary [data-dropdown-value]{flex:1;text-align:left}
+.recipe-category-field .recipe-form-dropdown summary>svg{width:16px;height:16px;flex-shrink:0}
+.recipe-category-field .recipe-difficulty-option span{text-align:left}
