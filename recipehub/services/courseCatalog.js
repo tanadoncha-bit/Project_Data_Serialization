@@ -1,3 +1,4 @@
+const paymentPolicy = require('./paymentPolicy');
 
 const SingleCourse = require('../models/SingleCourse');
 const MultiCourse = require('../models/MultiCourse');
@@ -92,7 +93,7 @@ async function countStudents() {
     { $match: {
       itemType: { $in: ['SingleCourse', 'MultiCourse'] },
 
-      ...(process.env.NODE_ENV === 'production' ? { paymentMode: { $nin: ['demo', 'gateway-test'] } } : {}),
+      ...paymentPolicy.accessFilter(),
     } },
     { $group: { _id: { t: '$itemType', id: '$itemId' }, n: { $sum: 1 } } },
   ]);

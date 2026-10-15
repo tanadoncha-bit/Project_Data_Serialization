@@ -1,3 +1,4 @@
+const paymentPolicy = require('../services/paymentPolicy');
 const router = require('express').Router();
 const Recipe = require('../models/Recipe');
 const SingleCourse = require('../models/SingleCourse');
@@ -15,7 +16,7 @@ router.get('/', async (req, res, next) => {
     groups.forEach((group,index) => group.forEach(item => subjects.set(types[index]+':'+item._id,{title:item.title,url:index===0?'/chef/recipes/'+item._id:'/chef/courses/'+(index===1?'single':'package')+'/'+item._id})));
     if (!subjects.size) return res.json({userId,items:[]});
     const matches = groups.map((group,index)=>({itemType:types[index],itemId:{$in:group.map(item=>item._id)}}));
-    const purchases = await Transaction.find({$or:matches,...(process.env.NODE_ENV==='production'?{paymentMode:{$nin:['demo','gateway-test']}}:{})}).sort({purchasedAt:-1}).limit(20).populate('buyer','name avatar').lean();
+    const purchases = await Transaction.find({$or:matches,...paymentPolicy.accessFilter()}).sort({purchasedAt:-1}).limit(20).populate('buyer','name avatar').lean();
     const reviews = await Review.find({client:{$ne:userId},$or:groups.map((group,index)=>({recipeType:types[index],recipeId:{$in:group.map(item=>item._id)}}))}).sort({updatedAt:-1}).limit(20).populate('client','name avatar').lean();
     const items = purchases.map(item=>{
       const subject=subjects.get(item.itemType+':'+item.itemId);

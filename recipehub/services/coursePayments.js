@@ -1,3 +1,4 @@
+const paymentPolicy = require('./paymentPolicy');
 
 const { randomBytes } = require('node:crypto');
 const gateway = require('./omiseGateway');
@@ -13,7 +14,7 @@ const watchUrl = (kind, id) => (kind === 'multi' ? '/courses/pack/' : '/courses/
 const demoEnabled = () => process.env.RECIPE_DEMO_PAYMENTS === 'true' && process.env.NODE_ENV !== 'production';
 
 
-const accessFilter = () => (process.env.NODE_ENV === 'production' ? { paymentMode: { $nin: ['demo', 'gateway-test'] } } : {});
+const accessFilter = paymentPolicy.accessFilter;
 
 
 async function findCourse(kind, id) {
@@ -72,8 +73,8 @@ async function reconcile(order, charge) {
       try { tx = await Transaction.create({ ...key, amountPaid: order.amount / 100, paymentMode: mode, providerChargeId: charge.id }); }
       catch (error) { if (error.code !== 11000) throw error; tx = await Transaction.findOne(key); }
     }
-    if (tx && tx.paymentMode !== 'real' && mode === 'real') {
-      tx.amountPaid = order.amount / 100; tx.paymentMode = 'real'; tx.providerChargeId = charge.id; await tx.save();
+    if (tx && ((tx.paymentMode !== 'real' && mode === 'real') || (tx.paymentMode === 'demo' && mode === 'gateway-test'))) {
+      tx.amountPaid = order.amount / 100; tx.paymentMode = mode; tx.providerChargeId = charge.id; await tx.save();
     }
     order.status = 'paid';
   } else if (['failed', 'expired'].includes(charge.status)) {
