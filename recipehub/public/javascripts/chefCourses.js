@@ -15,7 +15,7 @@
     if (!dialog.open) dialog.showModal();
     document.body.classList.add('chef-modal-open');
   }
-  $$('dialog.chef-dialog').forEach(dialog => {
+  $$('dialog.chef-dialog, #course-delete').forEach(dialog => {
     dialog.addEventListener('close', () => {
       if (!$('dialog[open]')) document.body.classList.remove('chef-modal-open');
     });
@@ -321,7 +321,7 @@
     $('#delete-confirm').disabled = !!reason;
     icons();
     openDialog(del);
-    $('[data-close]', $('.chef-delete-actions')).focus();
+    $('[data-close]', $('.recipe-delete-actions', del)).focus();
   });
   $('#delete-confirm').addEventListener('click', () => {
     if (!pendingDelete) return;
