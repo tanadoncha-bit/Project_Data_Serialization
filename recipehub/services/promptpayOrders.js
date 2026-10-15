@@ -7,7 +7,7 @@ async function reconcile(order,charge){assertCharge(order,charge);if(order.statu
  if(qr){const url=new URL(qr);if(url.protocol!=='https:'||url.hostname!=='api.omise.co')throw Error('Invalid QR URL');order.qrUrl=qr;}
  order.expiresAt=charge.expires_at?new Date(charge.expires_at):order.expiresAt;order.lastCheckedAt=new Date();
  if(charge.status==='successful'&&charge.paid===true){const key={buyer:order.buyer,itemType:'Recipe',itemId:order.recipeId},mode=order.livemode?'real':'gateway-test';let tx=await Transaction.findOne(key);if(!tx){try{tx=await Transaction.create({...key,amountPaid:order.amount/100,paymentMode:mode,providerChargeId:charge.id});}catch(error){if(error.code!==11000)throw error;tx=await Transaction.findOne(key);}}
- if(tx&&tx.paymentMode!=='real'&&mode==='real'){tx.amountPaid=order.amount/100;tx.paymentMode='real';tx.providerChargeId=charge.id;await tx.save();}
+ if(tx&&((tx.paymentMode!=='real'&&mode==='real')||(tx.paymentMode==='demo'&&mode==='gateway-test'))){tx.amountPaid=order.amount/100;tx.paymentMode=mode;tx.providerChargeId=charge.id;await tx.save();}
  order.status='paid';order.activeKey=undefined;
  }else if(['failed','expired'].includes(charge.status)){order.status=charge.status;order.activeKey=undefined;}else if(order.status!=='paid'){order.status='pending';}
  const update={$set:{chargeId:order.chargeId,qrUrl:order.qrUrl,expiresAt:order.expiresAt,lastCheckedAt:order.lastCheckedAt,status:order.status}};if(order.status==='paid'||order.status==='failed'||order.status==='expired')update.$unset={activeKey:1};

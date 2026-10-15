@@ -1,3 +1,4 @@
+const paymentPolicy = require('../services/paymentPolicy');
 const express = require('express');
 const { randomBytes } = require('node:crypto');
 const createError = require('http-errors');
@@ -139,7 +140,7 @@ router.get('/:id', support.asyncRoute(async (req, res) => {
   const demoChefId = support.numericId(req.session && req.session.recipeDemoChefId);
   let canAccess = recipe.price === 0 || (recipe.publisher && [userId, demoChefId].includes(recipe.publisher._id));
 
-  if (!canAccess && userId) canAccess = !!(await Transaction.exists({ buyer: userId, itemType: 'Recipe', itemId: id, ...(process.env.NODE_ENV === 'production' ? {paymentMode:{$nin:['demo','gateway-test']}} : {}) }));
+  if (!canAccess && userId) canAccess = !!(await Transaction.exists({ buyer: userId, itemType: 'Recipe', itemId: id, ...paymentPolicy.accessFilter() }));
   if (!canAccess) {
     delete recipe.ingredients;
     delete recipe.steps;

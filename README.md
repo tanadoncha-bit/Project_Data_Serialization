@@ -240,7 +240,7 @@ Recipe เก็บวัตถุดิบและขั้นตอนเป�
 ## ข้อจำกัดของการตั้งค่าปัจจุบัน
 
 - การรับเงินจริงยังปิดอยู่ ต้องตั้งบัญชีผู้ให้บริการ คีย์ และตรวจเส้นทางชำระเงินก่อนเปิดใช้
-- production ไม่นับสิทธิ์ซื้อแบบ demo หรือ gateway-test และไม่เปิดการซื้อจำลอง
+- production ไม่เปิดการซื้อจำลองแบบ demo; สิทธิ์ gateway-test ใช้ได้เฉพาะเปิด OMISE_TEST_PAYMENTS=true และ OMISE_MODE=test อย่างชัดเจน
 - รูปโปรไฟล์เก่าที่ไฟล์ต้นฉบับหาย ต้องให้เจ้าของบัญชีอัปโหลดใหม่
 - สถานะอ่านแจ้งเตือนเก็บในเบราว์เซอร์ จึงไม่ซิงก์ข้ามอุปกรณ์
 - การส่งอีเมลและการใช้งาน AI ขึ้นกับการอนุมัติบัญชี โควตา และการตั้งค่าของผู้ให้บริการ
@@ -268,3 +268,9 @@ Workflow Sync Render Deployment ตรวจ /healthz ของเว็บจ�
 งานนี้แยกจาก CI และไม่ trigger ตอน push เพื่อไม่ให้ Render ซึ่งรอ CI ต้องรอ workflow ที่กำลังรอการ deploy อีกทอด ใช้ GITHUB_TOKEN ของ Actions ที่มีสิทธิ์เขียน deployments โดยไม่ต้องเพิ่ม Render API key หรือ Deploy Hook
 
 หากเว็บไม่พร้อมหรือยังไม่ส่งรหัส revision ระบบจะไม่บันทึกว่า deploy สำเร็จ ตารางเวลาของ GitHub อาจมีความล่าช้า และการตรวจเว็บอาจปลุกบริการ Render Free ที่พักอยู่
+
+## โหมดทดสอบชำระเงินบนเว็บเดโม
+
+ตั้ง OMISE_MODE=test, OMISE_TEST_PAYMENTS=true, OMISE_SECRET_KEY เป็น test secret key, OMISE_LIVE_PAYMENTS=false และ RECIPE_DEMO_PAYMENTS=false โดยคง NODE_ENV=production ไว้ ระบบยังตรวจผลชำระเงินกับ Omise จริงใน sandbox และบันทึก gateway-test ไม่ใช้เงินจริง เมื่อปิด test flag หรือเปลี่ยนไป live จะไม่นับสิทธิ์และสถิติจาก test transaction ใน production
+
+ทดสอบ PromptPay โดยสร้าง QR ในเว็บ แล้วเข้า Omise Test Dashboard เลือกรายการ Charges → Actions → Mark as Successful/Failed ไม่สแกนจ่ายเงินจริง โหมดนี้ไม่อนุญาต live key เมื่อ test flag เปิดอยู่
