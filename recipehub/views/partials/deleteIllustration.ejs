@@ -1,0 +1,23 @@
+<div class="delete-art" aria-hidden="true">
+        <span class="delete-art-spark left"><i></i><i></i></span>
+        <svg class="delete-art-trash" viewBox="0 0 120 130">
+          <defs>
+            <linearGradient id="<%= idPrefix %>-body" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#FF8F62" />
+              <stop offset="1" stop-color="#FFD9C6" />
+            </linearGradient>
+            <linearGradient id="<%= idPrefix %>-lid" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#F26B2A" />
+              <stop offset="1" stop-color="#FF8F62" />
+            </linearGradient>
+          </defs>
+          <rect x="44" y="6" width="32" height="12" rx="6" fill="none" stroke="#F26B2A" stroke-width="6" />
+          <rect x="10" y="16" width="100" height="16" rx="8" fill="url(#<%= idPrefix %>-lid)" />
+          <path d="M18 38h84l-8 82a10 10 0 0 1-10 9H36a10 10 0 0 1-10-9z" fill="url(#<%= idPrefix %>-body)" />
+          <rect x="38" y="52" width="9" height="56" rx="4.5" fill="#F26B2A" opacity=".55" />
+          <rect x="56" y="52" width="9" height="56" rx="4.5" fill="#F26B2A" opacity=".55" />
+          <rect x="74" y="52" width="9" height="56" rx="4.5" fill="#F26B2A" opacity=".55" />
+        </svg>
+        <span class="delete-art-badge">!</span>
+        <span class="delete-art-spark right"><i></i><i></i></span>
+      </div>

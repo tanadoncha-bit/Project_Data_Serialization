@@ -1,3 +1,4 @@
+@import url("/stylesheets/delete-illustration.css");
 .recipe-site .footer {
   padding: 44px 32px 30px;
 }
@@ -810,41 +811,6 @@
   top: 16px;
   background: #f5f5f5;
   border-radius: 50%;
-}
-
-.recipe-delete-illustration {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 20px;
-  background: #fff1e7;
-  border-radius: 50%;
-  color: #ff7356;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.recipe-delete-illustration svg {
-  width: 68px;
-  height: 68px;
-  stroke-width: 1.6;
-}
-
-.recipe-delete-illustration>span {
-  position: absolute;
-  right: 8px;
-  bottom: 9px;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #ff6737;
-  color: white;
-  border: 3px solid white;
-  border-radius: 50%;
-  font-size: 20px;
 }
 
 .recipe-delete-dialog h2 {
